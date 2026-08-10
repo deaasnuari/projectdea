@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans text-gray-800 bg-white;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold;
+    line-height: 1.2;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 150ms ease;
+  }
+
+  ul, ol {
+    list-style: none;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    outline: none;
+    background: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto w-full max-w-[1200px] px-6;
+  }
+
+  .section-label {
+    @apply mb-2 text-sm font-semibold uppercase text-gold;
+    letter-spacing: 1.5px;
+  }
+
+  .section-title {
+    @apply font-heading text-3xl font-extrabold leading-tight text-navy;
+  }
+
+  .section-title span {
+    @apply text-primary;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300;
+  }
+
+  .btn-gold {
+    @apply bg-gold text-navy hover:-translate-y-0.5 hover:bg-gold-dark hover:shadow-[0_4px_16px_rgba(232,185,48,0.4)];
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_4px_16px_rgba(10,126,126,0.4)];
+  }
+
+  .btn-outline {
+    @apply border-2 border-white/40 bg-transparent text-white hover:-translate-y-0.5 hover:border-white hover:bg-white/10;
+  }
+
+  .btn-coral {
+    @apply bg-coral text-white hover:-translate-y-0.5 hover:bg-coral-dark hover:shadow-[0_4px_16px_rgba(231,76,60,0.4)];
+  }
+
+  .navbar-link {
+    @apply relative py-1 text-sm font-medium text-white/85 transition-colors duration-150 hover:text-white;
+  }
+
+  .navbar-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: theme('colors.gold.DEFAULT');
+    transition: width 250ms ease;
+  }
+
+  .navbar-link:hover::after {
+    width: 100%;
+  }
+}
