@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
-export default function Navbar() {
+// `solid` forces the dark bar to always show — for pages like /donatur/blog
+// that don't have a dark hero image behind the navbar at the top of the page,
+// where the default transparent-until-scrolled look would make the white
+// nav text unreadable.
+export default function Navbar({ solid = false }) {
+  const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -29,7 +35,9 @@ export default function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-[1000] py-4 transition-all duration-300 ${
-        isScrolled ? 'bg-navy-dark/95 py-2.5 shadow-[0_2px_20px_rgba(0,0,0,0.3)] backdrop-blur-md' : 'bg-transparent'
+        isScrolled || solid
+          ? 'bg-navy-dark/95 py-2.5 shadow-[0_2px_20px_rgba(0,0,0,0.3)] backdrop-blur-md'
+          : 'bg-transparent'
       }`}
     >
       <div className="container flex items-center justify-between">
@@ -48,42 +56,57 @@ export default function Navbar() {
             menuOpen ? 'max-[900px]:translate-x-0' : 'max-[900px]:translate-x-full'
           }`}
         >
-          <a href="#programs" className="navbar-link" onClick={closeMenu}>
+          <Link href="/donatur#programs" className="navbar-link" onClick={closeMenu}>
             Program Kami
-          </a>
-          <a href="#" className="navbar-link" onClick={closeMenu}>
+          </Link>
+          <Link
+            href="/donatur/blog"
+            className={
+              pathname === '/donatur/blog'
+                ? 'rounded-lg bg-primary-light px-3 py-1.5 text-sm font-bold text-white'
+                : 'navbar-link'
+            }
+            onClick={closeMenu}
+          >
             Blog
-          </a>
+          </Link>
           <a href="#" className="navbar-link" onClick={closeMenu}>
             Tentang Kami
           </a>
           <a href="#" className="navbar-link" onClick={closeMenu}>
             Daftar Program
           </a>
-          <a href="#zakat-calculator" className="navbar-link" onClick={closeMenu}>
+          <Link href="/donatur#zakat-calculator" className="navbar-link" onClick={closeMenu}>
             Kalkulator Zakat
-          </a>
-          <a href="#faq" className="navbar-link" onClick={closeMenu}>
+          </Link>
+          <Link href="/donatur#konsultasi" className="navbar-link" onClick={closeMenu}>
             Konsultasi
-          </a>
+          </Link>
           <div className="hidden items-center gap-5 max-[900px]:mt-4 max-[900px]:flex">
-            <a href="#" className="text-sm font-medium text-white/85 hover:text-white" onClick={closeMenu}>
+            <Link
+              href="/login"
+              className="btn btn-outline active:border-gold active:bg-gold active:text-navy"
+              onClick={closeMenu}
+            >
               Login
-            </a>
-            <a href="#" className="btn btn-gold" onClick={closeMenu}>
+            </Link>
+            <Link href="/register" className="btn btn-gold" onClick={closeMenu}>
               Register
-            </a>
+            </Link>
           </div>
         </nav>
 
         {/* Auth (desktop) */}
         <div className="flex items-center gap-5 max-[900px]:hidden">
-          <a href="#" className="text-sm font-medium text-white/85 hover:text-white">
+          <Link
+            href="/login"
+            className="btn btn-outline px-6 py-2.5 text-sm active:border-gold active:bg-gold active:text-navy"
+          >
             Login
-          </a>
-          <a href="#" className="btn btn-gold px-6 py-2.5 text-sm">
+          </Link>
+          <Link href="/register" className="btn btn-gold px-6 py-2.5 text-sm">
             Register
-          </a>
+          </Link>
         </div>
 
         {/* Hamburger */}

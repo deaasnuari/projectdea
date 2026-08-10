@@ -25,7 +25,7 @@ const PROGRAMS = [
   },
 ]
 
-export default function ProgramSection() {
+export default function ProgramKamiSection() {
   return (
     <section id="programs" className="bg-gray-50 py-24">
       <div className="container">

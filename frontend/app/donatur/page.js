@@ -1,7 +1,19 @@
-import { redirect } from 'next/navigation'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
+import HeroSection from './sections/HeroSection'
+import ProgramKamiSection from './sections/ProgramKamiSection'
+import ZakatCalculatorSection from './sections/ZakatCalculatorSection'
+import KonsultasiSection from './sections/KonsultasiSection'
 
-// Kept so any bookmarked/shared /donatur links still resolve — the landing
-// page itself now lives at the root route.
-export default function DonaturRedirect() {
-  redirect('/')
+export default function DonaturLandingPage() {
+  return (
+    <>
+      <Navbar />
+      <HeroSection />
+      <ProgramKamiSection />
+      <ZakatCalculatorSection />
+      <KonsultasiSection />
+      <Footer />
+    </>
+  )
 }

@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
@@ -54,24 +56,24 @@ export default function Footer() {
             <h4 className="mb-2 font-heading text-base font-bold text-white">Navigasi</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#top" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#top" className="text-sm text-white/60 hover:text-gold">
                   Beranda
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#programs" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#programs" className="text-sm text-white/60 hover:text-gold">
                   Program Kami
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#zakat-calculator" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#zakat-calculator" className="text-sm text-white/60 hover:text-gold">
                   Hitung Zakat
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#faq" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#konsultasi" className="text-sm text-white/60 hover:text-gold">
                   FAQ
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

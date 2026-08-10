@@ -24,6 +24,15 @@
     text-decoration: none;
     color: inherit;
     transition: color 150ms ease;
+    outline: none;
+  }
+
+  /* Browsers draw the default focus ring in the OS accent color (gold on
+     this machine), which reads as a stray yellow flash on click. Swap it
+     for our own brand-colored ring, shown only for keyboard focus. */
+  a:focus-visible {
+    outline: 2px solid theme('colors.primary.DEFAULT');
+    outline-offset: 2px;
   }
 
   ul, ol {

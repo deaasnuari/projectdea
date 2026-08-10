@@ -19,7 +19,7 @@ export const metadata = {
   title: 'Lazis PLN Batam',
   description: 'Aplikasi Lazis PLN Batam - Lembaga Amil Zakat, Infaq dan Shadaqah PLN Batam',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/favicon.png',
   },
 }
 

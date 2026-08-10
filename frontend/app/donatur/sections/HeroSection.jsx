@@ -83,8 +83,7 @@ export default function HeroSection() {
         {/* Content */}
         <div className="max-w-[650px] animate-fade-in-up">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[2px] text-gold">
-            LAZIS PLN BATAM &mdash; LEMBAGA ZAKAT, INFAQ &amp; SHADAQAH
-          </p>
+  Selamat datang di Lembaga Zakat dan Shadaqah PT PLN Batam          </p>
           <h1 className="mb-6 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
             Bergabunglah Bersama
             <br />

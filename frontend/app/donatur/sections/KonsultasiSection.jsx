@@ -21,14 +21,14 @@ const FAQS = [
   },
 ]
 
-export default function FaqSection() {
+export default function KonsultasiSection() {
   const [openIndex, setOpenIndex] = useState(0)
   const panelRefs = useRef([])
 
   const toggle = (i) => setOpenIndex((prev) => (prev === i ? -1 : i))
 
   return (
-    <section id="faq" className="bg-white py-24">
+    <section id="konsultasi" className="bg-white py-24">
       <div className="container grid grid-cols-[0.85fr_1.15fr] gap-12 max-[900px]:grid-cols-1">
         <div>
           <p className="section-label">Konsultasi</p>

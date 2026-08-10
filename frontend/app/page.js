@@ -1,19 +1,6 @@
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import HeroSection from '@/components/sections/HeroSection'
-import ProgramSection from '@/components/sections/ProgramSection'
-import ZakatCalculatorSection from '@/components/sections/ZakatCalculatorSection'
-import FaqSection from '@/components/sections/FaqSection'
+import { redirect } from 'next/navigation'
 
-export default function DonaturLandingPage() {
-  return (
-    <>
-      <Navbar />
-      <HeroSection />
-      <ProgramSection />
-      <ZakatCalculatorSection />
-      <FaqSection />
-      <Footer />
-    </>
-  )
+// Landing page content now lives at /donatur — root just forwards there.
+export default function RootRedirect() {
+  redirect('/donatur')
 }

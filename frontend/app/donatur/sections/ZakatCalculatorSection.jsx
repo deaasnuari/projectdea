@@ -132,7 +132,7 @@ export default function ZakatCalculatorSection() {
             </strong>
           </div>
 
-          <a href="#faq" className="btn btn-primary mt-6 w-full justify-center">
+          <a href="#konsultasi" className="btn btn-primary mt-6 w-full justify-center">
             Konsultasikan Perhitungan Ini
           </a>
         </div>
