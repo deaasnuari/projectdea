@@ -11,18 +11,20 @@ const STATS = [
 
 const FEATURES = [
   {
-    title: 'Lembaga Amil Zakat',
-    desc: 'Resmi terdaftar dan diakui sebagai lembaga amil zakat yang amanah dan profesional.',
+    title: 'Kalkulator Zakat',
+    desc: 'Menghitung jumlah zakat yang harus dibayarkan sesuai dengan ketentuan syariah.',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z" />
-        <circle cx="12" cy="10" r="3" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" />
+        <line x1="8" y1="6" x2="16" y2="6" />
+        <line x1="16" y1="14" x2="16" y2="18" />
+        <path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01" />
       </svg>
     ),
   },
   {
-    title: 'Donasi Mudah',
-    desc: 'Proses donasi yang mudah dan cepat untuk menyalurkan zakat, infaq, dan shadaqah Anda.',
+    title: 'Konsultasi',
+    desc: 'Layanan konsultasi zakat secara online. Tanya dan pahami lebih lanjut mengenai pentingnya zakat.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -32,8 +34,8 @@ const FEATURES = [
     ),
   },
   {
-    title: 'Transparan',
-    desc: 'Laporan penyaluran dana yang transparan dan dapat diakses oleh seluruh donatur.',
+    title: 'Program',
+    desc: 'Berbagai program zakat yang efektif dan transparan untuk membantu masyarakat yang membutuhkan.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -117,9 +119,9 @@ export default function HeroSection() {
           {FEATURES.map((f) => (
             <div
               key={f.title}
-              className="flex gap-4 rounded-xl border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+              className="group flex gap-4 rounded-xl border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
             >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gold/[0.15] text-gold [&>svg]:h-[22px] [&>svg]:w-[22px]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[22px] [&>svg]:w-[22px]">
                 {f.icon}
               </div>
               <div>

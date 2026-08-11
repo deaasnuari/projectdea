@@ -70,9 +70,17 @@ export default function Navbar({ solid = false }) {
           >
             Blog
           </Link>
-          <a href="#" className="navbar-link" onClick={closeMenu}>
+          <Link
+            href="/donatur/tentang-kami"
+            className={
+              pathname === '/donatur/tentang-kami'
+                ? 'rounded-lg bg-primary-light px-3 py-1.5 text-sm font-bold text-white'
+                : 'navbar-link'
+            }
+            onClick={closeMenu}
+          >
             Tentang Kami
-          </a>
+          </Link>
           <a href="#" className="navbar-link" onClick={closeMenu}>
             Daftar Program
           </a>
