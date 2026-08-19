@@ -14,15 +14,15 @@ const JENIS_DONASI = [
 const NOMINAL_PRESETS = [50000, 100000, 250000, 500000, 'lainnya', 1000000]
 
 const BANKS = [
-  { id: 'bsi', name: 'Bank Syariah Indonesia', short: 'BSI', va: '890052060000', badgeClass: 'bg-[#00754A]' },
-  { id: 'mandiri', name: 'Bank Mandiri', short: 'MDR', va: '889089829000', badgeClass: 'bg-[#003D79]' },
-  { id: 'bri', name: 'BRI', short: 'BRI', va: '002601099999509', badgeClass: 'bg-[#00529C]' },
+  { id: 'bsi', name: 'BSI (Bank Syariah Indonesia)', short: 'BSI', noRek: '7123 456 789', badgeClass: 'bg-[#00754A]' },
+  { id: 'mandiri', name: 'Bank Mandiri', short: 'MDR', noRek: '109 0001 23456', badgeClass: 'bg-[#003D79]' },
+  { id: 'bri', name: 'BRI', short: 'BRI', noRek: '0026 01 099999 50 9', badgeClass: 'bg-[#00529C]' },
 ]
 
 const STEPS = [
   { n: 1, label: 'Jenis Donasi' },
   { n: 2, label: 'Nominal & Data' },
-  { n: 3, label: 'Pilih Bank VA' },
+  { n: 3, label: 'Pilih Bank' },
 ]
 
 const BATAS_BAYAR_START = 23 * 3600 + 59 * 60 + 57 // 23:59:57
@@ -79,9 +79,9 @@ function BankBadge({ bank, size = 'md' }) {
   )
 }
 
-export default function DonationModal({ open, onClose }) {
+export default function DonationModal({ open, onClose, initialJenisId = null }) {
   const [step, setStep] = useState(1)
-  const [jenisId, setJenisId] = useState(null)
+  const [jenisId, setJenisId] = useState(initialJenisId)
 
   const [nominal, setNominal] = useState(100000)
   const [customNominal, setCustomNominal] = useState('')
@@ -98,11 +98,12 @@ export default function DonationModal({ open, onClose }) {
   const bank = BANKS.find((b) => b.id === bankId) || null
   const effectiveNominal = customNominal ? Number(customNominal) : nominal
 
-  // Reset the whole flow every time the modal is opened fresh.
+  // Reset the whole flow every time the modal is opened fresh. If a program
+  // card already told us which jenis donasi it is, skip straight to step 2.
   useEffect(() => {
     if (!open) return
-    setStep(1)
-    setJenisId(null)
+    setStep(initialJenisId ? 2 : 1)
+    setJenisId(initialJenisId)
     setNominal(100000)
     setCustomNominal('')
     setAnonim(false)
@@ -112,7 +113,7 @@ export default function DonationModal({ open, onClose }) {
     setBankId(null)
     setSecondsLeft(BATAS_BAYAR_START)
     setCopied(false)
-  }, [open])
+  }, [open, initialJenisId])
 
   // "Batas bayar" countdown, only while a bank VA is showing.
   useEffect(() => {
@@ -134,10 +135,10 @@ export default function DonationModal({ open, onClose }) {
   const canGoStep2 = Boolean(jenis)
   const canGoStep3 = effectiveNominal > 0 && (anonim || nama.trim().length > 0)
 
-  const copyVa = async () => {
+  const copyNoRek = async () => {
     if (!bank) return
     try {
-      await navigator.clipboard.writeText(bank.va)
+      await navigator.clipboard.writeText(bank.noRek)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
@@ -348,7 +349,7 @@ export default function DonationModal({ open, onClose }) {
 
         {step === 3 && !bank && (
           <div>
-            <h4 className="mb-1 pr-8 text-sm font-bold text-navy">Pilih Bank Virtual Account</h4>
+            <h4 className="mb-1 pr-8 text-sm font-bold text-navy">Pilih Bank Tujuan Transfer</h4>
             <p className="mb-6 text-xs text-gray-400">Total tagihan {formatRp(effectiveNominal)}</p>
             <div className="mb-6 flex flex-col gap-3">
               {BANKS.map((b) => (
@@ -361,7 +362,7 @@ export default function DonationModal({ open, onClose }) {
                   <BankBadge bank={b} />
                   <div className="flex-1">
                     <div className="text-sm font-bold text-navy">{b.name}</div>
-                    <div className="text-xs text-gray-400">Virtual Account</div>
+                    <div className="text-xs text-gray-400">Transfer Bank</div>
                   </div>
                   <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" className="text-gray-300">
                     <path
@@ -390,7 +391,7 @@ export default function DonationModal({ open, onClose }) {
                 <BankBadge bank={bank} />
                 <div>
                   <div className="text-sm font-bold text-navy">{bank.name}</div>
-                  <div className="text-xs text-gray-400">Virtual Account · LAZIS PLN Batam</div>
+                  <div className="text-xs text-gray-400">Rekening · LAZIS PLN Batam</div>
                 </div>
               </div>
               <div className="shrink-0 text-right">
@@ -411,23 +412,24 @@ export default function DonationModal({ open, onClose }) {
             </div>
 
             <div className="mb-5 rounded-xl border border-gray-200 p-4">
-              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">Nomor Virtual Account</div>
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">Nomor Rekening</div>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <BankBadge bank={bank} size="sm" />
                   <div>
-                    <div className="font-heading text-lg font-bold tracking-wide text-navy-dark">{bank.va}</div>
+                    <div className="font-heading text-lg font-bold tracking-wide text-navy-dark">{bank.noRek}</div>
                     <div className="text-xs text-gray-400">{bank.name}</div>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={copyVa}
+                  onClick={copyNoRek}
                   className="shrink-0 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-dark transition-colors hover:bg-primary/20"
                 >
                   {copied ? 'Disalin ✓' : 'Salin'}
                 </button>
               </div>
+              <p className="mt-3 text-xs text-gray-400">a.n. LAZIS PT PLN Batam</p>
             </div>
 
             <div className="mb-5 overflow-hidden rounded-xl bg-gray-50">
@@ -436,8 +438,8 @@ export default function DonationModal({ open, onClose }) {
               </div>
               <div className="flex flex-col gap-3 px-4 py-4">
                 {[
-                  'Pilih menu Transfer → Virtual Account',
-                  `Masukkan nomor VA: ${bank.va}`,
+                  'Pilih menu Transfer → Rekening Bank',
+                  `Masukkan nomor rekening: ${bank.noRek}`,
                   `Masukkan nominal: ${formatRp(effectiveNominal)}`,
                   'Konfirmasi dan selesaikan transaksi',
                 ].map((text, i) => (
@@ -486,8 +488,8 @@ export default function DonationModal({ open, onClose }) {
                 <strong className="text-navy-dark">{bank?.name}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-gray-500">No. VA</span>
-                <strong className="text-navy-dark">{bank?.va}</strong>
+                <span className="text-gray-500">No. Rekening</span>
+                <strong className="text-navy-dark">{bank?.noRek}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-gray-500">Status</span>

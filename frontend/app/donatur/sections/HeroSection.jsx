@@ -13,6 +13,7 @@ const FEATURES = [
   {
     title: 'Kalkulator Zakat',
     desc: 'Menghitung jumlah zakat yang harus dibayarkan sesuai dengan ketentuan syariah.',
+    href: '#zakat-calculator',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="4" y="2" width="16" height="20" rx="2" />
@@ -25,6 +26,7 @@ const FEATURES = [
   {
     title: 'Konsultasi',
     desc: 'Layanan konsultasi zakat secara online. Tanya dan pahami lebih lanjut mengenai pentingnya zakat.',
+    href: '#konsultasi',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -116,20 +118,24 @@ export default function HeroSection() {
           className="mb-12 grid animate-fade-in-up grid-cols-3 gap-6 opacity-0 max-[900px]:grid-cols-1"
           style={{ animationDelay: '0.3s' }}
         >
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="group flex gap-4 rounded-xl border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[22px] [&>svg]:w-[22px]">
-                {f.icon}
-              </div>
-              <div>
-                <h4 className="mb-1 text-sm font-bold text-white">{f.title}</h4>
-                <p className="text-xs leading-[1.5] text-white/60">{f.desc}</p>
-              </div>
-            </div>
-          ))}
+          {FEATURES.map((f) => {
+            const Tag = f.href ? 'a' : 'div'
+            return (
+              <Tag
+                key={f.title}
+                href={f.href}
+                className="group flex gap-4 rounded-xl border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[22px] [&>svg]:w-[22px]">
+                  {f.icon}
+                </div>
+                <div>
+                  <h4 className="mb-1 text-sm font-bold text-white">{f.title}</h4>
+                  <p className="text-xs leading-[1.5] text-white/60">{f.desc}</p>
+                </div>
+              </Tag>
+            )
+          })}
         </div>
 
         {/* Stats */}

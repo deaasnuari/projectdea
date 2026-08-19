@@ -81,15 +81,19 @@ export default function Navbar({ solid = false }) {
           >
             Tentang Kami
           </Link>
-          <a href="#" className="navbar-link" onClick={closeMenu}>
+          <Link
+            href="/donatur/program"
+            className={
+              pathname === '/donatur/program'
+                ? 'rounded-lg bg-primary-light px-3 py-1.5 text-sm font-bold text-white'
+                : 'navbar-link'
+            }
+            onClick={closeMenu}
+          >
             Daftar Program
-          </a>
-          <Link href="/donatur#zakat-calculator" className="navbar-link" onClick={closeMenu}>
-            Kalkulator Zakat
           </Link>
-          <Link href="/donatur#konsultasi" className="navbar-link" onClick={closeMenu}>
-            Konsultasi
-          </Link>
+          
+          
           <div className="hidden items-center gap-5 max-[900px]:mt-4 max-[900px]:flex">
             <Link
               href="/login"
