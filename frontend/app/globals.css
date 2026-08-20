@@ -18,6 +18,7 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading font-bold;
     line-height: 1.2;
+    letter-spacing: -0.015em;
   }
 
   a {
@@ -64,16 +65,45 @@
   }
 
   .section-label {
-    @apply mb-2 text-sm font-semibold uppercase text-gold;
+    @apply mb-3 flex items-center gap-2.5 text-sm font-semibold uppercase text-gold;
     letter-spacing: 1.5px;
   }
 
-  .section-title {
-    @apply font-heading text-3xl font-extrabold leading-tight text-navy;
+  /* Editorial kicker rule — a short line ahead of the label instead of the
+     label sitting alone, borrowed from print mastheads rather than the
+     usual "small caps floating above a heading" template convention. */
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 2px;
+    background: theme('colors.gold.DEFAULT');
+    flex-shrink: 0;
   }
 
+  .section-title {
+    @apply font-heading text-4xl font-semibold leading-[1.15] text-navy;
+  }
+
+  /* The accent word carries the italic, not the whole heading — an echo of
+     a pull-quote rather than a wholesale italic display face. */
   .section-title span {
-    @apply text-primary;
+    @apply italic text-primary;
+  }
+
+  /* Shared card shape for content tiles (program, blog, video previews).
+     One crisp corner and one deep curve instead of a uniform rounded
+     rectangle, plus a navy-tinted shadow instead of flat gray — the pairing
+     that makes a card feel drawn for this brand rather than pulled from a
+     component library default. */
+  .card {
+    @apply overflow-hidden rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white transition-all duration-300;
+    box-shadow: 0 18px 34px -22px rgba(6, 30, 40, 0.5);
+  }
+
+  .card:hover {
+    @apply -translate-y-1.5;
+    box-shadow: 0 26px 46px -20px rgba(6, 30, 40, 0.55);
   }
 
   .btn {
@@ -97,7 +127,7 @@
   }
 
   .navbar-link {
-    @apply relative py-1 text-sm font-medium text-white/85 transition-colors duration-150 hover:text-white;
+    @apply relative py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white/85 transition-colors duration-150 hover:text-white;
   }
 
   .navbar-link::after {
@@ -113,5 +143,22 @@
 
   .navbar-link:hover::after {
     width: 100%;
+  }
+
+  /* Current-page state — a standing underline in the same gold as the hover
+     sweep, not a filled chip. Keeps every nav item reading as text on the
+     same plane instead of some being buttons and some being links. */
+  .navbar-link-active {
+    @apply relative py-1 text-xs font-semibold uppercase tracking-[0.08em] text-gold;
+  }
+
+  .navbar-link-active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background: theme('colors.gold.DEFAULT');
   }
 }

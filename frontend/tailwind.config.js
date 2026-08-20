@@ -41,7 +41,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        heading: ['var(--font-poppins)', 'var(--font-inter)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'Georgia', 'serif'],
       },
       keyframes: {
         fadeInUp: {
@@ -52,10 +52,15 @@ module.exports = {
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
+        popIn: {
+          '0%': { opacity: '0', transform: 'translate(-50%, -6px) scale(0.85)' },
+          '100%': { opacity: '1', transform: 'translate(-50%, 0) scale(1)' },
+        },
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.6s ease forwards',
         'fade-in': 'fadeIn 0.6s ease forwards',
+        'pop-in': 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
     },
   },

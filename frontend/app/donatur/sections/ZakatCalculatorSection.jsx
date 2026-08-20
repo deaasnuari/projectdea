@@ -52,7 +52,7 @@ export default function ZakatCalculatorSection() {
         </div>
 
         {/* Right: form card */}
-        <div className="rounded-2xl bg-white px-6 py-8 text-gray-800 shadow-xl max-[900px]:px-6 sm:px-10">
+        <div className="rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white px-6 py-8 text-gray-800 shadow-xl max-[900px]:px-6 sm:px-10">
           <h3 className="mb-6 font-heading text-xl font-bold text-navy">Data Penghasilan &amp; Harta</h3>
 
           <div className="mb-6">

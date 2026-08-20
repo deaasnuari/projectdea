@@ -4,19 +4,22 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-navy-dark pt-8 text-white/70">
+    <footer className="relative bg-navy-dark pt-16 text-white/70">
+      {/* Brand seam — mirrors the hairline under the solid navbar */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+
       <div className="container">
-        <div className="grid grid-cols-[1.5fr_1fr_1fr_1.3fr] gap-6 max-[768px]:grid-cols-2 max-[768px]:gap-8 max-[480px]:grid-cols-1">
+        <div className="grid grid-cols-[1.4fr_1fr_1fr_1.3fr] gap-10 pb-12 max-[768px]:grid-cols-2 max-[768px]:gap-10 max-[480px]:grid-cols-1">
           {/* Brand */}
           <div className="max-[768px]:col-span-full">
-            <div className="mb-2">
+            <div className="mb-4">
               <img
                 src="/images/logo lazis pln.png"
                 alt="Lazis PLN Batam"
-                className="h-7 w-auto rounded bg-white px-[0.55rem] py-[0.3rem]"
+                className="h-8 w-auto rounded-md bg-white px-[0.6rem] py-[0.35rem]"
               />
             </div>
-            <p className="mb-2 max-w-[280px] text-sm leading-[1.55]">
+            <p className="mb-5 max-w-[280px] text-sm leading-[1.7] text-white/60">
               Lembaga Amil Zakat, Infaq dan Shadaqah PLN Batam. Menyalurkan kebaikan untuk kesejahteraan
               masyarakat.
             </p>
@@ -53,25 +56,27 @@ export default function Footer() {
 
           {/* Navigation Links */}
           <div>
-            <h4 className="mb-2 font-heading text-base font-bold text-white">Navigasi</h4>
-            <ul className="space-y-2">
+            <h4 className="mb-5 font-heading text-base font-bold text-white after:mt-2.5 after:block after:h-0.5 after:w-6 after:rounded-full after:bg-gold/70">
+              Navigasi
+            </h4>
+            <ul className="space-y-3">
               <li>
-                <Link href="/donatur#top" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#top" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Beranda
                 </Link>
               </li>
               <li>
-                <Link href="/donatur#programs" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#programs" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Program Kami
                 </Link>
               </li>
               <li>
-                <Link href="/donatur#zakat-calculator" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#zakat-calculator" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Hitung Zakat
                 </Link>
               </li>
               <li>
-                <Link href="/donatur#konsultasi" className="text-sm text-white/60 hover:text-gold">
+                <Link href="/donatur#konsultasi" className="text-sm text-white/60 transition-colors hover:text-gold">
                   FAQ
                 </Link>
               </li>
@@ -80,25 +85,27 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="mb-2 font-heading text-base font-bold text-white">Layanan</h4>
-            <ul className="space-y-2">
+            <h4 className="mb-5 font-heading text-base font-bold text-white after:mt-2.5 after:block after:h-0.5 after:w-6 after:rounded-full after:bg-gold/70">
+              Layanan
+            </h4>
+            <ul className="space-y-3">
               <li>
-                <a href="#" className="text-sm text-white/60 hover:text-gold">
+                <a href="#" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Zakat Penghasilan
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-white/60 hover:text-gold">
+                <a href="#" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Zakat Fitrah
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-white/60 hover:text-gold">
+                <a href="#" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Infaq
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-white/60 hover:text-gold">
+                <a href="#" className="text-sm text-white/60 transition-colors hover:text-gold">
                   Shadaqah
                 </a>
               </li>
@@ -107,33 +114,50 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="mb-2 font-heading text-base font-bold text-white">Kontak</h4>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" className="mt-0.5 shrink-0 text-primary">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-                <span className="text-sm">Jl. PLN Batam, Kepulauan Riau, Indonesia</span>
+            <h4 className="mb-5 font-heading text-base font-bold text-white after:mt-2.5 after:block after:h-0.5 after:w-6 after:rounded-full after:bg-gold/70">
+              Kontak
+            </h4>
+            <ul className="space-y-3.5">
+              <li className="flex items-start gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-primary-light">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                  </svg>
+                </span>
+                <span className="pt-1 text-sm leading-[1.6] text-white/60">Jl. PLN Batam, Kepulauan Riau, Indonesia</span>
               </li>
-              <li className="flex items-start gap-2">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" className="mt-0.5 shrink-0 text-primary">
-                  <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                </svg>
-                <span className="text-sm">(0778) 123-456</span>
+              <li className="flex items-start gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-primary-light">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                  </svg>
+                </span>
+                <span className="pt-1 text-sm leading-[1.6] text-white/60">(0778) 123-456</span>
               </li>
-              <li className="flex items-start gap-2">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" className="mt-0.5 shrink-0 text-primary">
-                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                </svg>
-                <span className="text-sm">lazis@plnbatam.co.id</span>
+              <li className="flex items-start gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-primary-light">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                  </svg>
+                </span>
+                <span className="pt-1 text-sm leading-[1.6] text-white/60">lazis@plnbatam.co.id</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-4 border-t border-white/[0.08] py-2 text-center text-sm">
-          <p>&copy; {currentYear} Lazis PLN Batam. All rights reserved.</p>
+        <div className="flex flex-col items-center gap-3 border-t border-white/[0.08] py-6 text-xs text-white/45 sm:flex-row sm:justify-between">
+          <p>&copy; {currentYear} Lazis PLN Batam. Seluruh hak cipta dilindungi.</p>
+          <a
+            href="#top"
+            className="flex items-center gap-1.5 font-medium text-white/45 transition-colors hover:text-gold"
+          >
+            Kembali ke atas
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="12" height="12">
+              <path d="M10 15V5M4 9l6-6 6 6" />
+            </svg>
+          </a>
         </div>
       </div>
     </footer>

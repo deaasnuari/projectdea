@@ -92,7 +92,7 @@ export default function ProgramListSection() {
   const [donationJenis, setDonationJenis] = useState(null)
 
   return (
-    <section className="bg-primary/5 py-24 pt-32">
+    <section className="bg-gray-50 py-24 pt-32">
       <div className="container">
         <div className="mx-auto mb-16 max-w-[640px] text-center">
           <p className="section-label">Daftar Program</p>
@@ -109,7 +109,7 @@ export default function ProgramListSection() {
             return (
               <div
                 key={p.id}
-                className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1.5 hover:shadow-xl"
+                className="card"
               >
                 <div className={`relative flex h-40 items-center justify-center ${p.blockBg}`}>
                   <span

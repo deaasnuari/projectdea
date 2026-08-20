@@ -81,13 +81,30 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0">
         <img src="/images/hero-bg.png" alt="Masjid" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(10,46,60,0.92)] via-[rgba(10,126,126,0.75)] to-[rgba(10,46,60,0.85)]" />
+        {/* Faint eight-point star lattice — a nod to Islamic geometric ornament
+            rather than a generic gradient blob, kept subtle so it reads as
+            texture, not decoration. */}
+        <svg className="absolute inset-0 h-full w-full opacity-[0.07]" aria-hidden="true">
+          <defs>
+            <pattern id="hero-lattice" width="72" height="72" patternUnits="userSpaceOnUse">
+              <path
+                d="M36 2 L44 20 L64 12 L52 30 L70 36 L52 42 L64 60 L44 52 L36 70 L28 52 L8 60 L20 42 L2 36 L20 30 L8 12 L28 20 Z"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="1"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-lattice)" />
+        </svg>
       </div>
 
       <div className="container relative z-[1] pt-[120px] max-[600px]:pt-[100px]">
         {/* Content */}
         <div className="max-w-[650px] animate-fade-in-up">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[2px] text-gold">
-  Selamat datang di Lembaga Zakat dan Shadaqah PT PLN Batam          </p>
+          <p className="section-label !mb-4 !text-gold">
+            Selamat datang di Lembaga Zakat dan Shadaqah PT PLN Batam
+          </p>
           <h1 className="mb-6 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
             Bergabunglah Bersama
             <br />
@@ -105,9 +122,16 @@ export default function HeroSection() {
               Tunaikan Zakat
             </a>
             <a href="#programs" className="btn btn-primary">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+                <circle cx="10" cy="10" r="7.5" />
+                <path d="M12.6 7.4l-1.8 3.8-3.8 1.8 1.8-3.8 3.8-1.8z" />
+              </svg>
               Jelajahi Kami
             </a>
             <a href="#" className="btn btn-outline">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+                <path d="M10 16.8s-5.6-3.5-5.6-7.6C4.4 6.9 6 5.2 8 5.2c.9 0 1.7.5 2 1.2.3-.7 1.1-1.2 2-1.2 2 0 3.6 1.7 3.6 4 0 4.1-5.6 7.6-5.6 7.6z" />
+              </svg>
               Infaq / Shodaqoh
             </a>
           </div>
@@ -124,13 +148,13 @@ export default function HeroSection() {
               <Tag
                 key={f.title}
                 href={f.href}
-                className="group flex gap-4 rounded-xl border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+                className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[22px] [&>svg]:w-[22px]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[20px] [&>svg]:w-[20px]">
                   {f.icon}
                 </div>
                 <div>
-                  <h4 className="mb-1 text-sm font-bold text-white">{f.title}</h4>
+                  <h4 className="mb-1 font-heading text-base font-semibold text-white">{f.title}</h4>
                   <p className="text-xs leading-[1.5] text-white/60">{f.desc}</p>
                 </div>
               </Tag>
@@ -144,7 +168,13 @@ export default function HeroSection() {
           style={{ animationDelay: '0.6s' }}
         >
           {STATS.map((stat, i) => (
-            <div key={stat.label} className="text-center">
+            <div
+              key={stat.label}
+              className={`text-center max-[900px]:border-white/0 ${
+                i > 0 ? 'border-l border-white/10 max-[900px]:border-l-0' : ''
+              }`}
+            >
+              <span className="mx-auto mb-2.5 block h-0.5 w-5 rounded-full bg-gold/70" />
               <span className="mb-1 block font-heading text-3xl font-extrabold text-white max-[600px]:text-xl">
                 {displays[i]}
               </span>

@@ -20,7 +20,7 @@ export default function AboutSection() {
   const [donationOpen, setDonationOpen] = useState(false)
 
   return (
-    <section className="bg-primary/5 py-24 pt-32">
+    <section className="bg-gray-50 py-24 pt-32">
       <div className="container grid grid-cols-[1.1fr_0.9fr] items-start gap-12 max-[900px]:grid-cols-1">
         {/* Left: intro */}
         <div>

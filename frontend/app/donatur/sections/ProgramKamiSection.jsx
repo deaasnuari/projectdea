@@ -50,7 +50,7 @@ export default function ProgramKamiSection() {
           {PROGRAMS.map((program, i) => (
             <div
               key={program.title}
-              className="group animate-fade-in-up overflow-hidden rounded-2xl bg-white opacity-0 shadow-sm transition-all hover:-translate-y-1.5 hover:shadow-xl"
+              className="card group animate-fade-in-up opacity-0"
               style={{ animationDelay: `${i * 0.15}s` }}
             >
               <div className="relative aspect-video overflow-hidden">

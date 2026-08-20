@@ -43,7 +43,7 @@ export default function KonsultasiSection() {
 
           <div className="max-w-[380px] border-t border-gray-200 pt-6">
             <div className="mb-4 flex items-start gap-4 text-sm text-gray-600">
-              <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="17" height="17">
                   <path d="M4 5h4l2 5-2.5 1.5a11 11 0 005 5L14 14l5 2v4a2 2 0 01-2 2A16 16 0 014 6a2 2 0 012-2z" />
                 </svg>
@@ -51,7 +51,7 @@ export default function KonsultasiSection() {
               <span>(0778) 469 100 ext. 1234</span>
             </div>
             <div className="mb-4 flex items-start gap-4 text-sm text-gray-600">
-              <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="17" height="17">
                   <path d="M4 4h16v16H4z" />
                   <path d="M4 6l8 7 8-7" />
@@ -60,7 +60,7 @@ export default function KonsultasiSection() {
               <span>lazis@plnbatam.com</span>
             </div>
             <div className="mb-4 flex items-start gap-4 text-sm text-gray-600">
-              <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="17" height="17">
                   <path d="M12 21s-7-5.6-7-11a7 7 0 0114 0c0 5.4-7 11-7 11z" />
                   <circle cx="12" cy="10" r="2.4" />
@@ -78,18 +78,25 @@ export default function KonsultasiSection() {
               <div key={item.q} className="border-b border-gray-200">
                 <button
                   onClick={() => toggle(i)}
-                  className="flex w-full items-center justify-between gap-6 py-6 text-left font-heading text-base font-semibold text-navy"
+                  className="flex w-full items-center justify-between gap-6 py-6 text-left font-heading text-lg font-semibold text-navy"
                 >
                   <span>{item.q}</span>
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className={`h-5 w-5 shrink-0 text-primary transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
+                      isOpen ? 'border-primary bg-primary text-white' : 'border-gray-200 text-primary'
+                    }`}
                   >
-                    <path d="M5 7.5l5 5 5-5" />
-                  </svg>
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      className={`h-3.5 w-3.5 transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
+                    >
+                      <path d="M10 4v12M4 10h12" />
+                    </svg>
+                  </span>
                 </button>
                 <div
                   className="overflow-hidden transition-[max-height] duration-300"
