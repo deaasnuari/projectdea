@@ -9,7 +9,7 @@ export const metadata = {
 export default function TentangKamiPage() {
   return (
     <>
-      <Navbar solid />
+      <Navbar />
       <AboutSection />
       <Footer />
     </>

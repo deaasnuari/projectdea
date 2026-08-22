@@ -1,7 +1,7 @@
 export const POSTS = [
   {
     slug: 'fiqih-zakat-dasar-hukum-dan-jenisnya',
-    image: '/images/program-1.png',
+    image: '/images/1.jpeg',
     badge: 'Kursus Zakat',
     date: '12 Jan 2025',
     readTime: '5 menit baca',
@@ -17,7 +17,7 @@ export const POSTS = [
   },
   {
     slug: 'penyaluran-zakat-triwulan-iv-2024-pln-batam',
-    image: '/images/program-2.png',
+    image: '/images/2.jpg',
     badge: 'Blog',
     date: '5 Jan 2025',
     readTime: '4 menit baca',

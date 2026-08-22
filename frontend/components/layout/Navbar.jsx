@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-// A small "you are here" tag that pops up under the current page's link,
-// rather than a plain permanent underline — it remounts (and re-plays its
-// pop-in) each time the active route changes.
+//ini fungsi untuk menampilkan tag "Sedang dibuka" di navbar ketika user berada di halaman blog, tentang kami, dan daftar program
 function ActiveTag() {
   return (
     <span className="pointer-events-none absolute left-1/2 top-[calc(100%+10px)] animate-pop-in whitespace-nowrap rounded-md bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-navy shadow-[0_6px_16px_rgba(0,0,0,0.3)]">
@@ -16,10 +14,7 @@ function ActiveTag() {
   )
 }
 
-// `solid` forces the dark bar to always show — for pages like /donatur/blog
-// that don't have a dark hero image behind the navbar at the top of the page,
-// where the default transparent-until-scrolled look would make the white
-// nav text unreadable.
+//ini fungsi untuk menampilkan navbar di halaman donatur
 export default function Navbar({ solid = false }) {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
@@ -31,10 +26,8 @@ export default function Navbar({ solid = false }) {
     const handleScroll = () => {
       const currentY = window.scrollY
       setIsScrolled(currentY > 50)
-      // Slide away once the user is scrolling down past the hero, so the
-      // pill never sits on top of the text it's covering; any upward scroll
-      // brings it straight back, even by a pixel.
-      setHidden(currentY > lastScrollY.current && currentY > 160)
+      //ini untuk menyembunyikan navbar ketika scroll ke bawah dan menampilkan ketika scroll ke atas
+      setHidden(currentY > lastScrollY.current && currentY > 24)
       lastScrollY.current = currentY
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -117,7 +110,7 @@ export default function Navbar({ solid = false }) {
         <div className="flex items-center gap-5 max-[900px]:hidden">
           <Link
             href="/login"
-            className="btn btn-outline px-6 py-2.5 text-sm active:border-gold active:bg-gold active:text-navy"
+            className="btn btn-outline px-6 py-2.5 text-sm hover:translate-y-0 active:border-gold active:bg-gold active:text-navy"
           >
             Login
           </Link>
@@ -148,11 +141,7 @@ export default function Navbar({ solid = false }) {
         </button>
       </div>
 
-      {/* Mobile menu overlay — kept as a sibling of the pill rather than
-          nested inside it. The pill's backdrop-blur establishes a new
-          containing block for `position: fixed` descendants, which would
-          otherwise trap this full-screen panel inside the pill's own small
-          box instead of covering the viewport. */}
+      {/*ini adalah menu navigasi untuk versi mobile, yang akan muncul ketika tombol hamburger diklik*/}
       <nav
         id="mobile-nav"
         className={`fixed inset-0 z-[1000] hidden flex-col items-center justify-center gap-6 bg-navy-dark/[0.98] backdrop-blur-lg transition-transform duration-400 max-[900px]:flex ${
@@ -187,7 +176,7 @@ export default function Navbar({ solid = false }) {
         <div className="mt-4 flex items-center gap-5">
           <Link
             href="/login"
-            className="btn btn-outline active:border-gold active:bg-gold active:text-navy"
+            className="btn btn-outline hover:translate-y-0 active:border-gold active:bg-gold active:text-navy"
             onClick={closeMenu}
           >
             Login

@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 
 const JENIS_DONASI = [
-  { id: 'zakat-profesi', label: 'Zakat Profesi', programLabel: 'Zakat Profesi Karyawan', icon: '⚡' },
-  { id: 'zakat-maal', label: 'Zakat Maal', programLabel: 'Zakat Maal', icon: '🏦' },
-  { id: 'infaq', label: 'Infaq', programLabel: 'Infaq', icon: '📖' },
-  { id: 'shadaqah', label: 'Shadaqah', programLabel: 'Shadaqah', icon: '🤲' },
-  { id: 'fidyah', label: 'Fidyah', programLabel: 'Fidyah', icon: '🌙' },
-  { id: 'wakaf', label: 'Wakaf', programLabel: 'Wakaf', icon: '🕌' },
+  { id: 'zakat-profesi', label: 'Zakat Profesi', programLabel: 'Zakat Profesi Karyawan' },
+  { id: 'zakat-maal', label: 'Zakat Maal', programLabel: 'Zakat Maal' },
+  { id: 'infaq', label: 'Infaq', programLabel: 'Infaq' },
+  { id: 'shadaqah', label: 'Shadaqah', programLabel: 'Shadaqah' },
+  { id: 'fidyah', label: 'Fidyah', programLabel: 'Fidyah' },
+  { id: 'wakaf', label: 'Wakaf', programLabel: 'Wakaf' },
 ]
 
 const NOMINAL_PRESETS = [50000, 100000, 250000, 500000, 'lainnya', 1000000]
@@ -40,6 +40,104 @@ function formatCountdown(totalSeconds) {
   return `${pad(h)}:${pad(m)}:${pad(sec)}`
 }
 
+// One-line icon set for the jenis-donasi grid, drawn in the same
+// stroke weight as the rest of the site's iconography rather than
+// leaning on emoji — keeps the modal feeling like part of the brand
+// instead of a bolted-on widget.
+function JenisIcon({ id, className }) {
+  const common = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    width: 22,
+    height: 22,
+    className,
+  }
+  switch (id) {
+    case 'zakat-profesi':
+      return (
+        <svg {...common}>
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+        </svg>
+      )
+    case 'zakat-maal':
+      return (
+        <svg {...common}>
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+        </svg>
+      )
+    case 'infaq':
+      return (
+        <svg {...common}>
+          <polyline points="20 12 20 22 4 22 4 12" />
+          <rect x="2" y="7" width="20" height="5" />
+          <line x1="12" y1="22" x2="12" y2="7" />
+          <path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" />
+          <path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" />
+        </svg>
+      )
+    case 'shadaqah':
+      return (
+        <svg {...common}>
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+        </svg>
+      )
+    case 'fidyah':
+      return (
+        <svg {...common}>
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+      )
+    case 'wakaf':
+      return (
+        <svg {...common}>
+          <path d="M3 9l9-7 9 7" />
+          <path d="M9 22V12h6v10" />
+          <path d="M21 22V9" />
+        </svg>
+      )
+    default:
+      return null
+  }
+}
+
+function CheckIcon({ className, width = 12, height = 12 }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={width}
+      height={height}
+      className={className}
+    >
+      <path d="M5 13l4 4L19 7" />
+    </svg>
+  )
+}
+
+// Same chevron used for the blog's "Baca" links — reused here so every
+// "next" affordance on the site reads as the same gesture.
+function ArrowIcon({ className }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" className={className}>
+      <path
+        fillRule="evenodd"
+        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+        clipRule="evenodd"
+      />
+    </svg>
+  )
+}
+
 function StepIndicator({ step }) {
   return (
     <div className="mb-6 flex items-start">
@@ -47,11 +145,11 @@ function StepIndicator({ step }) {
         <div key={s.n} className={`flex items-center ${i < STEPS.length - 1 ? 'flex-1' : ''}`}>
           <div className="flex flex-col items-center gap-1.5">
             <span
-              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
                 step > s.n ? 'bg-navy text-white' : step === s.n ? 'bg-gold text-navy' : 'bg-gray-100 text-gray-400'
               }`}
             >
-              {step > s.n ? '✓' : s.n}
+              {step > s.n ? <CheckIcon /> : s.n}
             </span>
             <span
               className={`whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.5px] ${
@@ -62,7 +160,7 @@ function StepIndicator({ step }) {
             </span>
           </div>
           {i < STEPS.length - 1 && (
-            <div className={`mx-2 mb-4 h-px flex-1 ${step > s.n ? 'bg-navy' : 'bg-gray-200'}`} />
+            <div className={`mx-2 mb-4 h-px flex-1 transition-colors ${step > s.n ? 'bg-navy' : 'bg-gray-200'}`} />
           )}
         </div>
       ))}
@@ -148,30 +246,33 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
 
   return (
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-navy-dark/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
+      {/* Same crisp-corner / deep-curve shape as the site's cards, scaled
+          up for a modal — keeps this feeling drawn for the brand instead
+          of a generic dialog dropped on top of it. */}
       <div
-        className="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+        className="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white p-6 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          className="absolute right-5 top-5 text-gray-400 transition-colors hover:text-gray-600"
+          className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-            <path d="M6 6l12 12M18 6L6 18" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+            <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         </button>
 
         {(step === 1 || step === 2) && (
           <>
             <div className="mb-6 flex items-center gap-3 pr-8">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xl text-primary-dark">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-dark">
                 {jenis ? (
-                  jenis.icon
+                  <JenisIcon id={jenis.id} />
                 ) : (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                     <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -211,7 +312,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                         : 'border-gray-200 text-navy hover:border-primary/40 hover:bg-primary/5'
                     }`}
                   >
-                    <span className="text-2xl">{item.icon}</span>
+                    <JenisIcon id={item.id} className={active ? 'text-gold' : 'text-primary'} />
                     <span className="text-xs font-bold">{item.label}</span>
                   </button>
                 )
@@ -222,9 +323,10 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 type="button"
                 disabled={!canGoStep2}
                 onClick={() => setStep(2)}
-                className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
-                Lanjut →
+                Lanjut
+                <ArrowIcon />
               </button>
             </div>
           </div>
@@ -270,7 +372,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 )
               )}
             </div>
-            <div className="mb-2 flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 focus-within:border-primary">
+            <div className="mb-2 flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 transition-colors focus-within:border-primary focus-within:bg-white">
               <span className="text-sm font-semibold text-gray-500">Rp</span>
               <input
                 id="nominal-lain-input"
@@ -279,7 +381,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 placeholder="Nominal lain"
                 value={customNominal}
                 onChange={(e) => setCustomNominal(e.target.value)}
-                className="flex-1 text-sm font-semibold text-gray-800"
+                className="flex-1 bg-transparent text-sm font-semibold text-gray-800 outline-none"
               />
             </div>
             <p className="mb-6 text-center text-xs text-gray-500">
@@ -305,7 +407,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 placeholder={anonim ? 'Hamba Allah' : 'Nama lengkap'}
                 value={anonim ? '' : nama}
                 onChange={(e) => setNama(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 transition-colors focus:border-primary disabled:opacity-50"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white disabled:opacity-50"
               />
             </div>
             <div className="mb-3">
@@ -314,7 +416,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 placeholder="NIK karyawan (opsional)"
                 value={nik}
                 onChange={(e) => setNik(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 transition-colors focus:border-primary"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white"
               />
             </div>
             <div className="mb-6">
@@ -323,7 +425,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 placeholder="Niat / catatan donasi (opsional)"
                 value={niat}
                 onChange={(e) => setNiat(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 transition-colors focus:border-primary"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white"
               />
             </div>
 
@@ -331,17 +433,19 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-500 transition-all hover:border-gray-300 hover:bg-gray-50"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-500 transition-all hover:border-gray-300 hover:bg-gray-50"
               >
-                ← Kembali
+                <ArrowIcon className="rotate-180" />
+                Kembali
               </button>
               <button
                 type="button"
                 disabled={!canGoStep3}
                 onClick={() => setStep(3)}
-                className="flex-[1.4] rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex flex-[1.4] items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
-                Pilih Bank Pembayaran →
+                Pilih Bank Pembayaran
+                <ArrowIcon />
               </button>
             </div>
           </div>
@@ -364,22 +468,17 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                     <div className="text-sm font-bold text-navy">{b.name}</div>
                     <div className="text-xs text-gray-400">Transfer Bank</div>
                   </div>
-                  <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" className="text-gray-300">
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ArrowIcon className="text-gray-300" />
                 </button>
               ))}
             </div>
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="w-full rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-500 transition-all hover:border-gray-300 hover:bg-gray-50"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-500 transition-all hover:border-gray-300 hover:bg-gray-50"
             >
-              ← Kembali
+              <ArrowIcon className="rotate-180" />
+              Kembali
             </button>
           </div>
         )}
@@ -424,9 +523,16 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                 <button
                   type="button"
                   onClick={copyNoRek}
-                  className="shrink-0 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-dark transition-colors hover:bg-primary/20"
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-dark transition-colors hover:bg-primary/20"
                 >
-                  {copied ? 'Disalin ✓' : 'Salin'}
+                  {copied ? (
+                    <>
+                      <CheckIcon width={12} height={12} />
+                      Disalin
+                    </>
+                  ) : (
+                    'Salin'
+                  )}
                 </button>
               </div>
               <p className="mt-3 text-xs text-gray-400">a.n. LAZIS PT PLN Batam</p>
@@ -438,7 +544,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
               </div>
               <div className="flex flex-col gap-3 px-4 py-4">
                 {[
-                  'Pilih menu Transfer → Rekening Bank',
+                  'Pilih menu Transfer, lalu pilih Rekening Bank',
                   `Masukkan nomor rekening: ${bank.noRek}`,
                   `Masukkan nominal: ${formatRp(effectiveNominal)}`,
                   'Konfirmasi dan selesaikan transaksi',
@@ -456,9 +562,10 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
             <button
               type="button"
               onClick={() => setBankId(null)}
-              className="w-full text-center text-xs font-semibold text-gray-400 transition-colors hover:text-primary"
+              className="flex w-full items-center justify-center gap-1.5 text-center text-xs font-semibold text-gray-400 transition-colors hover:text-primary"
             >
-              ← Ganti Bank
+              <ArrowIcon className="rotate-180" />
+              Ganti Bank
             </button>
           </div>
         )}
@@ -466,9 +573,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
         {step === 4 && (
           <div className="pr-8">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="30" height="30" className="text-primary">
-                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <CheckIcon className="text-primary" width={30} height={30} />
             </div>
             <h3 className="mb-1 text-center font-heading text-2xl font-extrabold text-primary-dark">Donasi Diterima!</h3>
             <p className="mb-1 text-center text-sm text-gray-500">Pembayaran Anda telah berhasil dikonfirmasi.</p>
@@ -493,12 +598,15 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-gray-500">Status</span>
-                <strong className="text-primary-dark">✅ Lunas</strong>
+                <strong className="inline-flex items-center gap-1.5 text-primary-dark">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Lunas
+                </strong>
               </div>
             </div>
 
             <p className="mb-6 text-center text-sm leading-relaxed text-gray-500">
-              Jazakallahu khairan atas kebaikan Anda 🤝
+              Jazakallahu khairan atas kebaikan Anda.
               <br />
               Semoga menjadi amal jariyah yang berkah.
             </p>
@@ -506,7 +614,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
             <button
               type="button"
               onClick={onClose}
-              className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:bg-primary-dark"
+              className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)]"
             >
               Selesai
             </button>

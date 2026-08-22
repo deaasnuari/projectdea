@@ -102,7 +102,19 @@ export default async function BlogDetailPage({ params }) {
                         <h3 className="font-heading text-base font-bold leading-snug text-navy group-hover:text-primary">
                           {p.title}
                         </h3>
-                        <span className="mt-2 block text-xs text-gray-500">{p.date}</span>
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-xs text-gray-500">{p.date}</span>
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:text-primary-dark">
+                            Baca
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                              <path
+                                fillRule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   ))}

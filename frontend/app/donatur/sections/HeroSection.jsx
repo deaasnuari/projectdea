@@ -76,7 +76,7 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-12 max-[600px]:min-h-0 max-[600px]:pb-12">
+    <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[600px]:min-h-0 max-[600px]:pb-8">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img src="/images/hero-bg.png" alt="Masjid" className="h-full w-full object-cover" />
@@ -99,22 +99,22 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      <div className="container relative z-[1] pt-[120px] max-[600px]:pt-[100px]">
+      <div className="container relative z-[1] pt-32 max-[600px]:pt-[104px]">
         {/* Content */}
         <div className="max-w-[650px] animate-fade-in-up">
-          <p className="section-label !mb-4 !text-gold">
+          <p className="section-label !mb-3 !text-gold">
             Selamat datang di Lembaga Zakat dan Shadaqah PT PLN Batam
           </p>
-          <h1 className="mb-6 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
+          <h1 className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
             Bergabunglah Bersama
             <br />
             kami dalam Misi <span className="italic text-gold">Kebaikan</span>
           </h1>
-          <p className="mb-8 max-w-[520px] text-lg leading-[1.7] text-white/80">
+          <p className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80">
             Kami berkomitmen untuk menyalurkan kebaikan bagi yang membutuhkan melalui program-program sosial
             transparan dan terpercaya.
           </p>
-          <div className="mb-16 flex flex-wrap gap-4 max-[600px]:flex-col">
+          <div className="mb-6 flex flex-wrap gap-4 max-[600px]:flex-col">
             <a href="#zakat-calculator" className="btn btn-gold">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
@@ -139,7 +139,7 @@ export default function HeroSection() {
 
         {/* Feature Cards */}
         <div
-          className="mb-12 grid animate-fade-in-up grid-cols-3 gap-6 opacity-0 max-[900px]:grid-cols-1"
+          className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[900px]:grid-cols-1"
           style={{ animationDelay: '0.3s' }}
         >
           {FEATURES.map((f) => {
@@ -148,7 +148,7 @@ export default function HeroSection() {
               <Tag
                 key={f.title}
                 href={f.href}
-                className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+                className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[20px] [&>svg]:w-[20px]">
                   {f.icon}
@@ -164,7 +164,7 @@ export default function HeroSection() {
 
         {/* Stats */}
         <div
-          className="grid animate-fade-in-up grid-cols-4 gap-6 rounded-2xl border border-white/10 bg-white/[0.06] px-12 py-8 opacity-0 backdrop-blur-md max-[900px]:grid-cols-2 max-[600px]:p-6"
+          className="grid animate-fade-in-up grid-cols-4 gap-6 rounded-2xl border border-white/10 bg-white/[0.06] px-12 py-5 opacity-0 backdrop-blur-md max-[900px]:grid-cols-2 max-[600px]:p-6"
           style={{ animationDelay: '0.6s' }}
         >
           {STATS.map((stat, i) => (

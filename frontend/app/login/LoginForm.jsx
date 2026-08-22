@@ -11,19 +11,19 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Field label="Username">
+      <Field label="Username" icon="user">
         <input type="text" required placeholder="Username admin" className={inputClass} />
       </Field>
 
-      <Field label="Password">
+      <Field label="Password" icon="lock">
         <input type="password" required placeholder="Password" className={inputClass} />
       </Field>
 
-      <button type="submit" className="btn btn-primary mt-2 w-full justify-center">
+      <button type="submit" className="btn btn-primary mt-2 w-full justify-center py-2 text-xs">
         Masuk sebagai Admin
       </button>
 
-      <p className="mt-5 text-center text-sm text-gray-500">
+      <p className="mt-3 text-center text-xs text-gray-500">
         Belum punya akun?{' '}
         <Link href="/register" className="font-semibold text-primary hover:text-primary-dark">
           Daftar di sini

@@ -2,11 +2,192 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Tailwind's items-[safe_center] arbitrary value doesn't compile (the
+     align-items plugin rejects the multi-word value), so this is hand-
+     rolled: centers a flex child like items-center normally does, but on
+     content taller than its container it falls back to start-alignment
+     instead of overflowing equally in both directions — used on /login
+     and /register so an oversized card is pinned below the fixed navbar
+     rather than centered up into it. */
+  .items-safe-center {
+    align-items: safe center;
+  }
+}
+
+/* /login and /register never scroll — the card fits by shrinking on a
+   short window instead of assuming a fixed size always fits it.
+   Deliberately written outside @layer so it wins over the Tailwind
+   utilities on the same elements without needing !important (unlayered
+   rules beat @layer'd ones in the cascade regardless of source order).
+   Three tiers, each dropping or shrinking something a bit less optional
+   than the last: past a shortish window the header's eyebrow/title/
+   subtitle copy goes (nice-to-have, not load-bearing); past a shorter one
+   register's info banner icon goes too and every gap tightens further;
+   past that, inputs themselves get a touch shorter. Register leans on
+   every tier — its form has twice the fields login's does. */
+.auth-card-header {
+  padding: 0.9rem 1.2rem 0.7rem;
+}
+
+.auth-card-body {
+  padding: 0.8rem 1.2rem;
+}
+
+.auth-field {
+  margin-bottom: 0.5rem;
+}
+
+.auth-banner {
+  margin-bottom: 0.6rem;
+  padding: 0.45rem 0.6rem;
+}
+
+.auth-footer-link {
+  margin-top: 0.55rem;
+}
+
+@media (max-height: 660px) {
+  .auth-optional-copy {
+    display: none;
+  }
+
+  .auth-shell-gap {
+    padding-bottom: 0.6rem;
+  }
+
+  .auth-back-link {
+    margin-bottom: 0.3rem;
+  }
+
+  .auth-card-header {
+    padding: 0.7rem 1.2rem 0.5rem;
+  }
+
+  .auth-card-body {
+    padding: 0.6rem 1.2rem;
+  }
+
+  .auth-field {
+    margin-bottom: 0.4rem;
+  }
+
+  .auth-field label {
+    margin-bottom: 0.15rem;
+  }
+
+  .auth-banner {
+    margin-bottom: 0.4rem;
+    padding: 0.35rem 0.45rem;
+  }
+
+  .auth-footer-link {
+    margin-top: 0.3rem;
+  }
+
+  .auth-card-body input,
+  .auth-card-body select {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+}
+
+/* Login's own form is short enough that dropping its header copy this
+   early would be giving up ground it doesn't need to — register (twice
+   the fields) is what actually needs compacting to start at 660px, so
+   .auth-page-cozy (set on /login only) buys the copy back down to
+   register's own threshold, where login genuinely does need it gone too.
+   Higher specificity than the bare .auth-optional-copy rule above, so it
+   wins regardless of source order. */
+@media (max-height: 660px) {
+  .auth-page-cozy .auth-optional-copy {
+    display: block;
+  }
+}
+
+@media (max-height: 480px) {
+  .auth-card-tagline {
+    display: none;
+  }
+
+  /* Below login's own real threshold, its copy goes too — this re-hides
+     what the 660px override above put back. */
+  .auth-page-cozy .auth-optional-copy {
+    display: none;
+  }
+
+  .auth-banner-icon {
+    display: none;
+  }
+
+  .auth-card-header {
+    padding: 0.5rem 1.2rem 0.4rem;
+  }
+
+  .auth-card-body {
+    padding: 0.45rem 1.2rem;
+  }
+
+  .auth-field {
+    margin-bottom: 0.3rem;
+  }
+
+  .auth-banner {
+    margin-bottom: 0.3rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .auth-card-body input,
+  .auth-card-body select {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+  }
+}
+
+@media (max-height: 400px) {
+  .auth-shell-gap {
+    padding-bottom: 0.3rem;
+  }
+
+  .auth-back-link {
+    margin-bottom: 0.15rem;
+    font-size: 0.7rem;
+  }
+
+  .auth-card-header {
+    padding: 0.4rem 1.2rem 0.3rem;
+  }
+
+  .auth-card-body {
+    padding: 0.3rem 1.2rem;
+  }
+
+  .auth-field {
+    margin-bottom: 0.2rem;
+  }
+
+  .auth-banner {
+    display: none;
+  }
+
+  .auth-footer-link {
+    margin-top: 0.15rem;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Hide the native scrollbar track/thumb — the page still scrolls fine
+       via wheel, trackpad, keys, and drag; only the visible bar is gone. */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
   }
 
   body {
