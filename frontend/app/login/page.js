@@ -12,20 +12,22 @@ export default function LoginPage() {
   return (
     <>
       <Navbar />
-      {/* h-dvh + overflow-hidden pins the page to exactly one viewport — the
-          background, navbar, and card all stay put; nothing here ever
-          scrolls. dvh (not vh) so heights stay true on mobile as the
-          browser chrome shows/hides. "safe center" keeps the card
-          vertically centered on normal screens but, on a window too short
-          for it, pins it below the navbar instead of centering it up into
-          — and behind — the fixed navbar. Whatever headroom that still
-          leaves too tight, the card's own padding and optional header
-          copy shrink to fit (see the auth-* rules in globals.css). */}
+      {/* h-dvh + overflow-hidden mengunci halaman ini pas satu layar penuh —
+          background, navbar, dan card semuanya diam di tempat; tidak ada
+          yang bisa di-scroll. Pakai dvh (bukan vh) supaya tingginya tetap
+          akurat di HP saat address bar browser muncul/hilang. "safe center"
+          bikin card berada di tengah secara vertikal di layar normal, tapi
+          kalau jendelanya terlalu pendek, card ditempatkan di bawah navbar
+          saja (bukan dipaksa ke tengah sampai tertutup navbar yang fixed).
+          Kalau ruang yang tersisa masih kurang, padding card dan teks
+          header opsionalnya akan mengecil sendiri (lihat aturan class
+          auth-* di globals.css). */}
       <main className="h-dvh overflow-hidden">
         <PageHeroBackground className="auth-shell-gap flex h-full items-safe-center justify-center px-4 pb-10 pt-24">
-          {/* auth-page-cozy: login's own header copy is short enough to
-              keep down to a shorter window than register's needs — see
-              the .auth-page-cozy override in globals.css. */}
+          {/* auth-page-cozy: teks header di halaman login ini cukup pendek
+              sehingga masih muat di jendela yang lebih pendek dibanding
+              halaman register — lihat override .auth-page-cozy di
+              globals.css. */}
           <div className="auth-page-cozy flex flex-col items-center">
             <BackHomeLink />
             <AuthCard

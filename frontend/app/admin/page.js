@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
-// Route structure placeholder — the admin dashboard itself hasn't been built
-// yet. This exists so /admin resolves to something intentional instead of a
-// blank page or a 404.
+// Halaman sementara untuk struktur route — dashboard admin-nya sendiri
+// belum dibuat. Halaman ini dibuat supaya /admin menampilkan sesuatu yang
+// jelas, bukan halaman kosong atau error 404.
 export default function AdminPlaceholder() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-navy px-6 text-center text-white">

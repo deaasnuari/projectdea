@@ -1,12 +1,10 @@
-// Shared input styling so the login and register forms stay visually
-// identical without copy-pasting the same className string into every field.
-// Left padding is reserved for the icon every Field renders.
+// Style input yang dipakai bersama supaya tampilan form login dan register
+// tetap sama persis, tanpa perlu copy-paste className yang sama di tiap field.
+// Padding kiri sengaja disediakan untuk tempat ikon di setiap Field.
 export const inputClass =
   'w-full rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-8 pr-2.5 text-xs text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white'
 
-// Small icon set for the form fields — same stroke weight as the rest of
-// the site's line icons, picked per field so the form reads at a glance
-// instead of being a wall of identical boxes.
+//ini fungsi untuk menampilkan ikon di form login dan register
 function AuthIcon({ name, className = 'h-3 w-3' }) {
   const common = {
     viewBox: '0 0 24 24',
@@ -60,8 +58,7 @@ function AuthIcon({ name, className = 'h-3 w-3' }) {
   }
 }
 
-// auth-field's margin tightens on a short window (see globals.css) —
-// that's the main thing that lets the login card fit without scrolling.
+//ini fungsi untuk menampilkan field di form login dan register
 export function Field({ label, icon, children }) {
   return (
     <div className="auth-field">
@@ -76,16 +73,7 @@ export function Field({ label, icon, children }) {
   )
 }
 
-// White card used by both /login and /register — logo header plus whatever
-// form is passed in as children. The header carries the same crisp-corner
-// shape and page-label motif used across the site's cards and section
-// headings, so the page reads as this brand's rather than a stock template.
-//
-// Neither /login nor /register ever scrolls — not the page, not the card.
-// Instead the card's own padding and its optional header copy shrink on a
-// short window (see the auth-* rules in globals.css) until everything
-// fits. Register's form is long enough that this does real work on an
-// ordinary laptop screen, not just extreme window sizes.
+//ini fungsi untuk menampilkan card login dan register
 export default function AuthCard({ eyebrow, title, subtitle, children }) {
   return (
     <div className="w-full max-w-[340px] overflow-hidden rounded-tr-[1.75rem] rounded-bl-[1.75rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)]">

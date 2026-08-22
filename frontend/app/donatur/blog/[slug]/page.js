@@ -43,9 +43,10 @@ export default async function BlogDetailPage({ params }) {
               Kembali ke Blog
             </Link>
 
-            {/* The article itself sits in its own reading card — same crisp
-                corner / deep curve shape used for content tiles elsewhere,
-                scaled up — rather than floating loose on the page tint. */}
+            {/* Artikelnya ditempatkan dalam card tersendiri — bentuk sudut
+                tajam / lengkung dalam yang sama seperti kartu konten di
+                tempat lain, cuma dibuat lebih besar — supaya tidak
+                mengambang polos di atas warna latar halaman. */}
             <article className="overflow-hidden rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_24px_60px_-24px_rgba(6,30,40,0.4)]">
               <div className="aspect-[16/9] overflow-hidden">
                 <img src={post.image} alt={post.title} className="h-full w-full object-cover" />

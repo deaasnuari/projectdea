@@ -40,10 +40,10 @@ function formatCountdown(totalSeconds) {
   return `${pad(h)}:${pad(m)}:${pad(sec)}`
 }
 
-// One-line icon set for the jenis-donasi grid, drawn in the same
-// stroke weight as the rest of the site's iconography rather than
-// leaning on emoji — keeps the modal feeling like part of the brand
-// instead of a bolted-on widget.
+// Kumpulan ikon garis untuk grid jenis donasi, digambar dengan ketebalan
+// garis yang sama seperti ikon-ikon lain di situs ini, bukan pakai emoji —
+// supaya modal ini terasa jadi bagian dari brand, bukan seperti widget
+// tempelan.
 function JenisIcon({ id, className }) {
   const common = {
     viewBox: '0 0 24 24',
@@ -124,8 +124,8 @@ function CheckIcon({ className, width = 12, height = 12 }) {
   )
 }
 
-// Same chevron used for the blog's "Baca" links — reused here so every
-// "next" affordance on the site reads as the same gesture.
+// Ikon panah yang sama dengan yang dipakai di link "Baca" pada blog — dipakai
+// lagi di sini supaya semua tombol "lanjut" di situs ini terasa konsisten.
 function ArrowIcon({ className }) {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" className={className}>
@@ -196,8 +196,9 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
   const bank = BANKS.find((b) => b.id === bankId) || null
   const effectiveNominal = customNominal ? Number(customNominal) : nominal
 
-  // Reset the whole flow every time the modal is opened fresh. If a program
-  // card already told us which jenis donasi it is, skip straight to step 2.
+  // Setiap kali modal ini dibuka lagi dari awal, semua state di-reset. Kalau
+  // sebelumnya sudah tahu jenis donasinya dari kartu program, langsung
+  // lompat ke step 2.
   useEffect(() => {
     if (!open) return
     setStep(initialJenisId ? 2 : 1)
@@ -213,15 +214,16 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
     setCopied(false)
   }, [open, initialJenisId])
 
-  // "Batas bayar" countdown, only while a bank VA is showing.
+  // Hitung mundur "Batas Bayar" — cuma jalan selama nomor rekening bank
+  // sedang ditampilkan.
   useEffect(() => {
     if (step !== 3 || !bank) return
     const id = setInterval(() => setSecondsLeft((s) => (s > 0 ? s - 1 : 0)), 1000)
     return () => clearInterval(id)
   }, [step, bank])
 
-  // Simulates the bank notifying us the transfer has landed — no click needed,
-  // it just moves on once the "payment" comes in.
+  // Mensimulasikan notifikasi dari bank bahwa transfernya sudah masuk —
+  // tidak perlu diklik, otomatis lanjut sendiri begitu "pembayaran" diterima.
   useEffect(() => {
     if (step !== 3 || !bank) return
     const id = setTimeout(() => setStep(4), 6000)
@@ -240,7 +242,8 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      // Clipboard permission denied — ignore, the number is still visible to copy manually.
+      // Izin akses clipboard ditolak — abaikan saja, nomor rekeningnya
+      // tetap terlihat dan bisa disalin manual.
     }
   }
 
@@ -249,9 +252,10 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
       className="fixed inset-0 z-[2000] flex items-center justify-center bg-navy-dark/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
-      {/* Same crisp-corner / deep-curve shape as the site's cards, scaled
-          up for a modal — keeps this feeling drawn for the brand instead
-          of a generic dialog dropped on top of it. */}
+      {/* Bentuk sudut tajam / lengkung dalam yang sama seperti card lain
+          di situs ini, cuma dibuat lebih besar untuk modal — supaya
+          terasa sebagai bagian dari brand, bukan dialog generik yang
+          asal ditempel. */}
       <div
         className="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white p-6 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8"
         onClick={(e) => e.stopPropagation()}

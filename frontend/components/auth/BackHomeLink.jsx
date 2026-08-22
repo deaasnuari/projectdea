@@ -1,7 +1,8 @@
 import Link from 'next/link'
 
-// Sits above the auth card on /login and /register, over the dark hero
-// background — so it needs light text rather than AuthCard's gray-on-white.
+// Link ini ada di atas card login/register, menumpuk di atas background
+// hero yang gelap — makanya warnanya putih terang, beda dari teks
+// abu-abu di atas putih milik AuthCard.
 export default function BackHomeLink() {
   return (
     <Link

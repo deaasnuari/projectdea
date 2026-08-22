@@ -51,10 +51,10 @@ export default function Navbar({ solid = false }) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-5">
-      {/* The bar is detached from the viewport edges rather than spanning
-          full-width — a floating pill, always faintly present against the
-          hero so it reads as an object sitting on the page, then solidifying
-          once there's a plain background behind it to blend into. */}
+      {/* Bar navbar ini sengaja tidak menempel di tepi layar (bukan
+          full-width) — dibuat seperti pil yang mengambang, tampil samar di
+          atas gambar hero seolah objek yang diletakkan di halaman, lalu
+          jadi solid begitu ada background polos di belakangnya. */}
       <div
         className={`relative z-[1001] mx-auto flex max-w-[1120px] items-center justify-between rounded-full border py-2.5 pl-4 pr-2.5 transition-all duration-300 md:pl-6 md:pr-3 ${
           showSolid
@@ -66,7 +66,7 @@ export default function Navbar({ solid = false }) {
             : 'translate-y-0 opacity-100'
         }`}
       >
-        {/* Logo */}
+        {/* Logo situs */}
         <Link href="/" className="flex items-center transition-transform duration-300 hover:scale-[1.03]">
           <img
             src="/images/logo lazis pln.png"
@@ -75,7 +75,7 @@ export default function Navbar({ solid = false }) {
           />
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Menu navigasi versi desktop */}
         <nav className="flex items-center gap-9 max-[900px]:hidden">
           <Link href="/donatur#programs" className="relative navbar-link" onClick={closeMenu}>
             Program Kami
@@ -106,7 +106,7 @@ export default function Navbar({ solid = false }) {
           </Link>
         </nav>
 
-        {/* Auth (desktop) */}
+        {/* Tombol login/register versi desktop */}
         <div className="flex items-center gap-5 max-[900px]:hidden">
           <Link
             href="/login"
@@ -119,7 +119,7 @@ export default function Navbar({ solid = false }) {
           </Link>
         </div>
 
-        {/* Hamburger */}
+        {/* Tombol menu hamburger (untuk mobile) */}
         <button
           onClick={toggleMenu}
           aria-label={menuOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}

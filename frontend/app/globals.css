@@ -3,29 +3,34 @@
 @tailwind utilities;
 
 @layer utilities {
-  /* Tailwind's items-[safe_center] arbitrary value doesn't compile (the
-     align-items plugin rejects the multi-word value), so this is hand-
-     rolled: centers a flex child like items-center normally does, but on
-     content taller than its container it falls back to start-alignment
-     instead of overflowing equally in both directions — used on /login
-     and /register so an oversized card is pinned below the fixed navbar
-     rather than centered up into it. */
+  /* Value custom items-[safe_center] milik Tailwind tidak bisa dipakai
+     langsung (plugin align-items-nya menolak value yang lebih dari satu
+     kata), jadi class ini dibuat manual: membuat child flex jadi di tengah
+     seperti items-center biasa, tapi kalau kontennya lebih tinggi dari
+     wadahnya, otomatis rata ke atas (bukan meluber sama rata ke dua arah).
+     Dipakai di halaman /login dan /register supaya kalau card-nya terlalu
+     besar, dia ditempatkan di bawah navbar yang fixed, bukan dipaksa ke
+     tengah sampai tertutup navbar. */
   .items-safe-center {
     align-items: safe center;
   }
 }
 
-/* /login and /register never scroll — the card fits by shrinking on a
-   short window instead of assuming a fixed size always fits it.
-   Deliberately written outside @layer so it wins over the Tailwind
-   utilities on the same elements without needing !important (unlayered
-   rules beat @layer'd ones in the cascade regardless of source order).
-   Three tiers, each dropping or shrinking something a bit less optional
-   than the last: past a shortish window the header's eyebrow/title/
-   subtitle copy goes (nice-to-have, not load-bearing); past a shorter one
-   register's info banner icon goes too and every gap tightens further;
-   past that, inputs themselves get a touch shorter. Register leans on
-   every tier — its form has twice the fields login's does. */
+/* Halaman /login dan /register tidak pernah bisa di-scroll — card-nya
+   dibuat muat dengan cara mengecil sendiri di jendela pendek, bukan
+   menganggap ukuran tetap akan selalu cukup.
+   Sengaja ditulis di luar @layer supaya menang melawan utility class
+   Tailwind pada elemen yang sama tanpa perlu !important (aturan yang
+   tidak di dalam @layer selalu menang di atas aturan yang ada di dalam
+   @layer, apapun urutan sumbernya).
+   Ada tiga tingkatan, masing-masing menghilangkan/mengecilkan sesuatu yang
+   makin lama makin penting: di jendela agak pendek, teks eyebrow/title/
+   subtitle di header hilang duluan (sifatnya cuma pemanis, bukan wajib);
+   di jendela lebih pendek lagi, ikon banner info di halaman register ikut
+   hilang dan semua jarak antar elemen makin rapat; setelah itu, input-nya
+   sendiri jadi sedikit lebih pendek. Halaman Register memakai semua
+   tingkatan ini karena form-nya dua kali lebih banyak field-nya
+   dibanding form login. */
 .auth-card-header {
   padding: 0.9rem 1.2rem 0.7rem;
 }
@@ -92,13 +97,15 @@
   }
 }
 
-/* Login's own form is short enough that dropping its header copy this
-   early would be giving up ground it doesn't need to — register (twice
-   the fields) is what actually needs compacting to start at 660px, so
-   .auth-page-cozy (set on /login only) buys the copy back down to
-   register's own threshold, where login genuinely does need it gone too.
-   Higher specificity than the bare .auth-optional-copy rule above, so it
-   wins regardless of source order. */
+/* Form login sudah cukup pendek sehingga kalau teks header-nya dihilangkan
+   sedini ini, itu sebenarnya berlebihan — yang benar-benar butuh mengecil
+   dari 660px adalah halaman register (field-nya dua kali lipat lebih
+   banyak). Jadi class .auth-page-cozy (cuma dipakai di /login) membuat
+   teks header di halaman login tetap muncul sampai ambang batas yang sama
+   dengan register, di mana login pun akhirnya memang perlu
+   menghilangkannya juga.
+   Spesifisitasnya lebih tinggi dari aturan .auth-optional-copy polos di
+   atas, jadi selalu menang apapun urutan sumbernya. */
 @media (max-height: 660px) {
   .auth-page-cozy .auth-optional-copy {
     display: block;
@@ -110,8 +117,9 @@
     display: none;
   }
 
-  /* Below login's own real threshold, its copy goes too — this re-hides
-     what the 660px override above put back. */
+  /* Di bawah ambang batas asli milik login, teks header-nya ikut hilang —
+     ini menyembunyikan lagi apa yang tadi dimunculkan kembali oleh
+     override di 660px di atas. */
   .auth-page-cozy .auth-optional-copy {
     display: none;
   }
@@ -180,8 +188,9 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Hide the native scrollbar track/thumb — the page still scrolls fine
-       via wheel, trackpad, keys, and drag; only the visible bar is gone. */
+    /* Menyembunyikan scrollbar bawaan browser — halamannya tetap bisa
+       di-scroll normal pakai scroll mouse, trackpad, tombol keyboard, atau
+       drag; yang hilang cuma tampilan bar-nya saja. */
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -209,9 +218,10 @@
     outline: none;
   }
 
-  /* Browsers draw the default focus ring in the OS accent color (gold on
-     this machine), which reads as a stray yellow flash on click. Swap it
-     for our own brand-colored ring, shown only for keyboard focus. */
+  /* Browser biasanya menggambar outline focus dengan warna aksen bawaan
+     OS (di komputer ini warnanya kuning keemasan), yang terlihat seperti
+     kedipan kuning aneh saat diklik. Diganti dengan warna brand sendiri,
+     dan hanya muncul saat fokus lewat keyboard. */
   a:focus-visible {
     outline: 2px solid theme('colors.primary.DEFAULT');
     outline-offset: 2px;
@@ -250,9 +260,9 @@
     letter-spacing: 1.5px;
   }
 
-  /* Editorial kicker rule — a short line ahead of the label instead of the
-     label sitting alone, borrowed from print mastheads rather than the
-     usual "small caps floating above a heading" template convention. */
+  /* Garis kecil sebelum teks label — gayanya diambil dari headline surat
+     kabar/majalah cetak, bukan sekadar teks kapital kecil yang mengambang
+     sendirian di atas judul seperti kebanyakan template. */
   .section-label::before {
     content: '';
     display: inline-block;
@@ -266,17 +276,19 @@
     @apply font-heading text-4xl font-semibold leading-[1.15] text-navy;
   }
 
-  /* The accent word carries the italic, not the whole heading — an echo of
-     a pull-quote rather than a wholesale italic display face. */
+  /* Yang dicetak miring cuma kata penekanannya saja, bukan seluruh judul —
+     kesannya seperti kutipan yang ditonjolkan, bukan judul yang seluruhnya
+     miring. */
   .section-title span {
     @apply italic text-primary;
   }
 
-  /* Shared card shape for content tiles (program, blog, video previews).
-     One crisp corner and one deep curve instead of a uniform rounded
-     rectangle, plus a navy-tinted shadow instead of flat gray — the pairing
-     that makes a card feel drawn for this brand rather than pulled from a
-     component library default. */
+  /* Bentuk card yang dipakai bersama untuk konten (program, blog, preview
+     video). Satu sudut tajam dan satu sudut melengkung dalam, bukan
+     persegi dengan sudut membulat rata semua, ditambah bayangan bernuansa
+     navy (bukan abu-abu polos) — kombinasi inilah yang membuat card
+     terasa dirancang khusus untuk brand ini, bukan sekadar ambil dari
+     komponen bawaan library. */
   .card {
     @apply overflow-hidden rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white transition-all duration-300;
     box-shadow: 0 18px 34px -22px rgba(6, 30, 40, 0.5);
@@ -326,9 +338,10 @@
     width: 100%;
   }
 
-  /* Current-page state — a standing underline in the same gold as the hover
-     sweep, not a filled chip. Keeps every nav item reading as text on the
-     same plane instead of some being buttons and some being links. */
+  /* Penanda halaman yang sedang aktif — pakai garis bawah warna emas
+     (sama seperti efek hover), bukan chip berwarna penuh. Supaya semua
+     item navigasi tetap terlihat sebagai teks biasa, tidak ada yang
+     terlihat seperti tombol sementara yang lain seperti link. */
   .navbar-link-active {
     @apply relative py-1 text-xs font-semibold uppercase tracking-[0.08em] text-gold;
   }

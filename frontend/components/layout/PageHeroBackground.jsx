@@ -1,8 +1,9 @@
-// A reprise of the landing Hero's backdrop — the mosque image, teal/navy
-// gradient, and faint geometric lattice — used as the full backdrop for a
-// secondary page (header text and content both sit on it), so the page
-// carries the same signature look all the way down instead of just a
-// header strip that cuts to white.
+// Ini adalah pengulangan dari background hero di halaman utama — gambar
+// masjid, gradasi warna teal/navy, dan pola geometris samar — dipakai
+// sebagai background penuh untuk halaman-halaman lain (teks header dan
+// kontennya sama-sama diletakkan di atasnya), supaya tampilan khas ini
+// terasa konsisten di seluruh halaman, bukan cuma strip header lalu
+// tiba-tiba berubah putih polos.
 export default function PageHeroBackground({ children, className = '' }) {
   return (
     <div className={`relative overflow-hidden ${className}`}>

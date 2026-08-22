@@ -29,7 +29,7 @@ export default function ProgramKamiSection() {
   return (
     <section id="programs" className="bg-gray-50 py-24">
       <div className="container">
-        {/* Header */}
+        {/* Judul bagian */}
         <div className="mb-12 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
           <div>
             <p className="section-label">Bukti Nyata</p>
@@ -45,7 +45,7 @@ export default function ProgramKamiSection() {
           </a>
         </div>
 
-        {/* Video Grid */}
+        {/* Grid video */}
         <div className="grid grid-cols-2 gap-8 max-[768px]:grid-cols-1">
           {PROGRAMS.map((program, i) => (
             <div

@@ -10,7 +10,7 @@ export default function Footer() {
 
       <div className="container">
         <div className="grid grid-cols-[1.4fr_1fr_1fr_1.3fr] gap-6 pb-6 max-[768px]:grid-cols-2 max-[768px]:gap-6 max-[480px]:grid-cols-1">
-          {/* Brand */}
+          {/* Logo & deskripsi brand */}
           <div className="max-[768px]:col-span-full">
             <div className="mb-2">
               <img
@@ -54,7 +54,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Link navigasi */}
           <div>
             <h4 className="mb-2 font-heading text-sm font-bold text-white after:mt-1.5 after:block after:h-0.5 after:w-5 after:rounded-full after:bg-gold/70">
               Navigasi
@@ -83,7 +83,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Daftar layanan */}
           <div>
             <h4 className="mb-2 font-heading text-sm font-bold text-white after:mt-1.5 after:block after:h-0.5 after:w-5 after:rounded-full after:bg-gold/70">
               Layanan
@@ -112,7 +112,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Info kontak */}
           <div>
             <h4 className="mb-2 font-heading text-sm font-bold text-white after:mt-1.5 after:block after:h-0.5 after:w-5 after:rounded-full after:bg-gold/70">
               Kontak
@@ -146,7 +146,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
+        {/* Baris paling bawah */}
         <div className="flex flex-col items-center gap-1.5 border-t border-white/[0.08] py-3 text-[11px] text-white/45 sm:flex-row sm:justify-between">
           <p>&copy; {currentYear} Lazis PLN Batam.</p>
           <a

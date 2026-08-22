@@ -6,7 +6,7 @@ import { Field, inputClass } from '@/components/auth/AuthCard'
 export default function LoginForm() {
   const handleSubmit = (e) => {
     e.preventDefault()
-    // TODO: wire up to the auth API once the backend is ready
+    // TODO: sambungkan ke API auth kalau backend-nya sudah siap
   }
 
   return (

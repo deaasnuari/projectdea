@@ -8,7 +8,7 @@ const UNIT_KERJA = ['Teknik', 'Niaga', 'Keuangan', 'SDM & Umum', 'Perencanaan', 
 export default function RegisterForm() {
   const handleSubmit = (e) => {
     e.preventDefault()
-    // TODO: wire up to the auth API once the backend is ready
+    // TODO: sambungkan ke API auth kalau backend-nya sudah siap
   }
 
   return (

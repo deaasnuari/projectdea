@@ -8,9 +8,10 @@ const inter = Inter({
   display: 'swap',
 })
 
-// Fraunces is a warm, soft-serif display face — it replaces the generic
-// geometric-sans headings (Poppins) that every third template also uses,
-// and its italic gives the accent words in the hero real character.
+// Fraunces adalah font serif yang hangat dan lembut — dipakai untuk
+// menggantikan font judul geometris generik (Poppins) yang juga dipakai
+// banyak template lain, dan versi italic-nya memberi karakter khusus
+// pada kata-kata penekanan di bagian hero.
 const fraunces = Fraunces({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],

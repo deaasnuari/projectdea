@@ -77,13 +77,13 @@ export default function HeroSection() {
 
   return (
     <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[600px]:min-h-0 max-[600px]:pb-8">
-      {/* Background */}
+      {/* Latar belakang */}
       <div className="absolute inset-0 z-0">
         <img src="/images/hero-bg.png" alt="Masjid" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(10,46,60,0.92)] via-[rgba(10,126,126,0.75)] to-[rgba(10,46,60,0.85)]" />
-        {/* Faint eight-point star lattice — a nod to Islamic geometric ornament
-            rather than a generic gradient blob, kept subtle so it reads as
-            texture, not decoration. */}
+        {/* Pola bintang delapan sudut yang samar — terinspirasi ornamen
+            geometris Islam, bukan sekadar gradasi warna biasa. Dibuat
+            samar supaya terasa sebagai tekstur, bukan hiasan yang menonjol. */}
         <svg className="absolute inset-0 h-full w-full opacity-[0.07]" aria-hidden="true">
           <defs>
             <pattern id="hero-lattice" width="72" height="72" patternUnits="userSpaceOnUse">
@@ -100,7 +100,7 @@ export default function HeroSection() {
       </div>
 
       <div className="container relative z-[1] pt-32 max-[600px]:pt-[104px]">
-        {/* Content */}
+        {/* Konten */}
         <div className="max-w-[650px] animate-fade-in-up">
           <p className="section-label !mb-3 !text-gold">
             Selamat datang di Lembaga Zakat dan Shadaqah PT PLN Batam
@@ -137,7 +137,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Feature Cards */}
+        {/* Kartu-kartu fitur */}
         <div
           className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[900px]:grid-cols-1"
           style={{ animationDelay: '0.3s' }}
@@ -162,7 +162,7 @@ export default function HeroSection() {
           })}
         </div>
 
-        {/* Stats */}
+        {/* Statistik */}
         <div
           className="grid animate-fade-in-up grid-cols-4 gap-6 rounded-2xl border border-white/10 bg-white/[0.06] px-12 py-5 opacity-0 backdrop-blur-md max-[900px]:grid-cols-2 max-[600px]:p-6"
           style={{ animationDelay: '0.6s' }}

@@ -33,7 +33,7 @@ export default function AboutSection() {
     <>
       <PageHeroBackground className="pb-24 pt-32">
         <div className="container grid grid-cols-[1.1fr_0.9fr] items-start gap-12 max-[900px]:grid-cols-1">
-          {/* Left: intro */}
+          {/* Kiri: teks pengantar */}
           <div>
             <p className="section-label !text-gold">Tentang Kami</p>
             <h1 className="mb-6 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
@@ -62,7 +62,7 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* Right: donation card */}
+          {/* Kanan: card donasi */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
             <h3 className="mb-3 font-heading text-xl font-bold text-navy">Donasi via Transfer</h3>
             <p className="mb-6 text-sm leading-relaxed text-gray-500">

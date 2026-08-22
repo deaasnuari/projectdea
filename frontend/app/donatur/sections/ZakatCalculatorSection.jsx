@@ -25,7 +25,7 @@ export default function ZakatCalculatorSection() {
   return (
     <section id="zakat-calculator" className="bg-gradient-to-br from-navy to-primary-dark py-24 text-white">
       <div className="container grid grid-cols-[0.9fr_1.1fr] items-start gap-12 max-[900px]:grid-cols-1">
-        {/* Left: intro + nisab */}
+        {/* Kiri: teks pengantar + nilai nisab */}
         <div>
           <p className="section-label !text-gold">Kalkulator Zakat</p>
           <h2 className="my-2 mb-4 font-heading text-3xl font-extrabold leading-[1.25] text-white">
@@ -51,7 +51,7 @@ export default function ZakatCalculatorSection() {
           </div>
         </div>
 
-        {/* Right: form card */}
+        {/* Kanan: card form kalkulator */}
         <div className="rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white px-6 py-8 text-gray-800 shadow-xl max-[900px]:px-6 sm:px-10">
           <h3 className="mb-6 font-heading text-xl font-bold text-navy">Data Penghasilan &amp; Harta</h3>
 
