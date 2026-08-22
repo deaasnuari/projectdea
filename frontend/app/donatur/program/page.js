@@ -9,7 +9,7 @@ export const metadata = {
 export default function ProgramPage() {
   return (
     <>
-      <Navbar solid />
+      <Navbar />
       <ProgramListSection />
       <Footer />
     </>

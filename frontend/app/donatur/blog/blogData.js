@@ -48,7 +48,3 @@ export const POSTS = [
     ],
   },
 ]
-
-export function getPostBySlug(slug) {
-  return POSTS.find((post) => post.slug === slug)
-}

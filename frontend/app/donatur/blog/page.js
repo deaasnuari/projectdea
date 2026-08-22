@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
-import { POSTS } from './posts'
+import { POSTS } from './blogData'
 
 export const metadata = {
   title: 'Blog — Lazis PLN Batam',

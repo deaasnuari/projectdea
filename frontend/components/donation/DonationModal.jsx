@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { formatRp, formatCountdown } from '@/services/format'
 
 const JENIS_DONASI = [
   { id: 'zakat-profesi', label: 'Zakat Profesi', programLabel: 'Zakat Profesi Karyawan' },
@@ -26,19 +27,6 @@ const STEPS = [
 ]
 
 const BATAS_BAYAR_START = 23 * 3600 + 59 * 60 + 57 // 23:59:57
-
-function formatRp(n) {
-  return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID')
-}
-
-function formatCountdown(totalSeconds) {
-  const s = Math.max(0, totalSeconds)
-  const h = Math.floor(s / 3600)
-  const m = Math.floor((s % 3600) / 60)
-  const sec = s % 60
-  const pad = (v) => String(v).padStart(2, '0')
-  return `${pad(h)}:${pad(m)}:${pad(sec)}`
-}
 
 // Kumpulan ikon garis untuk grid jenis donasi, digambar dengan ketebalan
 // garis yang sama seperti ikon-ikon lain di situs ini, bukan pakai emoji —

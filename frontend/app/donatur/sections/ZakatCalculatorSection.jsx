@@ -1,14 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-
-const NISAB_MAAL = 80750000
-const NISAB_PROFESI = Math.round(NISAB_MAAL / 12)
-const ZAKAT_RATE = 0.025
-
-function formatRp(n) {
-  return 'Rp ' + Math.round(n).toLocaleString('id-ID')
-}
+import { formatRp } from '@/services/format'
+import { NISAB_MAAL, NISAB_PROFESI, hitungZakatProfesi, hitungZakatMaal } from '@/services/zakat'
 
 export default function ZakatCalculatorSection() {
   const [gajiPokok, setGajiPokok] = useState(0)
@@ -19,8 +13,8 @@ export default function ZakatCalculatorSection() {
   const penghasilanBulanan = useMemo(() => (gajiPokok || 0) + (tunjangan || 0), [gajiPokok, tunjangan])
   const hartaMaal = useMemo(() => (tabungan || 0) + (emas || 0), [tabungan, emas])
 
-  const zakatProfesi = penghasilanBulanan >= NISAB_PROFESI ? penghasilanBulanan * ZAKAT_RATE : 0
-  const zakatMaal = hartaMaal >= NISAB_MAAL ? hartaMaal * ZAKAT_RATE : 0
+  const zakatProfesi = hitungZakatProfesi(penghasilanBulanan)
+  const zakatMaal = hitungZakatMaal(hartaMaal)
 
   return (
     <section id="zakat-calculator" className="bg-gradient-to-br from-navy to-primary-dark py-24 text-white">

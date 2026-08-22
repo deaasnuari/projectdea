@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
-import { POSTS, getPostBySlug } from '../posts'
+import { POSTS } from '../blogData'
+import { getPostBySlug } from '@/services/blog'
 
 export function generateStaticParams() {
   return POSTS.map((post) => ({ slug: post.slug }))
