@@ -13,6 +13,13 @@ export function formatJt(n) {
   return `Rp ${text}jt`
 }
 
+// Format angka jadi singkatan "ribu", contoh: 250000 -> "Rp 250rb". Dipakai
+// untuk nominal donasi satuan yang biasanya di bawah satu juta, jadi tidak
+// perlu dibulatkan lagi jadi "jt" seperti formatJt.
+export function formatRb(n) {
+  return `Rp ${Math.round((n || 0) / 1000).toLocaleString('id-ID')}rb`
+}
+
 // Format detik jadi "HH:MM:SS", dipakai untuk hitung mundur batas bayar.
 export function formatCountdown(totalSeconds) {
   const s = Math.max(0, totalSeconds)

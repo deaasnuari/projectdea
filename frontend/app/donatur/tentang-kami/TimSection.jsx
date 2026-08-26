@@ -1,12 +1,4 @@
-// Catatan: nama & jabatan di bawah ini masih data contoh (placeholder) —
-// ganti TEAM dengan nama lengkap dan jabatan anggota tim LAZIS PLN Batam
-// yang sebenarnya, beserta foto pada properti `photo` jika sudah tersedia.
-const TEAM = [
-  { name: 'Nama Lengkap', role: 'Ketua LAZIS PLN Batam' },
-  { name: 'Nama Lengkap', role: 'Sekretaris' },
-  { name: 'Nama Lengkap', role: 'Bendahara' },
-  { name: 'Nama Lengkap', role: 'Koordinator Program' },
-]
+import { TEAM } from './timData'
 
 function AvatarPlaceholder() {
   return (
@@ -33,7 +25,7 @@ export default function TimSection() {
 
         <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
           {TEAM.map((member) => (
-            <div key={`${member.name}-${member.role}`} className="card p-4 text-center">
+            <div key={member.id} className="card p-4 text-center">
               <div className="mx-auto mb-2.5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:h-6 [&_svg]:w-6">
                 <AvatarPlaceholder />
               </div>

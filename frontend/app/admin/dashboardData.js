@@ -1,0 +1,61 @@
+// Data donasi masuk untuk kartu "Donasi Terbaru" di dashboard admin.
+// Sama seperti programData.js/blogData.js — ini contoh, belum tersambung ke
+// backend pembayaran, jadi total & jumlah transaksi di dashboard dihitung
+// dari daftar ini (bukan angka yang ditulis manual) supaya tetap konsisten
+// kalau daftarnya diubah.
+export const RECENT_DONATIONS = [
+  {
+    id: 1,
+    name: 'Budi Santoso',
+    program: 'Zakat Profesi',
+    date: '26 Agu 2026',
+    amount: 250000,
+    avatarBg: 'bg-primary/10',
+    avatarText: 'text-primary',
+  },
+  {
+    id: 2,
+    name: 'Siti Rahayu',
+    program: 'Shadaqah',
+    date: '25 Agu 2026',
+    amount: 500000,
+    avatarBg: 'bg-amber-100',
+    avatarText: 'text-amber-700',
+  },
+  {
+    id: 3,
+    name: 'Anonim',
+    program: 'Infaq',
+    date: '25 Agu 2026',
+    amount: 100000,
+    avatarBg: 'bg-gray-200',
+    avatarText: 'text-gray-500',
+  },
+  {
+    id: 4,
+    name: 'Ahmad Fauzi',
+    program: 'Shadaqah Jariyah',
+    date: '24 Agu 2026',
+    amount: 1000000,
+    avatarBg: 'bg-navy/10',
+    avatarText: 'text-navy',
+  },
+  {
+    id: 5,
+    name: 'Dewi Lestari',
+    program: 'Zakat Profesi',
+    date: '24 Agu 2026',
+    amount: 188000,
+    avatarBg: 'bg-coral/10',
+    avatarText: 'text-coral',
+  },
+  {
+    id: 6,
+    name: 'Joko Purnomo',
+    program: 'Shadaqah',
+    date: '23 Agu 2026',
+    amount: 300000,
+    avatarBg: 'bg-amber-100',
+    avatarText: 'text-amber-700',
+  },
+]
