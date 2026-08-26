@@ -94,6 +94,25 @@ function JenisIcon({ id, className }) {
   }
 }
 
+function UploadIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="22" height="22" className={className}>
+      <path d="M21 15v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3" />
+      <path d="M17 8l-5-5-5 5" />
+      <path d="M12 3v12" />
+    </svg>
+  )
+}
+
+function ClockIcon({ className, width = 30, height = 30 }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width={width} height={height} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </svg>
+  )
+}
+
 function CheckIcon({ className, width = 12, height = 12 }) {
   return (
     <svg
@@ -180,6 +199,10 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
   const [secondsLeft, setSecondsLeft] = useState(BATAS_BAYAR_START)
   const [copied, setCopied] = useState(false)
 
+  const [buktiFile, setBuktiFile] = useState(null)
+  const [buktiPreview, setBuktiPreview] = useState('')
+  const [buktiError, setBuktiError] = useState('')
+
   const jenis = JENIS_DONASI.find((j) => j.id === jenisId) || null
   const bank = BANKS.find((b) => b.id === bankId) || null
   const effectiveNominal = customNominal ? Number(customNominal) : nominal
@@ -200,6 +223,9 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
     setBankId(null)
     setSecondsLeft(BATAS_BAYAR_START)
     setCopied(false)
+    setBuktiFile(null)
+    setBuktiPreview('')
+    setBuktiError('')
   }, [open, initialJenisId])
 
   // Hitung mundur "Batas Bayar" — cuma jalan selama nomor rekening bank
@@ -210,18 +236,30 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
     return () => clearInterval(id)
   }, [step, bank])
 
-  // Mensimulasikan notifikasi dari bank bahwa transfernya sudah masuk —
-  // tidak perlu diklik, otomatis lanjut sendiri begitu "pembayaran" diterima.
-  useEffect(() => {
-    if (step !== 3 || !bank) return
-    const id = setTimeout(() => setStep(4), 6000)
-    return () => clearTimeout(id)
-  }, [step, bank])
-
   if (!open) return null
 
   const canGoStep2 = Boolean(jenis)
   const canGoStep3 = effectiveNominal > 0 && (anonim || nama.trim().length > 0)
+
+  const MAX_BUKTI_SIZE = 5 * 1024 * 1024 // 5MB
+
+  const handleBuktiChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setBuktiError('File harus berupa gambar (JPG/PNG)')
+      return
+    }
+    if (file.size > MAX_BUKTI_SIZE) {
+      setBuktiError('Ukuran file maksimal 5MB')
+      return
+    }
+    setBuktiError('')
+    setBuktiFile(file)
+    const reader = new FileReader()
+    reader.onload = () => setBuktiPreview(reader.result)
+    reader.readAsDataURL(file)
+  }
 
   const copyNoRek = async () => {
     if (!bank) return
@@ -492,8 +530,8 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
             </div>
 
             <div className="mb-5 flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-3 text-xs font-semibold text-primary-dark">
-              <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary" />
-              Menunggu pembayaran masuk — halaman ini akan otomatis lanjut begitu transfer Anda terdeteksi.
+              <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />
+              Sudah transfer? Upload bukti pembayaran di bawah untuk mengonfirmasi donasi Anda.
             </div>
 
             <div className="mb-5 rounded-xl bg-primary/5 py-6 text-center">
@@ -551,6 +589,55 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
               </div>
             </div>
 
+            {/* Upload bukti transfer — karena penyalurannya masih transfer
+                manual, konfirmasinya juga dilakukan manual lewat bukti
+                pembayaran ini, bukan deteksi otomatis. */}
+            <div className="mb-5">
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">
+                Bukti Transfer
+              </div>
+              <label
+                htmlFor="bukti-transfer-input"
+                className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors ${
+                  buktiPreview
+                    ? 'border-primary/40 bg-primary/5'
+                    : 'border-gray-200 hover:border-primary/40 hover:bg-primary/5'
+                }`}
+              >
+                {buktiPreview ? (
+                  <>
+                    <img src={buktiPreview} alt="Pratinjau bukti transfer" className="h-24 w-24 rounded-lg object-cover" />
+                    <span className="text-xs font-semibold text-primary-dark">{buktiFile?.name}</span>
+                    <span className="text-[11px] text-gray-400">Klik untuk ganti file</span>
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="text-primary" />
+                    <span className="text-xs font-semibold text-navy">Upload bukti transfer</span>
+                    <span className="text-[11px] text-gray-400">Screenshot atau foto struk (JPG/PNG, maks 5MB)</span>
+                  </>
+                )}
+              </label>
+              <input
+                id="bukti-transfer-input"
+                type="file"
+                accept="image/*"
+                onChange={handleBuktiChange}
+                className="hidden"
+              />
+              {buktiError && <p className="mt-2 text-xs font-semibold text-coral">{buktiError}</p>}
+            </div>
+
+            <button
+              type="button"
+              disabled={!buktiFile}
+              onClick={() => setStep(4)}
+              className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+            >
+              Konfirmasi Pembayaran
+              <ArrowIcon />
+            </button>
+
             <button
               type="button"
               onClick={() => setBankId(null)}
@@ -564,14 +651,27 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
 
         {step === 4 && (
           <div className="pr-8">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <CheckIcon className="text-primary" width={30} height={30} />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gold/15">
+              <ClockIcon className="text-gold-dark" />
             </div>
-            <h3 className="mb-1 text-center font-heading text-2xl font-extrabold text-primary-dark">Donasi Diterima!</h3>
-            <p className="mb-1 text-center text-sm text-gray-500">Pembayaran Anda telah berhasil dikonfirmasi.</p>
+            <h3 className="mb-1 text-center font-heading text-2xl font-extrabold text-primary-dark">
+              Bukti Pembayaran Terkirim!
+            </h3>
+            <p className="mb-1 text-center text-sm text-gray-500">
+              Tim kami akan memverifikasi pembayaran Anda dalam 1x24 jam.
+            </p>
             <p className="mb-6 text-center text-xs font-semibold text-primary-dark">via {bank?.name}</p>
 
             <div className="mb-6 flex flex-col gap-3 rounded-xl bg-primary/5 p-5 text-sm">
+              {buktiPreview && (
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-gray-500">Bukti Transfer</span>
+                  <div className="flex items-center gap-2">
+                    <img src={buktiPreview} alt="Bukti transfer" className="h-8 w-8 rounded-md object-cover" />
+                    <strong className="max-w-[140px] truncate text-navy-dark">{buktiFile?.name}</strong>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between gap-4">
                 <span className="text-gray-500">Program</span>
                 <strong className="text-navy-dark">{jenis?.programLabel}</strong>
@@ -590,9 +690,9 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-gray-500">Status</span>
-                <strong className="inline-flex items-center gap-1.5 text-primary-dark">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  Lunas
+                <strong className="inline-flex items-center gap-1.5 text-gold-dark">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                  Menunggu Verifikasi
                 </strong>
               </div>
             </div>
