@@ -25,15 +25,24 @@ const PROGRAMS = [
   },
 ]
 
+const GALERI = [
+  { image: '/images/program-1.png', caption: 'Bantuan untuk Panti Asuhan' },
+  { image: '/images/program-2.png', caption: 'Beasiswa Anak Dhuafa' },
+  { image: '/images/program-3.png', caption: 'Paket Buka Puasa Bersama' },
+  { image: '/images/program-4.png', caption: 'Baksos Kesehatan Gratis' },
+  { image: '/images/1.jpeg', caption: 'Edukasi Zakat untuk Karyawan' },
+  { image: '/images/2.jpg', caption: 'Penyaluran Zakat Triwulan' },
+]
+
 export default function ProgramKamiSection() {
   return (
     <section id="programs" className="bg-gray-50 py-24">
       <div className="container">
         {/* Judul bagian */}
-        <div className="mb-12 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
+        <div className="mb-8 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
           <div>
-            <p className="section-label">Bukti Nyata</p>
-            <h2 className="section-title">
+            <p className="section-label !mb-1.5 !text-xs">Bukti Nyata</p>
+            <h2 className="section-title !text-2xl">
               Program yang <span>Tersalurkan</span>
             </h2>
           </div>
@@ -84,6 +93,39 @@ export default function ProgramKamiSection() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Galeri foto penyaluran */}
+        <div className="mt-20">
+          <div className="mb-8">
+            <p className="section-label">Dokumentasi</p>
+            <h2 className="section-title">
+              Galeri <span>Penyaluran</span>
+            </h2>
+          </div>
+
+          {/* Baris galeri yang bisa digeser ke samping (scroll-snap),
+              bukan grid kartu, supaya foto bisa ditambah terus tanpa
+              bikin section jadi makin tinggi ke bawah. */}
+          <div className="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-4 [scrollbar-width:thin]">
+            {GALERI.map((foto, i) => (
+              <div
+                key={foto.image}
+                className="group relative aspect-square w-[240px] shrink-0 snap-start animate-fade-in-up overflow-hidden rounded-tr-xl rounded-bl-xl rounded-tl-md rounded-br-md opacity-0 max-[480px]:w-[200px]"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <img
+                  src={foto.image}
+                  alt={foto.caption}
+                  className="h-full w-full object-cover transition-transform duration-400 group-hover:scale-[1.08]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/85 via-navy-dark/0 to-navy-dark/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="absolute inset-x-3 bottom-3 translate-y-2 text-sm font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  {foto.caption}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

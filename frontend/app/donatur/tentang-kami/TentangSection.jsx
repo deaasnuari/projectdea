@@ -26,7 +26,7 @@ function CheckIcon() {
   )
 }
 
-export default function AboutSection() {
+export default function TentangSection() {
   const [donationOpen, setDonationOpen] = useState(false)
 
   return (
@@ -88,30 +88,30 @@ export default function AboutSection() {
       </PageHeroBackground>
 
       {/* Visi & Misi */}
-      <section className="bg-gray-50 py-24">
+      <section className="bg-gray-50 py-12">
         <div className="container">
-          <div className="mb-12">
-            <p className="section-label">Arah Kami</p>
-            <h2 className="section-title">
+          <div className="mb-6">
+            <p className="section-label !mb-1 !text-xs">Arah Kami</p>
+            <h2 className="section-title !text-xl">
               Visi &amp; <span>Misi</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-[0.8fr_1.2fr] gap-8 max-[900px]:grid-cols-1">
-            <div className="card flex flex-col justify-center bg-gradient-to-br from-navy to-primary-dark p-8">
-              <h3 className="mb-3 font-heading text-lg font-bold uppercase tracking-[0.5px] text-gold">Visi</h3>
-              <p className="leading-[1.7] text-white/85">
+          <div className="grid grid-cols-[0.8fr_1.2fr] gap-4 max-[900px]:grid-cols-1">
+            <div className="card flex flex-col justify-center bg-gradient-to-br from-navy to-primary-dark p-5">
+              <h3 className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.5px] text-gold">Visi</h3>
+              <p className="text-xs leading-[1.6] text-white/85">
                 Menjadi lembaga amil zakat internal yang amanah, profesional, dan berdampak nyata bagi kesejahteraan
                 mustahik di wilayah Kepulauan Riau.
               </p>
             </div>
 
-            <div className="card p-8">
-              <h3 className="mb-5 font-heading text-lg font-bold uppercase tracking-[0.5px] text-primary">Misi</h3>
-              <ul className="flex flex-col gap-4">
+            <div className="card p-5">
+              <h3 className="mb-2.5 font-heading text-sm font-bold uppercase tracking-[0.5px] text-primary">Misi</h3>
+              <ul className="flex flex-col gap-2.5">
                 {MISI.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm leading-relaxed text-gray-600">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <li key={item} className="flex items-start gap-2.5 text-xs leading-relaxed text-gray-600">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <CheckIcon />
                     </span>
                     {item}

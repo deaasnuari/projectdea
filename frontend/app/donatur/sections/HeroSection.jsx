@@ -1,14 +1,3 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-
-const STATS = [
-  { value: 3800000000, prefix: 'Rp ', suffix: ' M', label: 'Dana Terkumpul ZIS', divisor: 1000000 },
-  { value: 1240, prefix: '', suffix: '+', label: 'Donatur Aktif' },
-  { value: 5600, prefix: '', suffix: '+', label: 'Penerima Manfaat' },
-  { value: 100, prefix: '', suffix: '%', label: 'Transparansi Dana' },
-]
-
 const FEATURES = [
   {
     title: 'Kalkulator Zakat',
@@ -47,34 +36,6 @@ const FEATURES = [
 ]
 
 export default function HeroSection() {
-  const [displays, setDisplays] = useState(STATS.map(() => '0'))
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      STATS.forEach((stat, index) => {
-        let current = 0
-        const target = stat.divisor ? stat.value / stat.divisor : stat.value
-        const increment = target / 60
-        const interval = setInterval(() => {
-          current += increment
-          if (current >= target) {
-            current = target
-            clearInterval(interval)
-          }
-          const text = stat.divisor
-            ? `${stat.prefix}${(current / 1000).toFixed(1)}${stat.suffix}`
-            : `${stat.prefix}${Math.floor(current).toLocaleString('id-ID')}${stat.suffix}`
-          setDisplays((prev) => {
-            const next = [...prev]
-            next[index] = text
-            return next
-          })
-        }, 16)
-      })
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[600px]:min-h-0 max-[600px]:pb-8">
       {/* Latar belakang */}
@@ -160,27 +121,6 @@ export default function HeroSection() {
               </Tag>
             )
           })}
-        </div>
-
-        {/* Statistik */}
-        <div
-          className="grid animate-fade-in-up grid-cols-4 gap-6 rounded-2xl border border-white/10 bg-white/[0.06] px-12 py-5 opacity-0 backdrop-blur-md max-[900px]:grid-cols-2 max-[600px]:p-6"
-          style={{ animationDelay: '0.6s' }}
-        >
-          {STATS.map((stat, i) => (
-            <div
-              key={stat.label}
-              className={`text-center max-[900px]:border-white/0 ${
-                i > 0 ? 'border-l border-white/10 max-[900px]:border-l-0' : ''
-              }`}
-            >
-              <span className="mx-auto mb-2.5 block h-0.5 w-5 rounded-full bg-gold/70" />
-              <span className="mb-1 block font-heading text-3xl font-extrabold text-white max-[600px]:text-xl">
-                {displays[i]}
-              </span>
-              <span className="text-xs font-medium text-white/50">{stat.label}</span>
-            </div>
-          ))}
         </div>
       </div>
     </section>

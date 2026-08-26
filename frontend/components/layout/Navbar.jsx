@@ -78,7 +78,7 @@ export default function Navbar({ solid = false }) {
         {/* Menu navigasi versi desktop */}
         <nav className="flex items-center gap-9 max-[900px]:hidden">
           <Link href="/donatur#programs" className="relative navbar-link" onClick={closeMenu}>
-            Program Kami
+            Kami Peduli
           </Link>
           <Link
             href="/donatur/blog"
@@ -103,6 +103,14 @@ export default function Navbar({ solid = false }) {
           >
             Daftar Program
             {pathname === '/donatur/program' && <ActiveTag />}
+          </Link>
+          <Link
+            href="/donatur/kontak-kami"
+            className={`relative ${pathname === '/donatur/kontak-kami' ? 'text-xs font-semibold uppercase tracking-[0.08em] text-gold' : 'navbar-link'}`}
+            onClick={closeMenu}
+          >
+            Kontak Kami
+            {pathname === '/donatur/kontak-kami' && <ActiveTag />}
           </Link>
         </nav>
 
@@ -149,7 +157,7 @@ export default function Navbar({ solid = false }) {
         }`}
       >
         <Link href="/donatur#programs" className="navbar-link text-base" onClick={closeMenu}>
-          Program Kami
+          Kami Peduli
         </Link>
         <Link
           href="/donatur/blog"
@@ -171,6 +179,13 @@ export default function Navbar({ solid = false }) {
           onClick={closeMenu}
         >
           Daftar Program
+        </Link>
+        <Link
+          href="/donatur/kontak-kami"
+          className={pathname === '/donatur/kontak-kami' ? 'navbar-link-active text-base' : 'navbar-link text-base'}
+          onClick={closeMenu}
+        >
+          Kontak Kami
         </Link>
 
         <div className="mt-4 flex items-center gap-5">
