@@ -33,13 +33,17 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                 sudut tajam / lengkung dalam yang sama seperti kartu konten
                 di tempat lain di situs ini. */}
             <article className="overflow-hidden rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_24px_60px_-24px_rgba(6,30,40,0.4)]">
-              <div className={`relative flex h-52 items-center justify-center ${program.blockBg}`}>
+              <div className={`relative flex h-52 items-center justify-center overflow-hidden ${program.blockBg}`}>
+                {program.image ? (
+                  <img src={program.image} alt={program.title} className="absolute inset-0 h-full w-full object-cover" />
+                ) : (
+                  <span className="text-7xl">{program.icon}</span>
+                )}
                 <span
-                  className={`absolute left-6 top-6 rounded-full px-3 py-1 text-xs font-semibold ${program.badgeBg} ${program.badgeText}`}
+                  className={`absolute left-6 top-6 z-[1] rounded-full px-3 py-1 text-xs font-semibold ${program.badgeBg} ${program.badgeText}`}
                 >
                   {program.badge}
                 </span>
-                <span className="text-7xl">{program.icon}</span>
               </div>
 
               <div className="px-6 py-10 sm:px-12 sm:py-14">
@@ -122,8 +126,12 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                 <div className="grid grid-cols-2 gap-6 max-[600px]:grid-cols-1">
                   {otherPrograms.map((p) => (
                     <Link key={p.id} href={`/donatur/program/${p.id}`} className="card group block">
-                      <div className={`flex h-28 items-center justify-center ${p.blockBg}`}>
-                        <span className="text-4xl">{p.icon}</span>
+                      <div className={`relative flex h-28 items-center justify-center overflow-hidden ${p.blockBg}`}>
+                        {p.image ? (
+                          <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-4xl">{p.icon}</span>
+                        )}
                       </div>
                       <div className="p-5">
                         <h3 className="font-heading text-base font-bold leading-snug text-navy group-hover:text-primary">
@@ -152,7 +160,7 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
         </div>
       </PageHeroBackground>
 
-      <DonationModal open={donationOpen} onClose={() => setDonationOpen(false)} initialJenisId={program.jenisId} />
+      <DonationModal open={donationOpen} onClose={() => setDonationOpen(false)} initialJenisId={program.jenisId} scope="program" />
     </>
   )
 }

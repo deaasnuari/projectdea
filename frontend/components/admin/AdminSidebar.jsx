@@ -41,21 +41,15 @@ const NAV_SECTIONS = [
     label: 'Konten',
     items: [
       {
-        href: null,
+        // Judul/teks hero & judul section "Kami Peduli" diedit langsung di
+        // halaman yang tampilannya sama seperti publik (di dalam /admin).
+        // Daftar video & foto dikelola di menu "Dokumentasi".
+        href: '/admin/konten-kami-peduli',
         label: 'Konten Situs',
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
             <path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5" />
             <path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-          </svg>
-        ),
-      },
-      {
-        href: '/admin/program',
-        label: 'Daftar Program',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
           </svg>
         ),
       },
@@ -70,6 +64,49 @@ const NAV_SECTIONS = [
         ),
       },
       {
+        // Sama seperti "Konten Situs": edit langsung di halaman "Tentang Kami".
+        href: '/admin/konten-tentang-kami',
+        label: 'Konten Tentang Kami',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 16v-4M12 8h.01" />
+          </svg>
+        ),
+      },
+      {
+        href: '/admin/program',
+        label: 'Daftar Program',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+          </svg>
+        ),
+      },
+      {
+        // Edit langsung di halaman "Kontak Kami".
+        href: '/admin/konten-kontak-kami',
+        label: 'Konten Kontak Kami',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+            <path d="M4 4h16v12H5.17L4 17.17V4z" />
+            <path d="M8 9h8M8 12h5" />
+          </svg>
+        ),
+      },
+      {
+        href: '/admin/donatur',
+        label: 'Informasi Donatur',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+          </svg>
+        ),
+      },
+      
+      {
         href: '/admin/tim',
         label: 'Tim',
         icon: (
@@ -81,7 +118,7 @@ const NAV_SECTIONS = [
         ),
       },
       {
-        href: null,
+        href: '/admin/dokumentasi',
         label: 'Dokumentasi',
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">

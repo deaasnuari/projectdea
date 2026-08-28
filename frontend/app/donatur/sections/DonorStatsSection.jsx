@@ -1,19 +1,26 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-const STATS = [
-  { value: 157, label: 'Donatur Zakat' },
-  { value: 21, label: 'Donatur Infaq' },
-  { value: 1, label: 'Donatur Orang Tua Asuh' },
-]
+import { getDonorContent } from './donorData'
 
 export default function DonorStatsSection() {
-  const [displays, setDisplays] = useState(STATS.map(() => 0))
+  const [content, setContent] = useState(getDonorContent)
+  const [displays, setDisplays] = useState(() => content.stats.map(() => 0))
 
   useEffect(() => {
+    const refreshContent = () => setContent(getDonorContent())
+    window.addEventListener('donor-content-updated', refreshContent)
+    window.addEventListener('storage', refreshContent)
+    return () => {
+      window.removeEventListener('donor-content-updated', refreshContent)
+      window.removeEventListener('storage', refreshContent)
+    }
+  }, [])
+
+  useEffect(() => {
+    setDisplays(content.stats.map(() => 0))
     const timer = setTimeout(() => {
-      STATS.forEach((stat, index) => {
+      content.stats.forEach((stat, index) => {
         let current = 0
         const increment = Math.max(stat.value / 40, 1)
         const interval = setInterval(() => {
@@ -31,7 +38,7 @@ export default function DonorStatsSection() {
       })
     }, 300)
     return () => clearTimeout(timer)
-  }, [])
+  }, [content])
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-navy to-navy-dark py-5">
@@ -54,11 +61,12 @@ export default function DonorStatsSection() {
 
       <div className="container relative z-[1]">
         <h2 className="mb-3 text-center font-heading text-sm font-bold text-white max-[600px]:text-xs">
-          Jumlah Donatur Saat ini
+          {content.title}
         </h2>
+        <p className="mx-auto mb-4 max-w-xl text-center text-xs text-white/60">{content.description}</p>
 
         <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1 max-[600px]:gap-2">
-          {STATS.map((stat, i) => (
+          {content.stats.map((stat, i) => (
             <div key={stat.label} className="text-center">
               <span className="block font-heading text-lg font-extrabold text-gold max-[600px]:text-base">
                 {displays[i].toLocaleString('id-ID')}

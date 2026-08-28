@@ -4,9 +4,9 @@
 // kontennya sama-sama diletakkan di atasnya), supaya tampilan khas ini
 // terasa konsisten di seluruh halaman, bukan cuma strip header lalu
 // tiba-tiba berubah putih polos.
-export default function PageHeroBackground({ children, className = '' }) {
+export default function PageHeroBackground({ children, className = '', id }) {
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div id={id} className={`relative overflow-hidden ${className}`}>
       <div className="absolute inset-0 z-0">
         <img src="/images/hero-bg.png" alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(10,46,60,0.92)] via-[rgba(10,126,126,0.75)] to-[rgba(10,46,60,0.85)]" />

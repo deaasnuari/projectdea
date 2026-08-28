@@ -3,20 +3,14 @@
 import { useState } from 'react'
 import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
+import EditableText from '@/components/inline-edit/EditableText'
+import { useEditMode } from '@/components/inline-edit/EditModeContext'
+import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
+import { useTentangContent, uid } from './tentangData'
 
-const KEUNGGULAN = [
-  'Terdaftar & terverifikasi BAZNAS Kota Batam',
-  'Pengawasan Dewan Syariah bersertifikat',
-  'Laporan keuangan diaudit setiap tahun',
-  'Penyaluran langsung tanpa potongan biaya operasional',
-]
-
-const MISI = [
-  'Menghimpun zakat, infaq, dan shadaqah dari karyawan PLN Batam secara optimal dan berkelanjutan.',
-  'Menyalurkan dana secara tepat sasaran, transparan, dan tepat waktu kepada mustahik.',
-  'Mengelola dana sesuai syariat Islam di bawah pengawasan Dewan Syariah.',
-  'Membangun program pemberdayaan yang memberi dampak jangka panjang bagi masyarakat.',
-]
+// Bagian "utama" judul .section-title aslinya teks polos (bukan <span>) —
+// dinetralkan biar tidak ikut kena aturan ".section-title span" saat dibungkus.
+const TITLE_MAIN_STYLE = { fontStyle: 'normal', color: 'inherit' }
 
 function CheckIcon() {
   return (
@@ -28,41 +22,86 @@ function CheckIcon() {
 
 export default function TentangSection() {
   const [donationOpen, setDonationOpen] = useState(false)
+  const { content, patch, patchListItem, addListItem, removeListItem } = useTentangContent()
+  const { isAdmin } = useEditMode()
+  const h = content.hero
+  const vm = content.visiMisi
 
   return (
     <>
-      <PageHeroBackground className="pb-24 pt-32">
+      <PageHeroBackground id="tentang-hero" className="pb-10 pt-24">
         <div className="container grid grid-cols-[1.1fr_0.9fr] items-start gap-12 max-[900px]:grid-cols-1">
           {/* Kiri: teks pengantar */}
           <div>
-            <p className="section-label !text-gold">Tentang Kami</p>
+            <EditableText
+              as="p"
+              className="section-label !text-gold"
+              value={h.label}
+              onSave={(v) => patch('hero', { label: v })}
+              label="label Tentang Kami"
+            />
             <h1 className="mb-6 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
-              LAZIS PT PLN Batam
+              <EditableText
+                as="span"
+                value={h.titleMain}
+                onSave={(v) => patch('hero', { titleMain: v })}
+                label="judul utama"
+              />
               <br />
-              <span className="italic text-gold">Amanah Sejak Berdiri</span>
+              <EditableText
+                as="span"
+                className="italic text-gold"
+                value={h.titleHighlight}
+                onSave={(v) => patch('hero', { titleHighlight: v })}
+                label="judul (ditonjolkan)"
+              />
             </h1>
-            <p className="mb-8 max-w-[520px] leading-[1.7] text-white/80">
-              Lembaga Zakat dan Shadaqah PT PLN Batam (LAZIS PLN Batam) adalah unit pengelola zakat internal yang
-              bertugas mengumpulkan dan menyalurkan zakat, infaq, shadaqah dari karyawan PLN Batam kepada mustahik di
-              wilayah Kepulauan Riau.
-            </p>
+            <EditableText
+              as="p"
+              className="mb-8 max-w-[520px] leading-[1.7] text-white/80"
+              value={h.description}
+              onSave={(v) => patch('hero', { description: v })}
+              label="paragraf pengantar"
+              multiline
+            />
 
             <div className="grid max-w-[520px] grid-cols-2 gap-4 max-[480px]:grid-cols-1">
-              {KEUNGGULAN.map((item) => (
+              {content.keunggulan.map((item) => (
                 <div
-                  key={item}
+                  key={item.id}
                   className="group flex items-start gap-3 rounded-tr-xl rounded-bl-xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.14]"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:bg-gold group-hover:text-white">
                     <CheckIcon />
                   </span>
-                  <span className="text-sm leading-snug text-white/90">{item}</span>
+                  <span className="flex-1 text-sm leading-snug text-white/90">
+                    <EditableText
+                      value={item.text}
+                      onSave={(v) => patchListItem('keunggulan', item.id, { text: v })}
+                      label="poin keunggulan"
+                      multiline
+                    />
+                    {isAdmin && (
+                      <DeleteItemButton
+                        className="mt-1 block"
+                        label="Hapus poin ini"
+                        onClick={() => removeListItem('keunggulan', item.id)}
+                      />
+                    )}
+                  </span>
                 </div>
               ))}
+              {isAdmin && (
+                <AddItemButton
+                  className="self-start"
+                  label="Tambah keunggulan"
+                  onClick={() => addListItem('keunggulan', { id: uid('k'), text: 'Poin keunggulan baru' })}
+                />
+              )}
             </div>
           </div>
 
-          {/* Kanan: card donasi */}
+          {/* Kanan: card donasi — SENGAJA tidak diberi inline editing */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
             <h3 className="mb-3 font-heading text-xl font-bold text-navy">Donasi via Transfer</h3>
             <p className="mb-6 text-sm leading-relaxed text-gray-500">
@@ -91,33 +130,88 @@ export default function TentangSection() {
       <section className="bg-gray-50 py-12">
         <div className="container">
           <div className="mb-6">
-            <p className="section-label !mb-1 !text-xs">Arah Kami</p>
+            <EditableText
+              as="p"
+              className="section-label !mb-1 !text-xs"
+              value={vm.label}
+              onSave={(v) => patch('visiMisi', { label: v })}
+              label="label Arah Kami"
+            />
             <h2 className="section-title !text-xl">
-              Visi &amp; <span>Misi</span>
+              <EditableText
+                as="span"
+                style={TITLE_MAIN_STYLE}
+                value={vm.titleMain}
+                onSave={(v) => patch('visiMisi', { titleMain: v })}
+                label="judul Visi & Misi"
+              />{' '}
+              <EditableText
+                as="span"
+                value={vm.titleHighlight}
+                onSave={(v) => patch('visiMisi', { titleHighlight: v })}
+                label="kata yang ditonjolkan"
+              />
             </h2>
           </div>
 
           <div className="grid grid-cols-[0.8fr_1.2fr] gap-4 max-[900px]:grid-cols-1">
             <div className="card flex flex-col justify-center bg-gradient-to-br from-navy to-primary-dark p-5">
-              <h3 className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.5px] text-gold">Visi</h3>
-              <p className="text-xs leading-[1.6] text-white/85">
-                Menjadi lembaga amil zakat internal yang amanah, profesional, dan berdampak nyata bagi kesejahteraan
-                mustahik di wilayah Kepulauan Riau.
-              </p>
+              <EditableText
+                as="h3"
+                className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.5px] text-gold"
+                value={vm.visiTitle}
+                onSave={(v) => patch('visiMisi', { visiTitle: v })}
+                label="judul Visi"
+              />
+              <EditableText
+                as="p"
+                className="text-xs leading-[1.6] text-white/85"
+                value={vm.visiText}
+                onSave={(v) => patch('visiMisi', { visiText: v })}
+                label="isi Visi"
+                multiline
+              />
             </div>
 
             <div className="card p-5">
-              <h3 className="mb-2.5 font-heading text-sm font-bold uppercase tracking-[0.5px] text-primary">Misi</h3>
+              <EditableText
+                as="h3"
+                className="mb-2.5 font-heading text-sm font-bold uppercase tracking-[0.5px] text-primary"
+                value={vm.misiTitle}
+                onSave={(v) => patch('visiMisi', { misiTitle: v })}
+                label="judul Misi"
+              />
               <ul className="flex flex-col gap-2.5">
-                {MISI.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-xs leading-relaxed text-gray-600">
+                {content.misi.map((item) => (
+                  <li key={item.id} className="flex items-start gap-2.5 text-xs leading-relaxed text-gray-600">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <CheckIcon />
                     </span>
-                    {item}
+                    <span className="flex-1">
+                      <EditableText
+                        value={item.text}
+                        onSave={(v) => patchListItem('misi', item.id, { text: v })}
+                        label="poin misi"
+                        multiline
+                      />
+                      {isAdmin && (
+                        <DeleteItemButton
+                          className="mt-1 block"
+                          label="Hapus poin misi"
+                          onClick={() => removeListItem('misi', item.id)}
+                        />
+                      )}
+                    </span>
                   </li>
                 ))}
               </ul>
+              {isAdmin && (
+                <AddItemButton
+                  className="mt-3"
+                  label="Tambah misi"
+                  onClick={() => addListItem('misi', { id: uid('m'), text: 'Poin misi baru' })}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -5,9 +5,14 @@ import { logoutAdmin } from '@/services/adminAuth'
 
 const OPTIONS = [
   { value: '/admin', label: 'Dashboard' },
-  { value: '/admin/program', label: 'Daftar Program' },
+  { value: '/admin/konten-kami-peduli', label: 'Konten Situs' },
   { value: '/admin/blog', label: 'Blog & Kursus' },
+  { value: '/admin/konten-tentang-kami', label: 'Konten Tentang Kami' },
+  { value: '/admin/program', label: 'Daftar Program' },
+  { value: '/admin/konten-kontak-kami', label: 'Konten Kontak Kami' },
+  { value: '/admin/donatur', label: 'Informasi Donatur' },
   { value: '/admin/tim', label: 'Tim' },
+  { value: '/admin/dokumentasi', label: 'Dokumentasi' },
 ]
 
 // Sidebar admin disembunyikan di layar sempit (lihat AdminSidebar.jsx), jadi

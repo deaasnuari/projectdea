@@ -2,23 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { formatRp, formatCountdown } from '@/services/format'
-
-const JENIS_DONASI = [
-  { id: 'zakat-profesi', label: 'Zakat Profesi', programLabel: 'Zakat Profesi Karyawan' },
-  { id: 'zakat-maal', label: 'Zakat Maal', programLabel: 'Zakat Maal' },
-  { id: 'infaq', label: 'Infaq', programLabel: 'Infaq' },
-  { id: 'shadaqah', label: 'Shadaqah', programLabel: 'Shadaqah' },
-  { id: 'fidyah', label: 'Fidyah', programLabel: 'Fidyah' },
-  { id: 'wakaf', label: 'Wakaf', programLabel: 'Wakaf' },
-]
+import { useDonationMethods } from './donationMethodsData'
 
 const NOMINAL_PRESETS = [50000, 100000, 250000, 500000, 'lainnya', 1000000]
-
-const BANKS = [
-  { id: 'bsi', name: 'BSI (Bank Syariah Indonesia)', short: 'BSI', noRek: '7123 456 789', badgeClass: 'bg-[#00754A]' },
-  { id: 'mandiri', name: 'Bank Mandiri', short: 'MDR', noRek: '109 0001 23456', badgeClass: 'bg-[#003D79]' },
-  { id: 'bri', name: 'BRI', short: 'BRI', noRek: '0026 01 099999 50 9', badgeClass: 'bg-[#00529C]' },
-]
 
 const STEPS = [
   { n: 1, label: 'Jenis Donasi' },
@@ -90,7 +76,12 @@ function JenisIcon({ id, className }) {
         </svg>
       )
     default:
-      return null
+      // Jenis donasi tambahan (dibuat admin) — ikon umum.
+      return (
+        <svg {...common}>
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+        </svg>
+      )
   }
 }
 
@@ -178,13 +169,15 @@ function StepIndicator({ step }) {
 function BankBadge({ bank, size = 'md' }) {
   const dims = size === 'sm' ? 'h-9 w-9 text-[10px]' : 'h-11 w-11 text-xs'
   return (
-    <span className={`flex ${dims} shrink-0 items-center justify-center rounded-lg font-extrabold text-white ${bank.badgeClass}`}>
-      {bank.short}
+    <span className={`flex ${dims} shrink-0 items-center justify-center rounded-lg font-extrabold text-white ${bank.badgeClass || 'bg-navy'}`}>
+      {bank.short || (bank.name || '?').slice(0, 3).toUpperCase()}
     </span>
   )
 }
 
-export default function DonationModal({ open, onClose, initialJenisId = null }) {
+export default function DonationModal({ open, onClose, initialJenisId = null, scope = 'tentang' }) {
+  const { jenisList, banks } = useDonationMethods(scope)
+
   const [step, setStep] = useState(1)
   const [jenisId, setJenisId] = useState(initialJenisId)
 
@@ -203,8 +196,8 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
   const [buktiPreview, setBuktiPreview] = useState('')
   const [buktiError, setBuktiError] = useState('')
 
-  const jenis = JENIS_DONASI.find((j) => j.id === jenisId) || null
-  const bank = BANKS.find((b) => b.id === bankId) || null
+  const jenis = jenisList.find((j) => j.id === jenisId) || null
+  const bank = banks.find((b) => b.id === bankId) || null
   const effectiveNominal = customNominal ? Number(customNominal) : nominal
 
   // Setiap kali modal ini dibuka lagi dari awal, semua state di-reset. Kalau
@@ -281,9 +274,12 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
       {/* Bentuk sudut tajam / lengkung dalam yang sama seperti card lain
           di situs ini, cuma dibuat lebih besar untuk modal — supaya
           terasa sebagai bagian dari brand, bukan dialog generik yang
-          asal ditempel. */}
+          asal ditempel. Scroll-nya di dalam kartu ini sendiri (bukan di
+          overlay) supaya kartu tidak ikut geser dari tengah layar; bar-nya
+          disembunyikan (.no-scrollbar) supaya tidak nongol di sudut yang
+          melengkung. */}
       <div
-        className="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white p-6 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8"
+        className="no-scrollbar relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white p-6 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -328,8 +324,8 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
         {step === 1 && (
           <div>
             <h4 className="mb-4 text-sm font-bold text-navy">Pilih Jenis Donasi</h4>
-            <div className="mb-8 grid grid-cols-3 gap-3">
-              {JENIS_DONASI.map((item) => {
+            <div className="mb-6 grid grid-cols-3 gap-3">
+              {jenisList.map((item) => {
                 const active = jenisId === item.id
                 return (
                   <button
@@ -486,7 +482,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
             <h4 className="mb-1 pr-8 text-sm font-bold text-navy">Pilih Bank Tujuan Transfer</h4>
             <p className="mb-6 text-xs text-gray-400">Total tagihan {formatRp(effectiveNominal)}</p>
             <div className="mb-6 flex flex-col gap-3">
-              {BANKS.map((b) => (
+              {banks.map((b) => (
                 <button
                   key={b.id}
                   type="button"
@@ -496,7 +492,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
                   <BankBadge bank={b} />
                   <div className="flex-1">
                     <div className="text-sm font-bold text-navy">{b.name}</div>
-                    <div className="text-xs text-gray-400">Transfer Bank</div>
+                    <div className="text-xs text-gray-400">{b.noRek}</div>
                   </div>
                   <ArrowIcon className="text-gray-300" />
                 </button>
@@ -674,7 +670,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null }) 
               )}
               <div className="flex items-center justify-between gap-4">
                 <span className="text-gray-500">Program</span>
-                <strong className="text-navy-dark">{jenis?.programLabel}</strong>
+                <strong className="text-navy-dark">{jenis?.programLabel || jenis?.label}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="text-gray-500">Nominal</span>

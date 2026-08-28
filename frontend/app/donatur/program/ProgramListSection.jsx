@@ -28,13 +28,17 @@ export default function ProgramListSection() {
               const percent = Math.round((p.collected / p.target) * 100)
               return (
                 <div key={p.id} className="card">
-                  <Link href={`/donatur/program/${p.id}`} className={`relative flex h-40 items-center justify-center ${p.blockBg}`}>
+                  <Link href={`/donatur/program/${p.id}`} className={`relative flex h-40 items-center justify-center overflow-hidden ${p.blockBg}`}>
+                    {p.image ? (
+                      <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-400 hover:scale-[1.05]" />
+                    ) : (
+                      <span className="text-5xl">{p.icon}</span>
+                    )}
                     <span
-                      className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold ${p.badgeBg} ${p.badgeText}`}
+                      className={`absolute left-4 top-4 z-[1] rounded-full px-3 py-1 text-xs font-semibold ${p.badgeBg} ${p.badgeText}`}
                     >
                       {p.badge}
                     </span>
-                    <span className="text-5xl">{p.icon}</span>
                   </Link>
 
                   <div className="p-6">
@@ -87,6 +91,7 @@ export default function ProgramListSection() {
         open={donationJenis !== null}
         onClose={() => setDonationJenis(null)}
         initialJenisId={donationJenis}
+        scope="program"
       />
     </>
   )

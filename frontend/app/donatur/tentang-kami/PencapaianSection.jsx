@@ -1,4 +1,12 @@
+'use client'
+
+import EditableText from '@/components/inline-edit/EditableText'
+import { useTentangContent } from './tentangData'
+
 export default function PencapaianSection() {
+  const { content, patch } = useTentangContent()
+  const p = content.pencapaian
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-navy to-primary-dark py-6">
       <svg className="absolute inset-0 h-full w-full opacity-[0.06]" aria-hidden="true">
@@ -16,21 +24,37 @@ export default function PencapaianSection() {
       </svg>
 
       <div className="container relative z-[1] text-center">
-        <p className="section-label !mb-1 !justify-center !text-[10px] !text-gold">Bukti Nyata</p>
+        <EditableText
+          as="p"
+          className="section-label !mb-1 !justify-center !text-[10px] !text-gold"
+          value={p.label}
+          onSave={(v) => patch('pencapaian', { label: v })}
+          label="label Bukti Nyata"
+        />
         <h2 className="mb-2 font-heading text-base font-semibold leading-[1.15] text-white">
-          Pencapaian <span className="italic text-gold">Kami</span>
+          <EditableText
+            as="span"
+            value={p.titleMain}
+            onSave={(v) => patch('pencapaian', { titleMain: v })}
+            label="judul Pencapaian"
+          />{' '}
+          <EditableText
+            as="span"
+            className="italic text-gold"
+            value={p.titleHighlight}
+            onSave={(v) => patch('pencapaian', { titleHighlight: v })}
+            label="kata yang ditonjolkan"
+          />
         </h2>
 
-        {/* Catatan: angka di paragraf ini masih placeholder — ganti dengan
-            data pencapaian LAZIS PLN Batam yang sebenarnya. */}
-        <p className="mx-auto max-w-[480px] text-[11px] leading-[1.6] text-white/80">
-          Sejauh ini, LAZIS PLN Batam telah menghimpun <span className="font-bold text-gold">Rp 3.8 M</span> dana
-          zakat, infaq, dan shadaqah dari <span className="font-bold text-gold">1.240+</span> donatur aktif, dan
-          menyalurkannya kepada lebih dari <span className="font-bold text-gold">5.600+</span> penerima manfaat di
-          Kepulauan Riau. Seluruh dana dikelola dengan{' '}
-          <span className="font-bold text-gold">transparansi penuh</span> dan dapat dipertanggungjawabkan kepada
-          setiap donatur.
-        </p>
+        <EditableText
+          as="p"
+          className="mx-auto max-w-[480px] text-[11px] leading-[1.6] text-white/80"
+          value={p.text}
+          onSave={(v) => patch('pencapaian', { text: v })}
+          label="paragraf pencapaian"
+          multiline
+        />
       </div>
     </section>
   )

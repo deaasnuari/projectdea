@@ -4,11 +4,12 @@ import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { formatJt } from '@/services/format'
+import { fileToResizedDataUrl } from '@/services/imageFile'
 import { PROGRAMS } from '@/app/donatur/program/programData'
+import { useDonationMethods, DEFAULT_JENIS_DONASI } from '@/components/donation/donationMethodsData'
+import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
 
-// Preset warna kartu program — dipilih dari dropdown di form, bukan warna
-// bebas, supaya tetap konsisten dengan palet kartu program yang sudah ada
-// di situs donatur (lihat programData.js).
+//ini
 const COLOR_THEMES = {
   green: {
     label: 'Hijau',
@@ -36,20 +37,12 @@ const COLOR_THEMES = {
   },
 }
 
-const JENIS_OPTIONS = [
-  { id: 'zakat-profesi', label: 'Zakat Profesi' },
-  { id: 'zakat-maal', label: 'Zakat Maal' },
-  { id: 'infaq', label: 'Infaq' },
-  { id: 'shadaqah', label: 'Shadaqah' },
-  { id: 'fidyah', label: 'Fidyah' },
-  { id: 'wakaf', label: 'Wakaf' },
-]
-
 const EMPTY_FORM = {
   title: '',
   badge: '',
-  icon: '💛',
-  jenisId: JENIS_OPTIONS[0].id,
+  icon: '💛', // dipakai sebagai cadangan kalau belum ada gambar
+  image: '',
+  jenisId: DEFAULT_JENIS_DONASI[0].id,
   theme: 'green',
   desc: '',
   harapan: '',
@@ -72,24 +65,50 @@ function slugify(text) {
 // cuma disimpan di state komponen (belum ada backend) — jadi kembali ke
 // data awal begitu halaman di-refresh.
 export default function AdminProgramPage() {
+  // Pilihan "Jenis Donasi" di form program diambil dari metode donasi
+  // scope 'program' (dikelola di panel bawah halaman ini) — terpisah dari
+  // metode donasi "Donasi via Transfer" di halaman Tentang Kami.
+  const { jenisList } = useDonationMethods('program')
   const [programs, setPrograms] = useState(PROGRAMS)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [imgBusy, setImgBusy] = useState(false)
+  const [imgError, setImgError] = useState('')
 
   const openAdd = () => {
     setEditingId(null)
     setForm(EMPTY_FORM)
+    setImgError('')
     setModalOpen(true)
+  }
+
+  // Pilih file gambar → diperkecil jadi data URL, disimpan di form.
+  const handleImageFile = async (e) => {
+    const file = e.target.files && e.target.files[0]
+    e.target.value = ''
+    if (!file) return
+    setImgBusy(true)
+    setImgError('')
+    try {
+      const dataUrl = await fileToResizedDataUrl(file)
+      setForm((f) => ({ ...f, image: dataUrl }))
+    } catch (err) {
+      setImgError(err.message || 'Gagal memproses gambar')
+    } finally {
+      setImgBusy(false)
+    }
   }
 
   const openEdit = (program) => {
     const theme = Object.keys(COLOR_THEMES).find((key) => COLOR_THEMES[key].badgeBg === program.badgeBg) || 'green'
     setEditingId(program.id)
+    setImgError('')
     setForm({
       title: program.title,
       badge: program.badge,
-      icon: program.icon,
+      icon: program.icon || '💛',
+      image: program.image || '',
       jenisId: program.jenisId,
       theme,
       desc: program.desc,
@@ -117,6 +136,7 @@ export default function AdminProgramPage() {
       title: form.title,
       badge: form.badge,
       icon: form.icon || '💛',
+      image: form.image || '',
       jenisId: form.jenisId,
       desc: form.desc,
       harapan: form.harapan,
@@ -171,11 +191,15 @@ export default function AdminProgramPage() {
           const percent = p.target > 0 ? Math.round((p.collected / p.target) * 100) : 0
           return (
             <div key={p.id} className="card">
-              <div className={`relative flex h-28 items-center justify-center ${p.blockBg}`}>
-                <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold ${p.badgeBg} ${p.badgeText}`}>
+              <div className={`relative flex h-28 items-center justify-center overflow-hidden ${p.blockBg}`}>
+                {p.image ? (
+                  <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
+                ) : (
+                  <span className="text-4xl">{p.icon}</span>
+                )}
+                <span className={`absolute left-4 top-4 z-[1] rounded-full px-3 py-1 text-xs font-semibold ${p.badgeBg} ${p.badgeText}`}>
                   {p.badge}
                 </span>
-                <span className="text-4xl">{p.icon}</span>
               </div>
               <div className="p-5">
                 <h3 className="mb-1 font-heading text-base font-bold text-navy">{p.title}</h3>
@@ -217,6 +241,16 @@ export default function AdminProgramPage() {
         )}
       </div>
 
+      {/* Metode donasi khusus program (jenis donasi & rekening) — terpisah
+          dari yang di halaman Tentang Kami, jadi rekeningnya bisa dibedakan. */}
+      <div className="mt-10">
+        <DonationMethodsManager
+          scope="program"
+          title="Metode Donasi Program"
+          description='Jenis donasi & rekening bank yang dipakai saat pengunjung klik "Donasi" pada kartu program.'
+        />
+      </div>
+
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Edit Program' : 'Tambah Program'}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
@@ -230,7 +264,7 @@ export default function AdminProgramPage() {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Badge</label>
               <input
@@ -238,15 +272,6 @@ export default function AdminProgramPage() {
                 placeholder="Contoh: Infaq"
                 value={form.badge}
                 onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Ikon (emoji)</label>
-              <input
-                type="text"
-                value={form.icon}
-                onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
                 className={inputClass}
               />
             </div>
@@ -267,13 +292,44 @@ export default function AdminProgramPage() {
           </div>
 
           <div>
+            <label className={labelClass}>Gambar Program</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageFile}
+              className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-primary-dark hover:file:cursor-pointer hover:file:bg-primary/20"
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Pilih file gambar dari perangkat (JPG/PNG). Tampil sebagai gambar utama kartu program.
+            </p>
+            {imgBusy && <p className="mt-1 text-xs text-primary">Memproses gambar…</p>}
+            {imgError && <p className="mt-1 text-xs font-semibold text-coral">{imgError}</p>}
+            {form.image && (
+              <div className="mt-2 flex items-center gap-3">
+                <img
+                  src={form.image}
+                  alt="Pratinjau gambar program"
+                  className="h-20 w-32 rounded-lg border border-gray-100 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, image: '' }))}
+                  className="text-xs font-semibold text-coral hover:text-coral-dark"
+                >
+                  Hapus gambar
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div>
             <label className={labelClass}>Jenis Donasi (untuk form Donasi via Transfer)</label>
             <select
               value={form.jenisId}
               onChange={(e) => setForm((f) => ({ ...f, jenisId: e.target.value }))}
               className={inputClass}
             >
-              {JENIS_OPTIONS.map((j) => (
+              {jenisList.map((j) => (
                 <option key={j.id} value={j.id}>
                   {j.label}
                 </option>
@@ -361,9 +417,10 @@ export default function AdminProgramPage() {
             </button>
             <button
               type="submit"
-              className="flex flex-[1.4] items-center justify-center rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary-dark"
+              disabled={imgBusy}
+              className="flex flex-[1.4] items-center justify-center rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {editingId ? 'Simpan Perubahan' : 'Tambah'}
+              {imgBusy ? 'Memproses…' : editingId ? 'Simpan Perubahan' : 'Tambah'}
             </button>
           </div>
         </form>

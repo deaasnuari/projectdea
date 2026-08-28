@@ -1,8 +1,4 @@
-// Data donasi masuk untuk kartu "Donasi Terbaru" di dashboard admin.
-// Sama seperti programData.js/blogData.js — ini contoh, belum tersambung ke
-// backend pembayaran, jadi total & jumlah transaksi di dashboard dihitung
-// dari daftar ini (bukan angka yang ditulis manual) supaya tetap konsisten
-// kalau daftarnya diubah.
+//ini data dummy untuk menampilkan daftar donasi terbaru di halaman dashboard admin. Data ini hanya contoh, dan akan diganti dengan data nyata dari backend di masa depan.
 export const RECENT_DONATIONS = [
   {
     id: 1,

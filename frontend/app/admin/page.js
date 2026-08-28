@@ -96,10 +96,7 @@ export default function AdminDashboardPage() {
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">Dashboard</p>
         <h1 className="font-heading text-2xl font-bold text-navy">Ringkasan Admin</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Data di halaman ini masih contoh (belum tersambung ke backend) — perubahan lewat panel Program, Blog, dan
-          Tim belum tersimpan permanen dan akan kembali ke data awal saat halaman di-refresh.
-        </p>
+
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4 max-[480px]:grid-cols-1">

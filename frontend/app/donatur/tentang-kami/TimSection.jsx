@@ -1,4 +1,12 @@
+'use client'
+
+import Link from 'next/link'
 import { TEAM } from './timData'
+import EditableText from '@/components/inline-edit/EditableText'
+import { useEditMode } from '@/components/inline-edit/EditModeContext'
+import { useTentangContent } from './tentangData'
+
+const TITLE_MAIN_STYLE = { fontStyle: 'normal', color: 'inherit' }
 
 function AvatarPlaceholder() {
   return (
@@ -9,18 +17,59 @@ function AvatarPlaceholder() {
 }
 
 export default function TimSection() {
+  const { content, patch } = useTentangContent()
+  const { isAdmin } = useEditMode()
+  const t = content.tim
+
   return (
     <section className="bg-white py-12">
       <div className="container">
         <div className="mb-6 text-center">
-          <p className="section-label !justify-center !text-xs">Kenali Tim Kami</p>
+          <EditableText
+            as="p"
+            className="section-label !justify-center !text-xs"
+            value={t.label}
+            onSave={(v) => patch('tim', { label: v })}
+            label="label Kenali Tim Kami"
+          />
           <h2 className="section-title !text-xl">
-            Tim yang <span>Berdedikasi</span>
+            <EditableText
+              as="span"
+              style={TITLE_MAIN_STYLE}
+              value={t.titleMain}
+              onSave={(v) => patch('tim', { titleMain: v })}
+              label="judul Tim"
+            />{' '}
+            <EditableText
+              as="span"
+              value={t.titleHighlight}
+              onSave={(v) => patch('tim', { titleHighlight: v })}
+              label="kata yang ditonjolkan"
+            />
           </h2>
-          <p className="mx-auto mt-2 max-w-[480px] text-xs leading-relaxed text-gray-500">
-            Kenali tim kami yang berdedikasi dalam memberikan layanan zakat, infaq, dan shadaqah yang amanah bagi
-            karyawan PLN Batam dan masyarakat yang membutuhkan.
-          </p>
+          <EditableText
+            as="p"
+            className="mx-auto mt-2 max-w-[480px] text-xs leading-relaxed text-gray-500"
+            value={t.description}
+            onSave={(v) => patch('tim', { description: v })}
+            label="paragraf Tim"
+            multiline
+          />
+
+          {/* Anggota tim dikelola di halaman admin "Tim" (menu sidebar). */}
+          {isAdmin && (
+            <div className="mt-3">
+              <Link
+                href="/admin/tim"
+                className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/50 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-primary hover:bg-primary/5"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13" aria-hidden="true">
+                  <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                </svg>
+                Tambah / kelola anggota tim
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">

@@ -1,0 +1,17 @@
+# File teks disimpan LF di repo, tapi di-checkout dengan akhir baris asli
+# OS masing-masing. Di Windows otomatis jadi CRLF, di Linux/Mac tetap LF.
+# Ini menghilangkan warning "LF will be replaced by CRLF".
+* text=auto
+
+# File biner — jangan diutak-atik line ending-nya.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary

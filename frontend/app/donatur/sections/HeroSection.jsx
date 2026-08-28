@@ -1,3 +1,8 @@
+'use client'
+
+import EditableText from '@/components/inline-edit/EditableText'
+import { useKamiPeduliContent } from './useKamiPeduliContent'
+
 const FEATURES = [
   {
     title: 'Kalkulator Zakat',
@@ -36,6 +41,10 @@ const FEATURES = [
 ]
 
 export default function HeroSection() {
+  const { content, patchSection } = useKamiPeduliContent()
+  const hero = content.hero
+  const setHero = (patch) => patchSection('hero', patch)
+
   return (
     <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[600px]:min-h-0 max-[600px]:pb-8">
       {/* Latar belakang */}
@@ -63,37 +72,70 @@ export default function HeroSection() {
       <div className="container relative z-[1] pt-32 max-[600px]:pt-[104px]">
         {/* Konten */}
         <div className="max-w-[650px] animate-fade-in-up">
-          <p className="section-label !mb-3 !text-gold">
-            Selamat datang di Lembaga Zakat dan Shadaqah PT PLN Batam
-          </p>
+          <EditableText
+            as="p"
+            className="section-label !mb-3 !text-gold"
+            value={hero.label}
+            onSave={(v) => setHero({ label: v })}
+            label="teks sambutan"
+            multiline
+          />
           <h1 className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
-            Bergabunglah Bersama
-            <br />
-            kami dalam Misi <span className="italic text-gold">Kebaikan</span>
+            <EditableText
+              as="span"
+              value={hero.titleBefore}
+              onSave={(v) => setHero({ titleBefore: v })}
+              label="judul hero"
+              multiline
+              preserveWhitespace
+            />{' '}
+            <EditableText
+              as="span"
+              className="italic text-gold"
+              value={hero.titleHighlight}
+              onSave={(v) => setHero({ titleHighlight: v })}
+              label="kata yang ditonjolkan"
+            />
           </h1>
-          <p className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80">
-            Kami berkomitmen untuk menyalurkan kebaikan bagi yang membutuhkan melalui program-program sosial
-            transparan dan terpercaya.
-          </p>
+          <EditableText
+            as="p"
+            className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80"
+            value={hero.description}
+            onSave={(v) => setHero({ description: v })}
+            label="deskripsi hero"
+            multiline
+          />
           <div className="mb-6 flex flex-wrap gap-4 max-[600px]:flex-col">
             <a href="#zakat-calculator" className="btn btn-gold">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
               </svg>
-              Tunaikan Zakat
+              <EditableText
+                value={hero.ctaZakat}
+                onSave={(v) => setHero({ ctaZakat: v })}
+                label="tombol Tunaikan Zakat"
+              />
             </a>
             <a href="#programs" className="btn btn-primary">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                 <circle cx="10" cy="10" r="7.5" />
                 <path d="M12.6 7.4l-1.8 3.8-3.8 1.8 1.8-3.8 3.8-1.8z" />
               </svg>
-              Jelajahi Kami
+              <EditableText
+                value={hero.ctaJelajahi}
+                onSave={(v) => setHero({ ctaJelajahi: v })}
+                label="tombol Jelajahi Kami"
+              />
             </a>
             <a href="#" className="btn btn-outline">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                 <path d="M10 16.8s-5.6-3.5-5.6-7.6C4.4 6.9 6 5.2 8 5.2c.9 0 1.7.5 2 1.2.3-.7 1.1-1.2 2-1.2 2 0 3.6 1.7 3.6 4 0 4.1-5.6 7.6-5.6 7.6z" />
               </svg>
-              Infaq / Shodaqoh
+              <EditableText
+                value={hero.ctaInfaq}
+                onSave={(v) => setHero({ ctaInfaq: v })}
+                label="tombol Infaq / Shodaqoh"
+              />
             </a>
           </div>
         </div>

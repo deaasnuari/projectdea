@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
+import { fileToResizedDataUrl } from '@/services/imageFile'
 import { POSTS } from '@/app/donatur/blog/blogData'
 
 const EMPTY_FORM = { title: '', badge: '', date: '', readTime: '', image: '', desc: '', content: '' }
@@ -15,23 +16,42 @@ function slugify(text) {
     .replace(/\s+/g, '-')
 }
 
-// Catatan: data awal diambil dari blogData.js, tapi perubahan di sini cuma
-// disimpan di state komponen (belum ada backend) — jadi kembali ke data
-// awal begitu halaman di-refresh.
+//ini 
 export default function AdminBlogPage() {
   const [posts, setPosts] = useState(POSTS)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingSlug, setEditingSlug] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [imgBusy, setImgBusy] = useState(false)
+  const [imgError, setImgError] = useState('')
 
   const openAdd = () => {
     setEditingSlug(null)
     setForm(EMPTY_FORM)
+    setImgError('')
     setModalOpen(true)
+  }
+
+  // Pilih file gambar → diperkecil jadi data URL, disimpan di form.
+  const handleImageFile = async (e) => {
+    const file = e.target.files && e.target.files[0]
+    e.target.value = ''
+    if (!file) return
+    setImgBusy(true)
+    setImgError('')
+    try {
+      const dataUrl = await fileToResizedDataUrl(file)
+      setForm((f) => ({ ...f, image: dataUrl }))
+    } catch (err) {
+      setImgError(err.message || 'Gagal memproses gambar')
+    } finally {
+      setImgBusy(false)
+    }
   }
 
   const openEdit = (post) => {
     setEditingSlug(post.slug)
+    setImgError('')
     setForm({
       title: post.title,
       badge: post.badge,
@@ -184,27 +204,46 @@ export default function AdminBlogPage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Tanggal</label>
-              <input
-                type="text"
-                placeholder="Contoh: 12 Jan 2025"
-                value={form.date}
-                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>URL Gambar</label>
-              <input
-                type="text"
-                placeholder="/images/..."
-                value={form.image}
-                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                className={inputClass}
-              />
-            </div>
+          <div>
+            <label className={labelClass}>Tanggal</label>
+            <input
+              type="text"
+              placeholder="Contoh: 12 Jan 2025"
+              value={form.date}
+              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Gambar Artikel</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageFile}
+              className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-primary-dark hover:file:cursor-pointer hover:file:bg-primary/20"
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Pilih file gambar dari perangkat (JPG/PNG). Tampil sebagai gambar utama artikel.
+            </p>
+            {imgBusy && <p className="mt-1 text-xs text-primary">Memproses gambar…</p>}
+            {imgError && <p className="mt-1 text-xs font-semibold text-coral">{imgError}</p>}
+            {form.image && (
+              <div className="mt-2 flex items-center gap-3">
+                <img
+                  src={form.image}
+                  alt="Pratinjau gambar artikel"
+                  className="h-20 w-32 rounded-lg border border-gray-100 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, image: '' }))}
+                  className="text-xs font-semibold text-coral hover:text-coral-dark"
+                >
+                  Hapus gambar
+                </button>
+              </div>
+            )}
           </div>
           <div>
             <label className={labelClass}>Ringkasan</label>
@@ -234,9 +273,10 @@ export default function AdminBlogPage() {
             </button>
             <button
               type="submit"
-              className="flex flex-[1.4] items-center justify-center rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary-dark"
+              disabled={imgBusy}
+              className="flex flex-[1.4] items-center justify-center rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {editingSlug ? 'Simpan Perubahan' : 'Tambah'}
+              {imgBusy ? 'Memproses…' : editingSlug ? 'Simpan Perubahan' : 'Tambah'}
             </button>
           </div>
         </form>
