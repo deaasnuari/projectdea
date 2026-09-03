@@ -15,7 +15,7 @@ const BADGE_COLORS = [
 ]
 
 const EMPTY_JENIS = { label: '', programLabel: '' }
-const EMPTY_BANK = { name: '', short: '', noRek: '', badgeClass: BADGE_COLORS[0].value }
+const EMPTY_BANK = { name: '', short: '', noRek: '', owner: '', badgeClass: BADGE_COLORS[0].value }
 
 const IconPlus = (
   <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
@@ -85,6 +85,7 @@ export default function DonationMethodsManager({
       name: b.name || '',
       short: b.short || '',
       noRek: b.noRek || '',
+      owner: b.owner || '',
       badgeClass: b.badgeClass || BADGE_COLORS[0].value,
     })
     setBankModal(true)
@@ -99,6 +100,7 @@ export default function DonationMethodsManager({
         id: bankEditId || undefined,
         name,
         noRek,
+        owner: bankForm.owner.trim(),
         short: (bankForm.short.trim() || name.slice(0, 3)).toUpperCase(),
         badgeClass: bankForm.badgeClass,
       })
@@ -183,6 +185,7 @@ export default function DonationMethodsManager({
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-navy">{b.name}</p>
                 <p className="font-heading text-sm font-bold tracking-wide text-navy-dark">{b.noRek}</p>
+                {b.owner && <p className="truncate text-[11px] text-gray-400">a.n. {b.owner}</p>}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -309,6 +312,16 @@ export default function DonationMethodsManager({
               placeholder="Contoh: 109 0001 23456"
               value={bankForm.noRek}
               onChange={(e) => setBankForm((f) => ({ ...f, noRek: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Nama Pemilik Rekening</label>
+            <input
+              type="text"
+              placeholder="Contoh: LAZIS PT PLN Batam"
+              value={bankForm.owner}
+              onChange={(e) => setBankForm((f) => ({ ...f, owner: e.target.value }))}
               className={inputClass}
             />
           </div>

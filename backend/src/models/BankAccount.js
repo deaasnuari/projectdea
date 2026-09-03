@@ -10,6 +10,7 @@ function toApi(row) {
     name: row.name,
     short: row.short || '',
     noRek: row.no_rek || '',
+    owner: row.owner || '',
     badgeClass: row.badge_class || '',
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -36,10 +37,17 @@ async function findById(id) {
 async function create(d) {
   const scope = SCOPES.includes(d.scope) ? d.scope : 'tentang'
   const { rows } = await query(
-    `insert into bank_accounts (scope, name, short, no_rek, badge_class)
-     values ($1, $2, $3, $4, $5)
+    `insert into bank_accounts (scope, name, short, no_rek, owner, badge_class)
+     values ($1, $2, $3, $4, $5, $6)
      returning *`,
-    [scope, String(d.name || '').trim(), d.short || null, String(d.noRek || '').trim(), d.badgeClass || null],
+    [
+      scope,
+      String(d.name || '').trim(),
+      d.short || null,
+      String(d.noRek || '').trim(),
+      d.owner ? String(d.owner).trim() : null,
+      d.badgeClass || null,
+    ],
   )
   return toApi(rows[0])
 }
@@ -50,7 +58,7 @@ async function update(id, d) {
   const val = (v, fallback) => (v != null ? v : fallback)
   const { rows } = await query(
     `update bank_accounts set
-       name = $2, short = $3, no_rek = $4, badge_class = $5, updated_at = now()
+       name = $2, short = $3, no_rek = $4, owner = $5, badge_class = $6, updated_at = now()
      where id = $1
      returning *`,
     [
@@ -58,6 +66,7 @@ async function update(id, d) {
       val(d.name != null ? String(d.name).trim() : null, cur.name),
       val(d.short, cur.short),
       val(d.noRek != null ? String(d.noRek).trim() : null, cur.noRek),
+      val(d.owner != null ? String(d.owner).trim() : null, cur.owner),
       val(d.badgeClass, cur.badgeClass),
     ],
   )

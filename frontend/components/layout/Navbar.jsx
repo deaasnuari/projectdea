@@ -56,7 +56,7 @@ export default function Navbar({ solid = false }) {
           atas gambar hero seolah objek yang diletakkan di halaman, lalu
           jadi solid begitu ada background polos di belakangnya. */}
       <div
-        className={`relative z-[1001] mx-auto flex max-w-[1120px] items-center justify-between rounded-full border py-2.5 pl-4 pr-2.5 transition-all duration-300 md:pl-6 md:pr-3 ${
+        className={`relative z-[1001] mx-auto flex max-w-[1080px] items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-300 md:px-6 ${
           showSolid
             ? 'border-white/10 bg-navy-dark/90 shadow-[0_12px_32px_rgba(0,0,0,0.35)] backdrop-blur-md'
             : 'border-white/15 bg-navy-dark/25 shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-sm'
@@ -75,8 +75,11 @@ export default function Navbar({ solid = false }) {
           />
         </Link>
 
-        {/* Menu navigasi versi desktop */}
-        <nav className="flex items-center gap-9 max-[900px]:hidden">
+        {/* Menu navigasi versi desktop — diposisikan absolut di tengah pil
+            supaya tetap center berapa pun lebar logo. w-max + whitespace-nowrap
+            memastikan tiap menu tetap satu baris (mis. "Kami Peduli" tidak
+            patah jadi dua baris). */}
+        <nav className="absolute left-1/2 top-1/2 flex w-max -translate-x-1/2 -translate-y-1/2 items-center gap-8 whitespace-nowrap max-[900px]:hidden">
           <Link href="/donatur#programs" className="relative navbar-link" onClick={closeMenu}>
             Kami Peduli
           </Link>
@@ -113,19 +116,6 @@ export default function Navbar({ solid = false }) {
             {pathname === '/donatur/kontak-kami' && <ActiveTag />}
           </Link>
         </nav>
-
-        {/* Tombol login/register versi desktop */}
-        <div className="flex items-center gap-5 max-[900px]:hidden">
-          <Link
-            href="/login"
-            className="btn btn-outline px-6 py-2.5 text-sm hover:translate-y-0 active:border-gold active:bg-gold active:text-navy"
-          >
-            Login
-          </Link>
-          <Link href="/register" className="btn btn-gold px-6 py-2.5 text-sm">
-            Register
-          </Link>
-        </div>
 
         {/* Tombol menu hamburger (untuk mobile) */}
         <button
@@ -187,19 +177,6 @@ export default function Navbar({ solid = false }) {
         >
           Kontak Kami
         </Link>
-
-        <div className="mt-4 flex items-center gap-5">
-          <Link
-            href="/login"
-            className="btn btn-outline hover:translate-y-0 active:border-gold active:bg-gold active:text-navy"
-            onClick={closeMenu}
-          >
-            Login
-          </Link>
-          <Link href="/register" className="btn btn-gold" onClick={closeMenu}>
-            Register
-          </Link>
-        </div>
       </nav>
     </header>
   )

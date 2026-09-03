@@ -12,8 +12,26 @@ export const DEFAULT_KAMI_PEDULI_CONTENT = {
       'Kami berkomitmen untuk menyalurkan kebaikan bagi yang membutuhkan melalui program-program sosial transparan dan terpercaya.',
     ctaZakat: 'Tunaikan Zakat',
     ctaJelajahi: 'Jelajahi Kami',
-    ctaInfaq: 'Infaq / Shodaqoh',
   },
+  // Tiga kartu fitur di bawah hero. `id` tetap (kalkulator|konsultasi|program)
+  // — ikon & tautannya di-hardcode di HeroSection; teksnya bisa diedit admin.
+  features: [
+    {
+      id: 'kalkulator',
+      title: 'Kalkulator Zakat',
+      desc: 'Menghitung jumlah zakat yang harus dibayarkan sesuai dengan ketentuan syariah.',
+    },
+    {
+      id: 'konsultasi',
+      title: 'Konsultasi',
+      desc: 'Layanan konsultasi zakat secara online. Tanya dan pahami lebih lanjut mengenai pentingnya zakat.',
+    },
+    {
+      id: 'program',
+      title: 'Program',
+      desc: 'Berbagai program zakat yang efektif dan transparan untuk membantu masyarakat yang membutuhkan.',
+    },
+  ],
   programHeading: {
     label: 'Bukti Nyata',
     titleMain: 'Program yang',

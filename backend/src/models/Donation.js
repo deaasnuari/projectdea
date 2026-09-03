@@ -8,8 +8,8 @@ async function create(d) {
   const { rows } = await query(
     `insert into donations
        (donor_name, anonymous, jenis_id, jenis_label, program, source, amount,
-        bank_id, bank_name, nik, note, proof)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+        bank_id, bank_name, note, proof)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
      returning *`,
     [
       d.donorName || 'Anonim',
@@ -21,7 +21,6 @@ async function create(d) {
       Math.round(Number(d.amount) || 0),
       d.bankId || null,
       d.bankName || null,
-      d.nik || null,
       d.note || null,
       d.proof || null,
     ],
@@ -48,7 +47,7 @@ async function list({ status, source, jenis, limit = 200 } = {}) {
   params.push(Math.min(Number(limit) || 200, 500))
   const { rows } = await query(
     `select id, donor_name, anonymous, jenis_id, jenis_label, program, source, amount,
-            bank_id, bank_name, nik, note,
+            bank_id, bank_name, note,
             (proof is not null) as has_proof,
             status, created_at
      from donations ${where}

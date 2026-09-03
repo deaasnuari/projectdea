@@ -21,6 +21,7 @@ async function create(req, res, next) {
       scope: b.scope,
       name,
       noRek,
+      owner: b.owner ? String(b.owner).trim() : null,
       short: b.short ? String(b.short).trim().toUpperCase() : name.slice(0, 3).toUpperCase(),
       badgeClass: b.badgeClass || null,
     })
@@ -40,6 +41,7 @@ async function update(req, res, next) {
     const patch = {}
     if (b.name != null) patch.name = String(b.name).trim()
     if (b.noRek != null) patch.noRek = String(b.noRek).trim()
+    if (b.owner != null) patch.owner = String(b.owner).trim()
     if (b.short != null) patch.short = String(b.short).trim().toUpperCase()
     if (b.badgeClass != null) patch.badgeClass = b.badgeClass
 

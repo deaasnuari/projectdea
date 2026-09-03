@@ -1,10 +1,5 @@
 'use client'
-
-// Data awal + util halaman "Kontak Kami". Sumber kebenaran di backend
-// (tabel `contact_page`, satu baris). Hook + klien API-nya di
-// services/contactPage.js — file ini menyimpan default & util, lalu
-// meneruskan hook supaya import lama tetap jalan.
-
+// Data untuk kontak kami 
 export const DEFAULT_KONTAK_CONTENT = {
   hero: {
     label: 'Kontak Kami',

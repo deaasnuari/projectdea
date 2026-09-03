@@ -208,7 +208,6 @@ export default function AdminRiwayatDonasiPage() {
                   <tr key={d.id} className="align-top transition-colors hover:bg-gray-50/60">
                     <td className="px-4 py-3">
                       <div className="font-semibold text-navy">{d.anonymous ? 'Anonim' : d.donor_name}</div>
-                      {d.nik && <div className="text-[11px] text-gray-400">NIK {d.nik}</div>}
                       {d.note && (
                         <div className="max-w-[200px] truncate text-[11px] italic text-gray-400">“{d.note}”</div>
                       )}
@@ -280,7 +279,6 @@ export default function AdminRiwayatDonasiPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-navy">{d.anonymous ? 'Anonim' : d.donor_name}</p>
-                  {d.nik && <p className="text-[11px] text-gray-400">NIK {d.nik}</p>}
                 </div>
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[d.status]}`}

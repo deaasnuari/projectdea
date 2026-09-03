@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Field, inputClass } from '@/components/auth/AuthCard'
 import { loginAdmin, DEMO_ADMIN_CREDENTIALS } from '@/services/adminAuth'
@@ -63,13 +62,6 @@ export default function LoginForm() {
 
       <p className="mt-3 text-center text-[10px] text-gray-400">
         Demo: {DEMO_ADMIN_CREDENTIALS.username} / {DEMO_ADMIN_CREDENTIALS.password}
-      </p>
-
-      <p className="mt-3 text-center text-xs text-gray-500">
-        Belum punya akun?{' '}
-        <Link href="/register" className="font-semibold text-primary hover:text-primary-dark">
-          Daftar di sini
-        </Link>
       </p>
     </form>
   )

@@ -193,7 +193,6 @@ export default function DonationModal({
   const [customNominal, setCustomNominal] = useState('')
   const [anonim, setAnonim] = useState(false)
   const [nama, setNama] = useState('')
-  const [nik, setNik] = useState('')
   const [niat, setNiat] = useState('')
 
   const [bankId, setBankId] = useState(null)
@@ -222,7 +221,6 @@ export default function DonationModal({
     setCustomNominal('')
     setAnonim(false)
     setNama('')
-    setNik('')
     setNiat('')
     setBankId(null)
     setSecondsLeft(BATAS_BAYAR_START)
@@ -290,7 +288,6 @@ export default function DonationModal({
         amount: effectiveNominal,
         bankId: bank?.id || null,
         bankName: bank?.name || null,
-        nik: nik.trim() || null,
         note: niat.trim() || null,
         proof,
       })
@@ -485,15 +482,6 @@ export default function DonationModal({
                 className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white disabled:opacity-50"
               />
             </div>
-            <div className="mb-3">
-              <input
-                type="text"
-                placeholder="NIK karyawan (opsional)"
-                value={nik}
-                onChange={(e) => setNik(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white"
-              />
-            </div>
             <div className="mb-6">
               <input
                 type="text"
@@ -565,7 +553,7 @@ export default function DonationModal({
                 <BankBadge bank={bank} />
                 <div>
                   <div className="text-sm font-bold text-navy">{bank.name}</div>
-                  <div className="text-xs text-gray-400">Rekening · LAZIS PLN Batam</div>
+                  <div className="text-xs text-gray-400">Rekening · {bank.owner || 'LAZIS PT PLN Batam'}</div>
                 </div>
               </div>
               <div className="shrink-0 text-right">
@@ -610,7 +598,7 @@ export default function DonationModal({
                   )}
                 </button>
               </div>
-              <p className="mt-3 text-xs text-gray-400">a.n. LAZIS PT PLN Batam</p>
+              <p className="mt-3 text-xs text-gray-400">a.n. {bank.owner || 'LAZIS PT PLN Batam'}</p>
             </div>
 
             <div className="mb-5 overflow-hidden rounded-xl bg-gray-50">

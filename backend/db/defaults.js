@@ -10,8 +10,24 @@ const kamiPeduli = {
       'Kami berkomitmen untuk menyalurkan kebaikan bagi yang membutuhkan melalui program-program sosial transparan dan terpercaya.',
     ctaZakat: 'Tunaikan Zakat',
     ctaJelajahi: 'Jelajahi Kami',
-    ctaInfaq: 'Infaq / Shodaqoh',
   },
+  features: [
+    {
+      id: 'kalkulator',
+      title: 'Kalkulator Zakat',
+      desc: 'Menghitung jumlah zakat yang harus dibayarkan sesuai dengan ketentuan syariah.',
+    },
+    {
+      id: 'konsultasi',
+      title: 'Konsultasi',
+      desc: 'Layanan konsultasi zakat secara online. Tanya dan pahami lebih lanjut mengenai pentingnya zakat.',
+    },
+    {
+      id: 'program',
+      title: 'Program',
+      desc: 'Berbagai program zakat yang efektif dan transparan untuk membantu masyarakat yang membutuhkan.',
+    },
+  ],
   programHeading: {
     label: 'Bukti Nyata',
     titleMain: 'Program yang',
@@ -444,14 +460,12 @@ const tim = [
   }
 ]
 
-// Catatan: "blog", "programs", dan "donation-methods" TIDAK ada di sini —
-// masing-masing sudah punya tabel relasional sendiri (blog_posts, programs,
-// bank_accounts + donation_types) dengan CRUD penuh. Array `blog`, `programs`,
-// dan `donationMethods` tetap diekspor sebagai data awal untuk seeding tabel.
-const ALL = {
-  'kami-peduli': kamiPeduli,
-  tentang,
-}
+// Catatan: seluruh konten kini punya tabel relasional/singleton sendiri
+// (blog_posts, programs, bank_accounts, donation_types, team_members,
+// doc_videos, doc_photos, donor_info, about_page, contact_page, home_page).
+// site_content sudah tidak dipakai lagi. Objek-objek di bawah tetap diekspor
+// sebagai data awal untuk seeding tabel masing-masing.
+const ALL = {}
 
 const CONTENT_KEYS = Object.keys(ALL)
 

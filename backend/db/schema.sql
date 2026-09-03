@@ -18,7 +18,6 @@ create table if not exists donations (
   amount       bigint not null check (amount >= 0),
   bank_id      text,
   bank_name    text,
-  nik          text,
   note         text,
   proof        text,
   status       text not null default 'menunggu'
@@ -31,6 +30,9 @@ create table if not exists donations (
 -- Transfer di Tentang Kami) | 'umum'. Ditambah terpisah agar aman dijalankan
 -- di database yang tabelnya sudah ada.
 alter table donations add column if not exists source text not null default 'umum';
+
+-- Kolom NIK karyawan tidak dipakai lagi — dibuang. Aman dijalankan berulang.
+alter table donations drop column if exists nik;
 
 create index if not exists donations_status_idx on donations (status);
 create index if not exists donations_source_idx on donations (source);
@@ -110,11 +112,15 @@ create table if not exists bank_accounts (
   name         text not null,
   short        text,
   no_rek       text not null,
+  owner        text,                                 -- nama pemilik rekening (a.n. ...)
   badge_class  text,
   sort_order   integer not null default 0,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
+
+-- Kolom nama pemilik ditambah terpisah agar aman untuk DB yang tabelnya sudah ada.
+alter table bank_accounts add column if not exists owner text;
 
 create index if not exists bank_accounts_scope_idx on bank_accounts (scope, sort_order, created_at);
 
@@ -187,6 +193,27 @@ create table if not exists donor_info (
   title       text not null default '',
   description text not null default '',
   stats       jsonb not null default '[]'::jsonb,
+  updated_at  timestamptz not null default now()
+);
+
+-- Konten "Kami Peduli" (halaman utama donatur: hero, heading section program,
+-- heading galeri, blok Konsultasi + FAQ) — satu baris (id selalu 1), disimpan
+-- sebagai satu dokumen JSON. Daftar video & foto galeri TIDAK di sini — sudah
+-- punya tabel sendiri (doc_videos, doc_photos).
+create table if not exists home_page (
+  id          smallint primary key default 1 check (id = 1),
+  data        jsonb not null default '{}'::jsonb,
+  updated_at  timestamptz not null default now()
+);
+
+-- Konten halaman "Tentang Kami" — satu baris (id selalu 1). Seluruh konten
+-- (hero, keunggulan, visi/misi, sejarah, milestone, pencapaian, nilai, teks
+-- header section Tim, dst) disimpan sebagai satu dokumen JSON supaya mudah
+-- dikembangkan. Daftar anggota tim TIDAK di sini — itu tetap di tabel
+-- team_members.
+create table if not exists about_page (
+  id          smallint primary key default 1 check (id = 1),
+  data        jsonb not null default '{}'::jsonb,
   updated_at  timestamptz not null default now()
 );
 

@@ -1,12 +1,15 @@
 'use client'
 
 import EditableText from '@/components/inline-edit/EditableText'
+import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
+import { DEFAULT_KAMI_PEDULI_CONTENT } from './kamiPeduliData'
 
-const FEATURES = [
+// Ikon & tautan kartu fitur di-hardcode di sini (per `id`); teksnya (judul &
+// deskripsi) diambil dari content.features supaya bisa diedit admin.
+const FEATURE_META = [
   {
-    title: 'Kalkulator Zakat',
-    desc: 'Menghitung jumlah zakat yang harus dibayarkan sesuai dengan ketentuan syariah.',
+    id: 'kalkulator',
     href: '#zakat-calculator',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -18,8 +21,7 @@ const FEATURES = [
     ),
   },
   {
-    title: 'Konsultasi',
-    desc: 'Layanan konsultasi zakat secara online. Tanya dan pahami lebih lanjut mengenai pentingnya zakat.',
+    id: 'konsultasi',
     href: '#konsultasi',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -30,8 +32,7 @@ const FEATURES = [
     ),
   },
   {
-    title: 'Program',
-    desc: 'Berbagai program zakat yang efektif dan transparan untuk membantu masyarakat yang membutuhkan.',
+    id: 'program',
     href: '/donatur/program',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -42,9 +43,12 @@ const FEATURES = [
 ]
 
 export default function HeroSection() {
-  const { content, patchSection } = useKamiPeduliContent()
+  const { content, patchSection, patchListItem } = useKamiPeduliContent()
+  const { isAdmin } = useEditMode()
   const hero = content.hero
   const setHero = (patch) => patchSection('hero', patch)
+  const features = content.features || DEFAULT_KAMI_PEDULI_CONTENT.features
+  const featureById = (id) => features.find((f) => f.id === id) || {}
 
   return (
     <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[600px]:min-h-0 max-[600px]:pb-8">
@@ -136,20 +140,35 @@ export default function HeroSection() {
           className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[900px]:grid-cols-1"
           style={{ animationDelay: '0.3s' }}
         >
-          {FEATURES.map((f) => {
-            const Tag = f.href ? 'a' : 'div'
+          {FEATURE_META.map((meta) => {
+            const f = featureById(meta.id)
+            // Di mode edit admin, kartu jadi <div> supaya klik = edit teks, bukan pindah halaman.
+            const Tag = meta.href && !isAdmin ? 'a' : 'div'
             return (
               <Tag
-                key={f.title}
-                href={f.href}
+                key={meta.id}
+                href={meta.href}
                 className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[20px] [&>svg]:w-[20px]">
-                  {f.icon}
+                  {meta.icon}
                 </div>
                 <div>
-                  <h4 className="mb-1 font-heading text-base font-semibold text-white">{f.title}</h4>
-                  <p className="text-xs leading-[1.5] text-white/60">{f.desc}</p>
+                  <EditableText
+                    as="h4"
+                    className="mb-1 font-heading text-base font-semibold text-white"
+                    value={f.title}
+                    onSave={(v) => patchListItem('features', meta.id, { title: v })}
+                    label="judul kartu fitur"
+                  />
+                  <EditableText
+                    as="p"
+                    className="text-xs leading-[1.5] text-white/60"
+                    value={f.desc}
+                    onSave={(v) => patchListItem('features', meta.id, { desc: v })}
+                    label="deskripsi kartu fitur"
+                    multiline
+                  />
                 </div>
               </Tag>
             )

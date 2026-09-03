@@ -9,9 +9,9 @@ const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 // Tampilan awal sebelum data API tiba (offline fallback).
 const FALLBACK_BANKS = [
-  { id: 'bsi', name: 'BSI (Bank Syariah Indonesia)', short: 'BSI', noRek: '7123 456 789', badgeClass: 'bg-[#00754A]' },
-  { id: 'mandiri', name: 'Bank Mandiri', short: 'MDR', noRek: '109 0001 23456', badgeClass: 'bg-[#003D79]' },
-  { id: 'bri', name: 'BRI', short: 'BRI', noRek: '0026 01 099999 50 9', badgeClass: 'bg-[#00529C]' },
+  { id: 'bsi', name: 'BSI (Bank Syariah Indonesia)', short: 'BSI', noRek: '7123 456 789', owner: 'LAZIS PT PLN Batam', badgeClass: 'bg-[#00754A]' },
+  { id: 'mandiri', name: 'Bank Mandiri', short: 'MDR', noRek: '109 0001 23456', owner: 'LAZIS PT PLN Batam', badgeClass: 'bg-[#003D79]' },
+  { id: 'bri', name: 'BRI', short: 'BRI', noRek: '0026 01 099999 50 9', owner: 'LAZIS PT PLN Batam', badgeClass: 'bg-[#00529C]' },
 ]
 
 export async function fetchBankAccounts(scope) {

@@ -30,14 +30,6 @@ function fmtDate(iso) {
   }
 }
 
-function mailtoHref(m) {
-  const subject = encodeURIComponent(`Balasan — Pesan Anda ke LAZIS PLN Batam`)
-  const body = encodeURIComponent(
-    `Halo ${m.name},\n\nTerima kasih sudah menghubungi LAZIS PLN Batam.\n\n--- Pesan Anda ---\n${m.message}\n\n---\n`,
-  )
-  return `mailto:${m.email}?subject=${subject}&body=${body}`
-}
-
 export default function AdminPesanMasukPage() {
   const [tab, setTab] = useState('semua')
   const { messages, stats, loading, error, changeStatus, removeMessage } = useContactMessages(tab)
@@ -60,12 +52,6 @@ export default function AdminPesanMasukPage() {
 
   const actions = (m) => (
     <div className="flex flex-wrap items-center gap-1.5">
-      <a
-        href={mailtoHref(m)}
-        className="rounded-lg bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary-dark transition-colors hover:bg-primary/20"
-      >
-        Balas via Email
-      </a>
       {m.status !== 'dibaca' && (
         <button
           type="button"
@@ -100,7 +86,7 @@ export default function AdminPesanMasukPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
         <h1 className="font-heading text-xl font-bold text-navy">Pesan Masuk</h1>
         <p className="mt-1 text-[13px] text-gray-500">
-          Pesan dari formulir "Kirim Pesan" di halaman Kontak Kami. Balas lewat email masing-masing pengirim.
+          Pesan dari formulir "Kirim Pesan" di halaman Kontak Kami. 
         </p>
       </div>
 

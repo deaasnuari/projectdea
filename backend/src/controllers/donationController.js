@@ -25,7 +25,6 @@ async function create(req, res, next) {
       amount,
       bankId: b.bankId,
       bankName: b.bankName,
-      nik: b.nik ? String(b.nik).trim() : null,
       note: b.note ? String(b.note).trim() : null,
       proof,
     })

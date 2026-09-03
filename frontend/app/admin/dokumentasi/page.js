@@ -4,6 +4,7 @@ import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
+import { useKamiPeduliContent } from '@/app/donatur/sections/useKamiPeduliContent'
 import { youtubeThumb, youtubeWatchUrl, youtubeId } from '@/services/youtube'
 import { uploadImage } from '@/services/imageFile'
 import { toDateInputValue, formatDateID as fmtDateID } from '@/services/dateText'
@@ -23,6 +24,11 @@ const IconPlus = (
 export default function AdminDokumentasiPage() {
   const { videos, error: vErr, saveVideo, removeVideo } = useDocVideos()
   const { photos: galeri, error: gErr, savePhoto, removePhoto } = useDocPhotos()
+
+  // Label kicker disamakan dengan yang tampil di halaman donatur (Kami Peduli).
+  const { content: kp } = useKamiPeduliContent()
+  const videoLabel = kp.programHeading?.label || ''
+  const galeriLabel = kp.galeriHeading?.label || ''
 
   const [videoModal, setVideoModal] = useState(false)
   const [editingVideo, setEditingVideo] = useState(null)
@@ -243,9 +249,14 @@ export default function AdminDokumentasiPage() {
 
       {/* ============ Video ============ */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-heading text-lg font-bold text-navy">
-          Video Dokumentasi <span className="text-sm font-medium text-gray-400">({videos.length})</span>
-        </h2>
+        <div>
+          {videoLabel && (
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">{videoLabel}</p>
+          )}
+          <h2 className="font-heading text-lg font-bold text-navy">
+            Video Dokumentasi <span className="text-sm font-medium text-gray-400">({videos.length})</span>
+          </h2>
+        </div>
         <button type="button" onClick={openAddVideo} className="btn btn-primary shrink-0 self-start sm:self-auto">
           {IconPlus}
           Tambah Video
@@ -264,9 +275,14 @@ export default function AdminDokumentasiPage() {
 
       {/* ============ Galeri ============ */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-heading text-lg font-bold text-navy">
-          Galeri Foto <span className="text-sm font-medium text-gray-400">({galeri.length})</span>
-        </h2>
+        <div>
+          {galeriLabel && (
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">{galeriLabel}</p>
+          )}
+          <h2 className="font-heading text-lg font-bold text-navy">
+            Galeri Foto <span className="text-sm font-medium text-gray-400">({galeri.length})</span>
+          </h2>
+        </div>
         <button type="button" onClick={openAddFoto} className="btn btn-primary shrink-0 self-start sm:self-auto">
           {IconPlus}
           Tambah Foto

@@ -11,12 +11,12 @@ export const metadata = {
 export default function AdminKontenKamiPeduliPage() {
   return (
     <div>
-      <div className="mb-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
-        <h1 className="font-heading text-2xl font-bold text-navy">Konten "Kami Peduli"</h1>
-        <p className="mt-1 max-w-2xl text-sm text-gray-500">
-          Edit konten langsung pada pratinjau di bawah. Klik ✏️ untuk mengubah teks, dan gunakan mode
-          edit untuk mengatur konten. Video & galeri dikelola di menu Dokumentasi.
+      <div className="mb-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
+        <h1 className="font-heading text-xl font-bold text-navy">Konten &quot;Kami Peduli&quot;</h1>
+        <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
+          Edit konten langsung pada pratinjau di bawah — klik ✏️ untuk mengubah teks. Perubahan tersimpan
+          otomatis ke database. Video & galeri diatur di menu Dokumentasi.
         </p>
       </div>
 

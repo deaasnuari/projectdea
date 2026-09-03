@@ -1,7 +1,17 @@
 require('dotenv').config()
 
 const { pool } = require('../src/config/db')
-const { ALL, blog, programs, donationMethods, tim, kamiPeduli, donor, kontak } = require('../db/defaults')
+const {
+  ALL,
+  blog,
+  programs,
+  donationMethods,
+  tim,
+  kamiPeduli,
+  donor,
+  kontak,
+  tentang,
+} = require('../db/defaults')
 
 // Warna kartu program: dari kelas Tailwind lama → satu kata kunci theme.
 const THEME_FROM_BADGE = {
@@ -13,6 +23,8 @@ const THEME_FROM_BADGE = {
 
 ;(async () => {
   try {
+    // site_content sudah tidak dipakai (ALL kosong) — loop ini no-op, disimpan
+    // agar aman kalau nanti ada key yang perlu di-seed lagi.
     for (const [key, data] of Object.entries(ALL)) {
       await pool.query(
         `insert into site_content (key, data) values ($1, $2::jsonb)
@@ -20,8 +32,6 @@ const THEME_FROM_BADGE = {
         [key, JSON.stringify(data)],
       )
     }
-    const { rows } = await pool.query('select key from site_content order by key')
-    console.log('✓ seed konten. Di DB:', rows.map((r) => r.key).join(', '))
 
     // Blog & Kursus — isi tabel blog_posts hanya kalau masih kosong.
     const { rows: blogCnt } = await pool.query('select count(*)::int as n from blog_posts')
@@ -79,9 +89,9 @@ const THEME_FROM_BADGE = {
         let order = 0
         for (const b of banks) {
           await pool.query(
-            `insert into bank_accounts (scope, name, short, no_rek, badge_class, sort_order)
-             values ($1, $2, $3, $4, $5, $6)`,
-            [scope, b.name, b.short || null, b.noRek || '', b.badgeClass || null, order++],
+            `insert into bank_accounts (scope, name, short, no_rek, owner, badge_class, sort_order)
+             values ($1, $2, $3, $4, $5, $6, $7)`,
+            [scope, b.name, b.short || null, b.noRek || '', b.owner || 'LAZIS PT PLN Batam', b.badgeClass || null, order++],
           )
           total += 1
         }
@@ -156,6 +166,22 @@ const THEME_FROM_BADGE = {
         [donor.title || '', donor.description || '', JSON.stringify(donor.stats || [])],
       )
       console.log('✓ seed donor_info')
+    }
+
+    // Konten "Kami Peduli" — satu baris (id=1), hanya kalau belum ada.
+    // videos & galeri tidak ikut (sudah di doc_videos / doc_photos).
+    const { rows: hpCnt } = await pool.query('select count(*)::int as n from home_page')
+    if (hpCnt[0].n === 0) {
+      const { videos: _v, galeri: _g, ...homeData } = kamiPeduli
+      await pool.query(`insert into home_page (id, data) values (1, $1::jsonb)`, [JSON.stringify(homeData)])
+      console.log('✓ seed home_page')
+    }
+
+    // Konten Tentang Kami — satu baris (id=1), hanya kalau belum ada.
+    const { rows: apCnt } = await pool.query('select count(*)::int as n from about_page')
+    if (apCnt[0].n === 0) {
+      await pool.query(`insert into about_page (id, data) values (1, $1::jsonb)`, [JSON.stringify(tentang)])
+      console.log('✓ seed about_page')
     }
 
     // Konten Kontak Kami — satu baris (id=1), hanya kalau belum ada.

@@ -1,10 +1,10 @@
 'use client'
 
-// Data awal + hook untuk bagian "Tentang Kami". Sumber kebenaran di backend
-// (key: "tentang"); DEFAULT_TENTANG_CONTENT dipakai sebagai fallback.
-
-import { useCallback } from 'react'
-import { useSiteContent } from '@/services/siteContent'
+// Data awal + util untuk bagian "Tentang Kami". Sumber kebenaran ada di
+// backend (tabel `about_page`, satu baris). Hook + klien API-nya di
+// services/aboutPage.js — file ini menyimpan default & util, lalu meneruskan
+// hook supaya import lama tetap jalan. Daftar anggota tim tetap dari
+// services/team.js (tabel team_members) — tidak diubah.
 
 export const DEFAULT_TENTANG_CONTENT = {
   hero: {
@@ -113,35 +113,7 @@ export const DEFAULT_TENTANG_CONTENT = {
   ],
 }
 
-// Hook: baca konten dari backend + fungsi ubah. Dipakai semua section Tentang Kami.
-export function useTentangContent() {
-  const [content, update] = useSiteContent('tentang', DEFAULT_TENTANG_CONTENT)
-
-  const patch = useCallback(
-    (section, p) => update((c) => ({ ...c, [section]: { ...c[section], ...p } })),
-    [update],
-  )
-
-  const patchListItem = useCallback(
-    (listKey, id, p) =>
-      update((c) => ({
-        ...c,
-        [listKey]: c[listKey].map((it) => (it.id === id ? { ...it, ...p } : it)),
-      })),
-    [update],
-  )
-
-  const addListItem = useCallback(
-    (listKey, item) => update((c) => ({ ...c, [listKey]: [...c[listKey], item] })),
-    [update],
-  )
-
-  const removeListItem = useCallback(
-    (listKey, id) => update((c) => ({ ...c, [listKey]: c[listKey].filter((it) => it.id !== id) })),
-    [update],
-  )
-
-  return { content, patch, patchListItem, addListItem, removeListItem }
-}
-
 export const uid = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+
+// Hook (baca dari backend + fungsi ubah) sekarang di services/aboutPage.js.
+export { useTentangContent } from '@/services/aboutPage'

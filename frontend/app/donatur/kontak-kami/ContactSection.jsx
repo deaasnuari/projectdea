@@ -53,8 +53,8 @@ export default function ContactSection() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Pesan dari pengunjung disimpan ke backend → tampil di menu admin
-  // "Pesan Masuk". Admin membalas sendiri lewat email.
+  // Pesan dari pengunjung disimpan ke backend dan tampil di menu admin
+  
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (sending) return
