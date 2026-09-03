@@ -32,6 +32,7 @@ const FEATURES = [
   {
     title: 'Program',
     desc: 'Berbagai program zakat yang efektif dan transparan untuk membantu masyarakat yang membutuhkan.',
+    href: '/donatur/program',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -116,7 +117,7 @@ export default function HeroSection() {
                 label="tombol Tunaikan Zakat"
               />
             </a>
-            <a href="#programs" className="btn btn-primary">
+            <a href="/donatur/program" className="btn btn-primary">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                 <circle cx="10" cy="10" r="7.5" />
                 <path d="M12.6 7.4l-1.8 3.8-3.8 1.8 1.8-3.8 3.8-1.8z" />
@@ -125,16 +126,6 @@ export default function HeroSection() {
                 value={hero.ctaJelajahi}
                 onSave={(v) => setHero({ ctaJelajahi: v })}
                 label="tombol Jelajahi Kami"
-              />
-            </a>
-            <a href="#" className="btn btn-outline">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                <path d="M10 16.8s-5.6-3.5-5.6-7.6C4.4 6.9 6 5.2 8 5.2c.9 0 1.7.5 2 1.2.3-.7 1.1-1.2 2-1.2 2 0 3.6 1.7 3.6 4 0 4.1-5.6 7.6-5.6 7.6z" />
-              </svg>
-              <EditableText
-                value={hero.ctaInfaq}
-                onSave={(v) => setHero({ ctaInfaq: v })}
-                label="tombol Infaq / Shodaqoh"
               />
             </a>
           </div>

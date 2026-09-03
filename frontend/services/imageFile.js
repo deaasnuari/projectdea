@@ -1,7 +1,26 @@
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+// Pilih file gambar → perkecil di browser → kirim ke backend, yang menyimpannya
+// sebagai FILE di folder /uploads dan membalas URL-nya. Yang disimpan di DB
+// cuma URL string ini, bukan base64. Butuh sesi admin.
+export async function uploadImage(file, opts) {
+  const dataUrl = await fileToResizedDataUrl(file, opts)
+  const res = await fetch(`${API_BASE}/api/uploads`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dataUrl }),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || `Gagal upload gambar (${res.status})`)
+  }
+  return (await res.json()).url
+}
+
 // Ubah file gambar (dari <input type="file">) jadi data URL yang sudah
-// diperkecil, supaya muat disimpan di localStorage (belum ada backend
-// untuk upload file sungguhan). Gambar di-resize maksimal `maxDim` px pada
-// sisi terpanjang dan dikompres jadi JPEG.
+// diperkecil. Dipakai internal oleh uploadImage(), dan masih dipakai langsung
+// untuk bukti transfer donasi (dikirim publik, tidak lewat /api/uploads).
 export function fileToResizedDataUrl(file, { maxDim = 1200, quality = 0.82 } = {}) {
   return new Promise((resolve, reject) => {
     if (!file) {

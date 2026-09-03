@@ -1,66 +1,88 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import {
-  DEFAULT_KAMI_PEDULI_CONTENT,
-  KAMI_PEDULI_UPDATED_EVENT,
-  getKamiPeduliContent,
-  saveKamiPeduliContent,
-} from './kamiPeduliData'
+import { useCallback } from 'react'
+import { useSiteContent } from '@/services/siteContent'
+import { DEFAULT_KAMI_PEDULI_CONTENT } from './kamiPeduliData'
 
-// Baca konten "Kami Peduli" + sediakan fungsi simpan (dipakai bersama
-// HeroSection & ProgramKamiSection). Pola sama seperti DonorStatsSection:
-// mulai dari DEFAULT (biar render pertama server & client cocok), lalu
-// ambil versi tersimpan setelah mount, dan ikuti perubahan lewat event.
+// Baca konten "Kami Peduli" dari backend + fungsi ubah. Dipakai bersama
+// HeroSection, ProgramKamiSection, dan halaman admin Dokumentasi.
 export function useKamiPeduliContent() {
-  const [content, setContent] = useState(DEFAULT_KAMI_PEDULI_CONTENT)
+  const [content, update] = useSiteContent('kami-peduli', DEFAULT_KAMI_PEDULI_CONTENT)
 
-  useEffect(() => {
-    const refresh = () => setContent(getKamiPeduliContent())
-    refresh()
-    window.addEventListener(KAMI_PEDULI_UPDATED_EVENT, refresh)
-    window.addEventListener('storage', refresh)
-    return () => {
-      window.removeEventListener(KAMI_PEDULI_UPDATED_EVENT, refresh)
-      window.removeEventListener('storage', refresh)
-    }
-  }, [])
+  const patchSection = useCallback(
+    (section, patch) => update((c) => ({ ...c, [section]: { ...c[section], ...patch } })),
+    [update],
+  )
 
-  // Ubah beberapa field dalam satu bagian objek (hero / programHeading / galeriHeading).
-  const patchSection = useCallback((section, patch) => {
-    const current = getKamiPeduliContent()
-    saveKamiPeduliContent({ ...current, [section]: { ...current[section], ...patch } })
-  }, [])
+  const patchListItem = useCallback(
+    (listKey, id, patch) =>
+      update((c) => ({
+        ...c,
+        [listKey]: c[listKey].map((item) => (item.id === id ? { ...item, ...patch } : item)),
+      })),
+    [update],
+  )
 
-  // Ubah satu item dalam list (videos / galeri) berdasarkan id.
-  const patchListItem = useCallback((listKey, id, patch) => {
-    const current = getKamiPeduliContent()
-    saveKamiPeduliContent({
-      ...current,
-      [listKey]: current[listKey].map((item) => (item.id === id ? { ...item, ...patch } : item)),
-    })
-  }, [])
+  const addListItem = useCallback(
+    (listKey, item) => update((c) => ({ ...c, [listKey]: [...c[listKey], item] })),
+    [update],
+  )
 
-  // Tambah item baru ke akhir list (videos / galeri).
-  const addListItem = useCallback((listKey, item) => {
-    const current = getKamiPeduliContent()
-    saveKamiPeduliContent({ ...current, [listKey]: [...current[listKey], item] })
-  }, [])
+  const removeListItem = useCallback(
+    (listKey, id) => update((c) => ({ ...c, [listKey]: c[listKey].filter((item) => item.id !== id) })),
+    [update],
+  )
 
-  // Hapus satu item dari list berdasarkan id.
-  const removeListItem = useCallback((listKey, id) => {
-    const current = getKamiPeduliContent()
-    saveKamiPeduliContent({
-      ...current,
-      [listKey]: current[listKey].filter((item) => item.id !== id),
-    })
-  }, [])
+  const setTopField = useCallback((key, value) => update((c) => ({ ...c, [key]: value })), [update])
 
-  // Ubah satu field di level atas (mis. selengkapnyaLabel).
-  const setTopField = useCallback((key, value) => {
-    const current = getKamiPeduliContent()
-    saveKamiPeduliContent({ ...current, [key]: value })
-  }, [])
+  // FAQ konsultasi (nested di dalam `konsultasi`).
+  const patchFaq = useCallback(
+    (id, patch) =>
+      update((c) => ({
+        ...c,
+        konsultasi: {
+          ...c.konsultasi,
+          faqs: c.konsultasi.faqs.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+        },
+      })),
+    [update],
+  )
+  const addFaq = useCallback(
+    () =>
+      update((c) => ({
+        ...c,
+        konsultasi: {
+          ...c.konsultasi,
+          faqs: [
+            ...c.konsultasi.faqs,
+            {
+              id: `faq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              q: 'Pertanyaan baru?',
+              a: 'Jawaban.',
+            },
+          ],
+        },
+      })),
+    [update],
+  )
+  const removeFaq = useCallback(
+    (id) =>
+      update((c) => ({
+        ...c,
+        konsultasi: { ...c.konsultasi, faqs: c.konsultasi.faqs.filter((f) => f.id !== id) },
+      })),
+    [update],
+  )
 
-  return { content, patchSection, patchListItem, addListItem, removeListItem, setTopField }
+  return {
+    content,
+    patchSection,
+    patchListItem,
+    addListItem,
+    removeListItem,
+    setTopField,
+    patchFaq,
+    addFaq,
+    removeFaq,
+  }
 }

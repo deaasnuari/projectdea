@@ -1,4 +1,8 @@
-export const DONOR_CONTENT_STORAGE_KEY = 'lazis-pln-donor-content'
+'use client'
+
+// Data awal section "Jumlah Donatur". Sumber kebenaran ada di backend
+// (tabel `donor_info`, satu baris). Hook + klien API-nya di services/donorInfo.js
+// — file ini hanya menyimpan default & meneruskan hook supaya import lama jalan.
 
 export const DEFAULT_DONOR_CONTENT = {
   title: 'Jumlah Donatur Saat Ini',
@@ -10,25 +14,4 @@ export const DEFAULT_DONOR_CONTENT = {
   ],
 }
 
-export function getDonorContent() {
-  if (typeof window === 'undefined') return DEFAULT_DONOR_CONTENT
-
-  try {
-    const saved = window.localStorage.getItem(DONOR_CONTENT_STORAGE_KEY)
-    if (!saved) return DEFAULT_DONOR_CONTENT
-
-    const parsed = JSON.parse(saved)
-    if (!parsed || !Array.isArray(parsed.stats) || parsed.stats.length !== 3) {
-      return DEFAULT_DONOR_CONTENT
-    }
-
-    return parsed
-  } catch {
-    return DEFAULT_DONOR_CONTENT
-  }
-}
-
-export function saveDonorContent(content) {
-  window.localStorage.setItem(DONOR_CONTENT_STORAGE_KEY, JSON.stringify(content))
-  window.dispatchEvent(new Event('donor-content-updated'))
-}
+export { useDonorContent } from '@/services/donorInfo'

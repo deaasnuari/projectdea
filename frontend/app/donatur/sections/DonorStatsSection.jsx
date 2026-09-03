@@ -1,32 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getDonorContent } from './donorData'
+import { useDonorContent } from './donorData'
 
 export default function DonorStatsSection() {
-  const [content, setContent] = useState(getDonorContent)
+  const { content } = useDonorContent()
   const [displays, setDisplays] = useState(() => content.stats.map(() => 0))
-
-  useEffect(() => {
-    const refreshContent = () => setContent(getDonorContent())
-    window.addEventListener('donor-content-updated', refreshContent)
-    window.addEventListener('storage', refreshContent)
-    return () => {
-      window.removeEventListener('donor-content-updated', refreshContent)
-      window.removeEventListener('storage', refreshContent)
-    }
-  }, [])
 
   useEffect(() => {
     setDisplays(content.stats.map(() => 0))
     const timer = setTimeout(() => {
       content.stats.forEach((stat, index) => {
+        const target = Number(stat.value) || 0
         let current = 0
-        const increment = Math.max(stat.value / 40, 1)
+        const increment = Math.max(target / 40, 1)
         const interval = setInterval(() => {
           current += increment
-          if (current >= stat.value) {
-            current = stat.value
+          if (current >= target) {
+            current = target
             clearInterval(interval)
           }
           setDisplays((prev) => {
@@ -65,11 +56,11 @@ export default function DonorStatsSection() {
         </h2>
         <p className="mx-auto mb-4 max-w-xl text-center text-xs text-white/60">{content.description}</p>
 
-        <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1 max-[600px]:gap-2">
+        <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 max-[600px]:gap-x-6">
           {content.stats.map((stat, i) => (
-            <div key={stat.label} className="text-center">
+            <div key={stat.label || i} className="min-w-[80px] text-center">
               <span className="block font-heading text-lg font-extrabold text-gold max-[600px]:text-base">
-                {displays[i].toLocaleString('id-ID')}
+                {(displays[i] ?? 0).toLocaleString('id-ID')}
               </span>
               <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-white/70">{stat.label}</span>
             </div>

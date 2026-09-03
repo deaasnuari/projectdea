@@ -4,11 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
-import { formatJt } from '@/services/format'
+import { formatRp } from '@/services/format'
 
 export default function ProgramDetailSection({ program, otherPrograms }) {
   const [donationOpen, setDonationOpen] = useState(false)
-  const percent = Math.round((program.collected / program.target) * 100)
+  const percent = program.target > 0 ? Math.round((program.collected / program.target) * 100) : 0
+  const reached = program.target > 0 && program.collected >= program.target
+  const lebih = Math.max(0, program.collected - program.target)
 
   return (
     <>
@@ -33,7 +35,7 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                 sudut tajam / lengkung dalam yang sama seperti kartu konten
                 di tempat lain di situs ini. */}
             <article className="overflow-hidden rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_24px_60px_-24px_rgba(6,30,40,0.4)]">
-              <div className={`relative flex h-52 items-center justify-center overflow-hidden ${program.blockBg}`}>
+              <div className={`relative flex aspect-[16/9] items-center justify-center overflow-hidden ${program.blockBg}`}>
                 {program.image ? (
                   <img src={program.image} alt={program.title} className="absolute inset-0 h-full w-full object-cover" />
                 ) : (
@@ -54,13 +56,24 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                 <div className="mb-8 rounded-xl bg-gray-50 p-5">
                   <div className="mb-1.5 flex items-center justify-between text-sm">
                     <span className="text-gray-500">
-                      {formatJt(program.collected)} / {formatJt(program.target)}
+                      {formatRp(program.collected)} / {formatRp(program.target)}
                     </span>
                     <strong className={`font-bold ${program.percentText}`}>{percent}%</strong>
                   </div>
                   <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div className={`h-full rounded-full ${program.barColor}`} style={{ width: `${percent}%` }} />
+                    <div
+                      className={`h-full rounded-full ${program.barColor}`}
+                      style={{ width: `${Math.min(percent, 100)}%` }}
+                    />
                   </div>
+                  {reached && (
+                    <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                        <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 10.7a1 1 0 011.4-1.4l3.8 3.8 6.8-6.8a1 1 0 011.4 0z" clipRule="evenodd" />
+                      </svg>
+                      Target tercapai{lebih > 0 ? ` · terkumpul lebih ${formatRp(lebih)}` : ''}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">{program.donors} donatur telah berdonasi</span>
                     <button
@@ -125,8 +138,8 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                 <h2 className="mb-6 font-heading text-xl font-semibold text-white">Ikut Salurkan Kebaikan</h2>
                 <div className="grid grid-cols-2 gap-6 max-[600px]:grid-cols-1">
                   {otherPrograms.map((p) => (
-                    <Link key={p.id} href={`/donatur/program/${p.id}`} className="card group block">
-                      <div className={`relative flex h-28 items-center justify-center overflow-hidden ${p.blockBg}`}>
+                    <Link key={p.id} href={`/donatur/program/${p.slug}`} className="card group block">
+                      <div className={`relative flex aspect-[16/9] items-center justify-center overflow-hidden ${p.blockBg}`}>
                         {p.image ? (
                           <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
                         ) : (
@@ -160,7 +173,13 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
         </div>
       </PageHeroBackground>
 
-      <DonationModal open={donationOpen} onClose={() => setDonationOpen(false)} initialJenisId={program.jenisId} scope="program" />
+      <DonationModal
+        open={donationOpen}
+        onClose={() => setDonationOpen(false)}
+        initialJenisId={program.jenisId}
+        scope="program"
+        sourceLabel={program.title}
+      />
     </>
   )
 }

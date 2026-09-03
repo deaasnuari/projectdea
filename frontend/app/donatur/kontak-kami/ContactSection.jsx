@@ -6,6 +6,7 @@ import EditableText from '@/components/inline-edit/EditableText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKontakContent, kontakHref } from './kontakData'
+import { sendContactMessage } from '@/services/contactMessages'
 
 const ICONS = {
   alamat: (
@@ -28,6 +29,11 @@ const ICONS = {
       <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 10.41V7a1 1 0 00-2 0v6a1 1 0 00.29.71l3.5 3.5a1 1 0 001.42-1.42L13 12.41z" />
     </svg>
   ),
+  whatsapp: (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+      <path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm5.3 14c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.6-.6-2.9-1.2-4.7-4.1-4.9-4.3-.1-.2-1.1-1.4-1.1-2.7s.7-1.9 1-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.3.3-.1.5.1.3.6 1 1.4 1.7 1 .9 1.8 1.1 2 1.2.3.1.4.1.6-.1l.7-.8c.2-.2.3-.2.5-.1l1.8.9c.2.1.4.2.5.3.1.2.1.7-.1 1.3z" />
+    </svg>
+  ),
 }
 
 const inputClass =
@@ -35,6 +41,9 @@ const inputClass =
 
 export default function ContactSection() {
   const [form, setForm] = useState({ nama: '', email: '', pesan: '' })
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [sendError, setSendError] = useState('')
   const { content, patch, patchInfo, addInfo, removeInfo } = useKontakContent()
   const { isAdmin } = useEditMode()
   const h = content.hero
@@ -44,13 +53,22 @@ export default function ContactSection() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  //ini untuk membuka aplikasi email pengguna dengan isi pesan yang sudah diisi, karena situs ini belum punya endpoint backend untuk mengirim pesan
-  const handleSubmit = (e) => {
+  // Pesan dari pengunjung disimpan ke backend → tampil di menu admin
+  // "Pesan Masuk". Admin membalas sendiri lewat email.
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const tujuan = content.info.find((i) => i.type === 'email')?.value || 'lazis@plnbatam.co.id'
-    const subject = encodeURIComponent(`Pesan dari ${form.nama || 'Donatur'} — Website Lazis PLN Batam`)
-    const body = encodeURIComponent(`Nama: ${form.nama}\nEmail: ${form.email}\n\nPesan:\n${form.pesan}`)
-    window.location.href = `mailto:${tujuan}?subject=${subject}&body=${body}`
+    if (sending) return
+    setSending(true)
+    setSendError('')
+    try {
+      await sendContactMessage({ name: form.nama, email: form.email, message: form.pesan })
+      setSent(true)
+      setForm({ nama: '', email: '', pesan: '' })
+    } catch (err) {
+      setSendError(err.message || 'Gagal mengirim pesan. Coba lagi.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -157,7 +175,27 @@ export default function ContactSection() {
               multiline
             />
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
+            {sent ? (
+              <div className="rounded-xl bg-primary/5 p-5 text-center">
+                <span className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-primary/15 text-primary-dark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <p className="text-sm font-bold text-navy">Pesan terkirim!</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Terima kasih. Tim LAZIS PLN Batam akan membalas ke email kamu.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSent(false)}
+                  className="mt-3 text-xs font-semibold text-primary hover:text-primary-dark"
+                >
+                  Kirim pesan lain
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
               <div>
                 <label htmlFor="nama" className="mb-1 block text-xs font-semibold text-gray-500">
                   Nama Lengkap
@@ -206,21 +244,34 @@ export default function ContactSection() {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary w-full justify-center">
-                <EditableText
-                  value={content.form.buttonLabel}
-                  onSave={(v) => patch('form', { buttonLabel: v })}
-                  label="teks tombol kirim"
-                />
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              {sendError && <p className="text-xs font-semibold text-coral">{sendError}</p>}
+
+              <button
+                type="submit"
+                disabled={sending}
+                className="btn btn-primary w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {sending ? (
+                  'Mengirim…'
+                ) : (
+                  <>
+                    <EditableText
+                      value={content.form.buttonLabel}
+                      onSave={(v) => patch('form', { buttonLabel: v })}
+                      label="teks tombol kirim"
+                    />
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                      <path
+                        fillRule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </>
+                )}
               </button>
             </form>
+            )}
           </div>
         </div>
       </section>

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import EditableText from '@/components/inline-edit/EditableText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
+import { useDocVideos, useDocPhotos } from '@/services/docMedia'
+import { formatDateID, postSortKey } from '@/services/dateText'
 
 // Judul di dalam .section-title: bagian "utama" aslinya cuma teks polos
 // (bukan <span>), jadi saat dibungkus jadi <span> untuk diedit, aturan
@@ -35,14 +37,21 @@ function TambahKontenButton() {
 
 export default function ProgramKamiSection() {
   const { content, patchSection } = useKamiPeduliContent()
+  const { videos: rawVideos } = useDocVideos()
+  const { photos: rawGaleri } = useDocPhotos()
   const { isAdmin } = useEditMode()
+
+  // Di halaman donatur: yang terbaru (sesuai tanggal dibuat) tampil paling dulu.
+  const videos = [...rawVideos].sort((a, b) => postSortKey(b) - postSortKey(a))
+  const galeri = [...rawGaleri].sort(
+    (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
+  )
   const ph = content.programHeading
   const gh = content.galeriHeading
 
   // Sampai 4 video: grid 2 kolom seperti biasa. Lebih dari itu: baris yang
   // digeser ke samping (scroll-snap) supaya section tidak makin panjang ke
   // bawah — pola yang sama dengan galeri di bawahnya.
-  const videos = content.videos
   const slideMode = videos.length > 4
 
   // Baris geser (video >4 & galeri): di halaman publik dibiarkan "bleed"
@@ -81,33 +90,37 @@ export default function ProgramKamiSection() {
           <span className="absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
             {program.badge}
           </span>
-          {program.duration && (
-            <span className="absolute bottom-3 right-3 rounded bg-navy-dark/80 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-              {program.duration}
-            </span>
-          )}
         </div>
         <div className="p-6">
-          {program.date && <p className="mb-1 text-xs font-medium text-gray-400">{program.date}</p>}
+          {program.date && (
+            <p className="mb-1 text-xs font-medium text-gray-400">{formatDateID(program.date)}</p>
+          )}
           <h3 className="mb-2 font-heading text-lg font-bold leading-[1.3] text-navy">{program.title}</h3>
           <p className="mb-4 text-sm leading-[1.6] text-gray-500">{program.desc}</p>
-          <a href="#" className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-all hover:gap-2 hover:text-primary-dark">
-            {content.selengkapnyaLabel}
-            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </a>
+          {program.videoUrl && (
+            <a
+              href={program.videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-all hover:gap-2 hover:text-primary-dark"
+            >
+              {content.selengkapnyaLabel}
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </a>
+          )}
         </div>
       </div>
     )
   }
 
   return (
-    <section id="programs" className="bg-gray-50 py-24">
+    <section id="programs" className="bg-gray-50 pt-24 pb-14">
       <div className="container">
         {/* Judul bagian — teksnya bisa diedit inline oleh admin (di halaman
             /admin/konten-kami-peduli). Daftar video & galeri dikelola lewat
@@ -164,8 +177,8 @@ export default function ProgramKamiSection() {
         )}
 
         {/* Galeri foto penyaluran */}
-        <div className="mt-20">
-          <div className="mb-8 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
+        <div className="mt-10">
+          <div className="mb-5 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
             <div>
               <EditableText
                 as="p"
@@ -197,7 +210,7 @@ export default function ProgramKamiSection() {
               bukan grid kartu, supaya foto bisa ditambah terus tanpa
               bikin section jadi makin tinggi ke bawah. */}
           <div className={`${slideRowClass} gap-5`}>
-            {content.galeri.map((foto, i) => (
+            {galeri.map((foto, i) => (
               <div
                 key={foto.id}
                 className="group relative aspect-square w-[240px] shrink-0 snap-start animate-fade-in-up overflow-hidden rounded-tr-xl rounded-bl-xl rounded-tl-md rounded-br-md opacity-0 max-[480px]:w-[200px]"

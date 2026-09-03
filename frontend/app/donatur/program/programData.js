@@ -1,6 +1,57 @@
 // Data program donasi. Dipisah dari komponen halaman (mengikuti pola
 // blogData.js) supaya bisa dipakai bersama oleh halaman daftar program
 // dan halaman detail program (app/donatur/program/[id]/page.js).
+
+// Warna kartu program. Backend cuma menyimpan satu kata kunci `theme`
+// (green|amber|indigo|emerald); kelas Tailwind-nya di-expand di sini
+// lewat expandProgram() supaya class string tetap statis (aman untuk
+// Tailwind JIT).
+export const PROGRAM_THEMES = {
+  green: {
+    label: 'Hijau',
+    blockBg: 'bg-green-50', badgeBg: 'bg-green-100', badgeText: 'text-green-700',
+    barColor: 'bg-green-700', percentText: 'text-green-700',
+    buttonBg: 'bg-green-100', buttonText: 'text-green-700', buttonHover: 'hover:bg-green-200',
+  },
+  amber: {
+    label: 'Kuning',
+    blockBg: 'bg-amber-50', badgeBg: 'bg-amber-100', badgeText: 'text-amber-700',
+    barColor: 'bg-amber-600', percentText: 'text-amber-700',
+    buttonBg: 'bg-amber-100', buttonText: 'text-amber-700', buttonHover: 'hover:bg-amber-200',
+  },
+  indigo: {
+    label: 'Ungu',
+    blockBg: 'bg-indigo-50', badgeBg: 'bg-indigo-100', badgeText: 'text-indigo-700',
+    barColor: 'bg-indigo-700', percentText: 'text-indigo-700',
+    buttonBg: 'bg-indigo-100', buttonText: 'text-indigo-700', buttonHover: 'hover:bg-indigo-200',
+  },
+  emerald: {
+    label: 'Hijau Toska',
+    blockBg: 'bg-emerald-50', badgeBg: 'bg-emerald-100', badgeText: 'text-emerald-700',
+    barColor: 'bg-emerald-700', percentText: 'text-emerald-700',
+    buttonBg: 'bg-emerald-100', buttonText: 'text-emerald-700', buttonHover: 'hover:bg-emerald-200',
+  },
+}
+
+// Cari kata kunci theme dari kartu lama yang class-nya sudah ter-expand.
+export function themeKeyOf(program) {
+  if (program?.theme && PROGRAM_THEMES[program.theme]) return program.theme
+  const hit = Object.keys(PROGRAM_THEMES).find((k) => PROGRAM_THEMES[k].badgeBg === program?.badgeBg)
+  return hit || 'green'
+}
+
+// Lengkapi program dari API (punya `theme`, belum punya class warna) dengan
+// kelas Tailwind-nya. Program lama yang sudah lengkap dibiarkan apa adanya.
+export function expandProgram(p) {
+  if (!p) return p
+  // Fallback offline (PROGRAMS) memakai `id` sebagai slug.
+  const base = p.slug ? p : { ...p, slug: p.id }
+  if (base.blockBg && base.buttonHover) return base
+  const t = PROGRAM_THEMES[base.theme] || PROGRAM_THEMES.green
+  const { label, ...classes } = t
+  return { ...base, ...classes, theme: PROGRAM_THEMES[base.theme] ? base.theme : 'green' }
+}
+
 export const PROGRAMS = [
   {
     id: 'zakat-profesi-karyawan',

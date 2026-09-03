@@ -2,27 +2,36 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { isAdminLoggedIn } from '@/services/adminAuth'
+import { checkAdminSession, isAdminLoggedIn } from '@/services/adminAuth'
 
-// Menahan akses ke /admin/* kalau belum "login" (lihat catatan di
-// services/adminAuth.js — ini gerbang prototipe, bukan keamanan sungguhan).
-// Selama status login belum dicek (sesaat di render pertama), sengaja tidak
-// menampilkan apa pun supaya konten admin tidak sempat kelihatan berkedip.
+// Menahan akses ke /admin/* kalau belum login. Cek ke backend (/api/auth/me).
+// Render pertama selalu `null` (sama di server & client — hindari hydration
+// mismatch); useEffect yang menentukan tampil/tidak.
 export default function AdminAuthGate({ children }) {
   const router = useRouter()
-  const [checked, setChecked] = useState(false)
-  const [allowed, setAllowed] = useState(false)
+  const [status, setStatus] = useState('checking') // checking | allowed | denied
 
   useEffect(() => {
-    if (isAdminLoggedIn()) {
-      setAllowed(true)
-    } else {
-      router.replace('/login')
+    let alive = true
+
+    // Petunjuk sinkron: kalau sebelumnya sudah login, tampilkan langsung
+    // supaya tidak berkedip saat pindah antar halaman /admin.
+    if (isAdminLoggedIn()) setStatus('allowed')
+
+    checkAdminSession().then((ok) => {
+      if (!alive) return
+      if (ok) {
+        setStatus('allowed')
+      } else {
+        setStatus('denied')
+        router.replace('/login')
+      }
+    })
+
+    return () => {
+      alive = false
     }
-    setChecked(true)
   }, [router])
 
-  if (!checked || !allowed) return null
-
-  return children
+  return status === 'allowed' ? children : null
 }

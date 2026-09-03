@@ -1,16 +1,6 @@
-// Konten bagian "Kami Peduli" di beranda donatur (Hero + section id
-// "programs" yang dituju link navbar "Kami Peduli"). Semua teks & gambar di
-// sini bisa diubah admin lewat inline editing LANGSUNG di halaman publik
-// (lihat components/inline-edit/*), bukan lewat halaman form terpisah.
-//
-// Mengikuti pola donorData.js: sumber kebenaran = DEFAULT_* di bawah,
-// perubahan admin disimpan ke localStorage supaya tetap ada setelah
-// refresh. Belum ada backend — begitu API tersedia, ganti get/save di
-// bawah dengan fetch ke server (bentuk datanya dibuat supaya tinggal
-// dikirim apa adanya).
-
-export const KAMI_PEDULI_STORAGE_KEY = 'lazis-pln-kami-peduli-content'
-export const KAMI_PEDULI_UPDATED_EVENT = 'kami-peduli-content-updated'
+// Data awal bagian "Kami Peduli" (Hero + section "programs"). Dipakai
+// sebagai fallback kalau API belum bisa dihubungi. Sumber kebenaran ada di
+// backend (key: "kami-peduli"), diakses lewat useKamiPeduliContent().
 
 export const DEFAULT_KAMI_PEDULI_CONTENT = {
   hero: {
@@ -30,11 +20,7 @@ export const DEFAULT_KAMI_PEDULI_CONTENT = {
     titleHighlight: 'Tersalurkan',
     buttonLabel: 'Lihat Semua Video',
   },
-  // Teks "Selengkapnya" di tiap video card — satu nilai, dipakai bersama.
   selengkapnyaLabel: 'Selengkapnya',
-  // videoUrl / date / duration bersifat opsional. Kalau kosong, tampilan
-  // publik persis seperti semula (tidak ada yang berubah). Diisi & dikelola
-  // lewat halaman admin /admin/dokumentasi.
   videos: [
     {
       id: 'bantuan-panti-asuhan',
@@ -90,54 +76,36 @@ export const DEFAULT_KAMI_PEDULI_CONTENT = {
     { id: 'galeri-5', image: '/images/1.jpeg', caption: 'Edukasi Zakat untuk Karyawan' },
     { id: 'galeri-6', image: '/images/2.jpg', caption: 'Penyaluran Zakat Triwulan' },
   ],
-}
-
-// Gabung data tersimpan dengan DEFAULT supaya field baru yang belum pernah
-// disimpan tetap terisi (dan data lama tidak bikin error).
-function mergeWithDefault(saved) {
-  if (!saved || typeof saved !== 'object') return DEFAULT_KAMI_PEDULI_CONTENT
-
-  const pickList = (savedList, defaultList) => {
-    if (!Array.isArray(savedList)) return defaultList
-    // Data tersimpan yang menentukan isi & urutan list (mendukung tambah,
-    // hapus, ubah urutan oleh admin). Entri default cuma jadi cadangan
-    // nilai field untuk item bawaan yang belum semua field-nya disimpan.
-    return savedList
-      .filter((s) => s && typeof s === 'object' && s.id)
-      .map((s) => {
-        const base = defaultList.find((d) => d.id === s.id)
-        return base ? { ...base, ...s } : s
-      })
-  }
-
-  return {
-    hero: { ...DEFAULT_KAMI_PEDULI_CONTENT.hero, ...(saved.hero || {}) },
-    programHeading: { ...DEFAULT_KAMI_PEDULI_CONTENT.programHeading, ...(saved.programHeading || {}) },
-    selengkapnyaLabel:
-      typeof saved.selengkapnyaLabel === 'string'
-        ? saved.selengkapnyaLabel
-        : DEFAULT_KAMI_PEDULI_CONTENT.selengkapnyaLabel,
-    videos: pickList(saved.videos, DEFAULT_KAMI_PEDULI_CONTENT.videos),
-    galeriHeading: { ...DEFAULT_KAMI_PEDULI_CONTENT.galeriHeading, ...(saved.galeriHeading || {}) },
-    galeri: pickList(saved.galeri, DEFAULT_KAMI_PEDULI_CONTENT.galeri),
-  }
-}
-
-export function getKamiPeduliContent() {
-  if (typeof window === 'undefined') return DEFAULT_KAMI_PEDULI_CONTENT
-
-  try {
-    const saved = window.localStorage.getItem(KAMI_PEDULI_STORAGE_KEY)
-    if (!saved) return DEFAULT_KAMI_PEDULI_CONTENT
-    return mergeWithDefault(JSON.parse(saved))
-  } catch {
-    return DEFAULT_KAMI_PEDULI_CONTENT
-  }
-}
-
-export function saveKamiPeduliContent(content) {
-  if (typeof window === 'undefined') return
-  // TODO(backend): kirim ke API di sini begitu server tersedia.
-  window.localStorage.setItem(KAMI_PEDULI_STORAGE_KEY, JSON.stringify(content))
-  window.dispatchEvent(new Event(KAMI_PEDULI_UPDATED_EVENT))
+  konsultasi: {
+    label: 'Konsultasi',
+    titleMain: 'Pertanyaan Seputar',
+    titleHighlight: 'Zakat & Shadaqah',
+    description:
+      'Tim Lazis PLN Batam siap membantu Anda memahami kewajiban zakat dan cara penunaiannya.',
+    phone: '(0778) 469 100 ext. 1234',
+    email: 'lazis@plnbatam.com',
+    address: 'Gedung PLN Batam, Lt. 2, Jl. Engku Putri No. 1',
+    faqs: [
+      {
+        id: 'faq-1',
+        q: 'Siapa saja yang wajib membayar zakat profesi?',
+        a: 'Seluruh karyawan PLN Batam yang penghasilan bulanannya (gaji pokok + tunjangan tetap) telah mencapai nisab zakat profesi, yaitu setara 85 gram emas per tahun.',
+      },
+      {
+        id: 'faq-2',
+        q: 'Bagaimana cara membayar zakat melalui LAZIS PLN Batam?',
+        a: 'Anda dapat mendaftar sebagai donatur, menghitung kewajiban zakat melalui kalkulator di halaman ini, lalu melakukan pembayaran melalui transfer ke rekening resmi atau potong gaji otomatis.',
+      },
+      {
+        id: 'faq-3',
+        q: 'Apakah pembayaran zakat mendapat bukti setor?',
+        a: 'Ya. Setiap pembayaran akan mendapatkan bukti setor zakat resmi yang dapat diunduh melalui akun donatur Anda, sekaligus berlaku sebagai pengurang pajak penghasilan.',
+      },
+      {
+        id: 'faq-4',
+        q: 'Bagaimana transparansi penyaluran dana zakat?',
+        a: 'Setiap program penyaluran didokumentasikan dan dipublikasikan secara berkala, termasuk laporan triwulanan yang dapat diakses oleh seluruh donatur pada bagian Program Kami.',
+      },
+    ],
+  },
 }

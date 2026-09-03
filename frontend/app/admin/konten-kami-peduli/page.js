@@ -1,5 +1,6 @@
 import HeroSection from '@/app/donatur/sections/HeroSection'
 import ProgramKamiSection from '@/app/donatur/sections/ProgramKamiSection'
+import KonsultasiSection from '@/app/donatur/sections/KonsultasiSection'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 
 export const metadata = {
@@ -28,6 +29,7 @@ export default function AdminKontenKamiPeduliPage() {
         <InlineEditProvider defaultEditing>
           <HeroSection />
           <ProgramKamiSection />
+          <KonsultasiSection />
         </InlineEditProvider>
       </div>
     </div>

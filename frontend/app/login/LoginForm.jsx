@@ -12,14 +12,16 @@ export default function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Catatan: belum ada backend, jadi ini cuma login demo (kredensial
-    // ditulis langsung di kode) — sambungkan ke API auth kalau backend-nya
-    // sudah siap. Lihat services/adminAuth.js.
-    const ok = loginAdmin(username, password)
+    setError('')
+    setLoading(true)
+    const ok = await loginAdmin(username, password)
+    setLoading(false)
     if (!ok) {
-      setError('Username atau password salah.')
+      setError('Username atau password salah, atau server tidak dapat dihubungi.')
       return
     }
     router.push('/admin')
@@ -51,8 +53,12 @@ export default function LoginForm() {
 
       {error && <p className="mt-1 text-[11px] font-semibold text-coral">{error}</p>}
 
-      <button type="submit" className="btn btn-primary mt-2 w-full justify-center py-2 text-xs">
-        Masuk sebagai Admin
+      <button
+        type="submit"
+        disabled={loading}
+        className="btn btn-primary mt-2 w-full justify-center py-2 text-xs disabled:opacity-60"
+      >
+        {loading ? 'Memproses…' : 'Masuk sebagai Admin'}
       </button>
 
       <p className="mt-3 text-center text-[10px] text-gray-400">

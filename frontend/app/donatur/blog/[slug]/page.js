@@ -1,28 +1,31 @@
+'use client'
+
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
-import { POSTS } from '../blogData'
-import { getPostBySlug } from '@/services/blog'
+import { useBlogPosts } from '../useBlogPosts'
+import { formatBlogDate } from '@/services/blog'
 
-export function generateStaticParams() {
-  return POSTS.map((post) => ({ slug: post.slug }))
-}
+export default function BlogDetailPage() {
+  const { slug } = useParams()
+  const { posts, loading } = useBlogPosts()
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
-  if (!post) return { title: 'Blog — Lazis PLN Batam' }
-  return { title: `${post.title} — Lazis PLN Batam` }
-}
+  const post = posts.find((p) => p.slug === slug)
+  const otherPosts = posts.filter((p) => p.slug !== slug).slice(0, 2)
 
-export default async function BlogDetailPage({ params }) {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
-  if (!post) notFound()
-
-  const otherPosts = POSTS.filter((p) => p.slug !== post.slug).slice(0, 2)
+  if (!post) {
+    return (
+      <>
+        <Navbar />
+        <div className="container py-40 text-center text-sm text-gray-500">
+          {loading ? 'Memuat artikel…' : 'Artikel tidak ditemukan.'}
+        </div>
+        <Footer />
+      </>
+    )
+  }
 
   return (
     <>
@@ -58,15 +61,7 @@ export default async function BlogDetailPage({ params }) {
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">
                     {post.badge}
                   </span>
-                  <span className="text-xs text-gray-400">{post.date}</span>
-                  <span className="text-xs text-gray-300">•</span>
-                  <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" width="14" height="14">
-                      <circle cx="10" cy="10" r="7.5" />
-                      <path d="M10 6v4l2.5 2" />
-                    </svg>
-                    {post.readTime}
-                  </span>
+                  <span className="text-xs text-gray-400">{formatBlogDate(post.date)}</span>
                 </div>
 
                 <h1 className="mb-8 font-heading text-4xl font-semibold leading-[1.2] text-navy max-[600px]:text-3xl">
@@ -105,7 +100,7 @@ export default async function BlogDetailPage({ params }) {
                           {p.title}
                         </h3>
                         <div className="mt-2 flex items-center justify-between">
-                          <span className="text-xs text-gray-500">{p.date}</span>
+                          <span className="text-xs text-gray-500">{formatBlogDate(p.date)}</span>
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:text-primary-dark">
                             Baca
                             <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">

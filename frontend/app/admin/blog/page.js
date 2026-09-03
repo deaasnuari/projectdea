@@ -3,32 +3,27 @@
 import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
-import { fileToResizedDataUrl } from '@/services/imageFile'
-import { POSTS } from '@/app/donatur/blog/blogData'
+import { uploadImage } from '@/services/imageFile'
+import { useBlogPosts, formatBlogDate, toDateInputValue } from '@/services/blog'
 
-const EMPTY_FORM = { title: '', badge: '', date: '', readTime: '', image: '', desc: '', content: '' }
+const EMPTY_FORM = { id: null, slug: '', title: '', badge: '', date: '', image: '', desc: '', content: '' }
 
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-}
-
-//ini 
+//ini fungsi untuk menampilkan halaman admin untuk mengelola konten "Blog
 export default function AdminBlogPage() {
-  const [posts, setPosts] = useState(POSTS)
+  const { posts, loading, error, savePost, removePost } = useBlogPosts()
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingSlug, setEditingSlug] = useState(null)
+  const [editing, setEditing] = useState(null) // objek artikel yang diedit, atau null
   const [form, setForm] = useState(EMPTY_FORM)
   const [imgBusy, setImgBusy] = useState(false)
   const [imgError, setImgError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   const openAdd = () => {
-    setEditingSlug(null)
+    setEditing(null)
     setForm(EMPTY_FORM)
     setImgError('')
+    setSaveError('')
     setModalOpen(true)
   }
 
@@ -40,71 +35,74 @@ export default function AdminBlogPage() {
     setImgBusy(true)
     setImgError('')
     try {
-      const dataUrl = await fileToResizedDataUrl(file)
-      setForm((f) => ({ ...f, image: dataUrl }))
+      const url = await uploadImage(file)
+      setForm((f) => ({ ...f, image: url }))
     } catch (err) {
-      setImgError(err.message || 'Gagal memproses gambar')
+      setImgError(err.message || 'Gagal mengunggah gambar')
     } finally {
       setImgBusy(false)
     }
   }
 
   const openEdit = (post) => {
-    setEditingSlug(post.slug)
+    setEditing(post)
     setImgError('')
+    setSaveError('')
     setForm({
+      id: post.id,
+      slug: post.slug,
       title: post.title,
       badge: post.badge,
-      date: post.date,
-      readTime: post.readTime,
+      date: toDateInputValue(post.date),
       image: post.image,
       desc: post.desc,
-      content: post.content.join('\n\n'),
+      content: (post.content || []).join('\n\n'),
     })
     setModalOpen(true)
   }
 
-  const handleDelete = (post) => {
+  const handleDelete = async (post) => {
     if (!window.confirm(`Hapus artikel "${post.title}"?`)) return
-    setPosts((prev) => prev.filter((p) => p.slug !== post.slug))
+    try {
+      await removePost(post)
+    } catch (err) {
+      window.alert(err.message || 'Gagal menghapus artikel')
+    }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.title.trim()) return
-
-    const contentParagraphs = form.content
-      .split(/\n\s*\n/)
-      .map((p) => p.trim())
-      .filter(Boolean)
-
-    if (editingSlug) {
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.slug === editingSlug
-            ? { ...p, ...form, image: form.image || p.image, content: contentParagraphs }
-            : p
-        )
-      )
-    } else {
-      const slug = slugify(form.title) || `artikel-${Date.now()}`
-      setPosts((prev) => [
-        { slug, ...form, image: form.image || '/images/program-1.png', content: contentParagraphs },
-        ...prev,
-      ])
+    if (!form.title.trim() || saving) return
+    setSaving(true)
+    setSaveError('')
+    try {
+      await savePost({
+        id: editing?.id ?? null,
+        slug: editing?.slug || undefined,
+        title: form.title,
+        badge: form.badge,
+        date: form.date,
+        image: form.image || editing?.image || '/images/program-1.png',
+        desc: form.desc,
+        content: form.content, // string paragraf — dipecah di backend
+      })
+      setModalOpen(false)
+    } catch (err) {
+      setSaveError(err.message || 'Gagal menyimpan artikel')
+    } finally {
+      setSaving(false)
     }
-    setModalOpen(false)
   }
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
-          <h1 className="font-heading text-2xl font-bold text-navy">Artikel Blog</h1>
-          <p className="mt-1 text-sm text-gray-500">Artikel yang tampil di halaman Blog situs donatur.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
+          <h1 className="font-heading text-xl font-bold text-navy">Blog &amp; Kursus</h1>
+          <p className="mt-1 text-[13px] text-gray-500">Artikel yang tampil di halaman Blog situs donatur.</p>
         </div>
-        <button type="button" onClick={openAdd} className="btn btn-primary shrink-0">
+        <button type="button" onClick={openAdd} className="btn btn-primary shrink-0 self-start sm:self-auto">
           <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
             <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
           </svg>
@@ -112,9 +110,15 @@ export default function AdminBlogPage() {
         </button>
       </div>
 
+      {error && (
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+          Gagal memuat artikel: {error}. Pastikan backend jalan di :3001.
+        </p>
+      )}
+
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[520px] text-left text-sm">
             <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-[0.05em] text-gray-400">
               <tr>
                 <th className="px-5 py-3">Artikel</th>
@@ -125,7 +129,7 @@ export default function AdminBlogPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {posts.map((post) => (
-                <tr key={post.slug}>
+                <tr key={post.id ?? post.slug}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <img src={post.image} alt={post.title} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
@@ -137,7 +141,7 @@ export default function AdminBlogPage() {
                       {post.badge}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-gray-500">{post.date}</td>
+                  <td className="px-5 py-3 text-gray-500">{formatBlogDate(post.date)}</td>
                   <td className="px-5 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -158,7 +162,14 @@ export default function AdminBlogPage() {
                   </td>
                 </tr>
               ))}
-              {posts.length === 0 && (
+              {loading && posts.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-5 py-10 text-center text-gray-400">
+                    Memuat…
+                  </td>
+                </tr>
+              )}
+              {!loading && posts.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-5 py-10 text-center text-gray-400">
                     Belum ada artikel.
@@ -170,7 +181,7 @@ export default function AdminBlogPage() {
         </div>
       </div>
 
-      <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editingSlug ? 'Edit Artikel' : 'Tambah Artikel'}>
+      <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Artikel' : 'Tambah Artikel'}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className={labelClass}>Judul</label>
@@ -194,25 +205,15 @@ export default function AdminBlogPage() {
               />
             </div>
             <div>
-              <label className={labelClass}>Waktu Baca</label>
+              <label className={labelClass}>Tanggal Terbit</label>
               <input
-                type="text"
-                placeholder="Contoh: 5 menit baca"
-                value={form.readTime}
-                onChange={(e) => setForm((f) => ({ ...f, readTime: e.target.value }))}
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
                 className={inputClass}
               />
+              <p className="mt-1 text-xs text-gray-400">Klik untuk pilih tanggal dari kalender.</p>
             </div>
-          </div>
-          <div>
-            <label className={labelClass}>Tanggal</label>
-            <input
-              type="text"
-              placeholder="Contoh: 12 Jan 2025"
-              value={form.date}
-              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-              className={inputClass}
-            />
           </div>
 
           <div>
@@ -263,6 +264,7 @@ export default function AdminBlogPage() {
               className={`${inputClass} resize-none`}
             />
           </div>
+          {saveError && <p className="text-xs font-semibold text-coral">{saveError}</p>}
           <div className="mt-2 flex gap-3">
             <button
               type="button"
@@ -273,10 +275,10 @@ export default function AdminBlogPage() {
             </button>
             <button
               type="submit"
-              disabled={imgBusy}
+              disabled={imgBusy || saving}
               className="flex flex-[1.4] items-center justify-center rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {imgBusy ? 'Memproses…' : editingSlug ? 'Simpan Perubahan' : 'Tambah'}
+              {saving ? 'Menyimpan…' : imgBusy ? 'Memproses…' : editing ? 'Simpan Perubahan' : 'Tambah'}
             </button>
           </div>
         </form>

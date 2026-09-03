@@ -4,7 +4,6 @@ export const POSTS = [
     image: '/images/1.jpeg',
     badge: 'Kursus Zakat',
     date: '12 Jan 2025',
-    readTime: '5 menit baca',
     title: 'Fiqih Zakat: Dasar Hukum dan Jenisnya',
     desc: 'Memahami dasar-dasar fiqih zakat, mulai dari pengertian, hukum, hingga jenis-jenis zakat yang wajib ditunaikan.',
     content: [
@@ -20,7 +19,6 @@ export const POSTS = [
     image: '/images/2.jpg',
     badge: 'Blog',
     date: '5 Jan 2025',
-    readTime: '4 menit baca',
     title: 'Penyaluran Zakat Triwulan IV 2024 PLN Batam',
     desc: 'Laporan lengkap penyaluran dana zakat, infaq, dan shadaqah karyawan PLN Batam periode Oktober–Desember 2024.',
     content: [
@@ -36,7 +34,6 @@ export const POSTS = [
     image: '/images/program-3.png',
     badge: 'Kursus Zakat',
     date: '28 Des 2024',
-    readTime: '6 menit baca',
     title: 'Zakat Profesi: Cara Hitung dan Waktu Bayar',
     desc: 'Panduan praktis menghitung dan menunaikan zakat profesi bagi karyawan berpenghasilan tetap sesuai fatwa MUI.',
     content: [

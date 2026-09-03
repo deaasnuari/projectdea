@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { TEAM } from './timData'
 import EditableText from '@/components/inline-edit/EditableText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useTentangContent } from './tentangData'
+import { useTeam } from './useTeam'
 
 const TITLE_MAIN_STYLE = { fontStyle: 'normal', color: 'inherit' }
 
@@ -18,6 +18,7 @@ function AvatarPlaceholder() {
 
 export default function TimSection() {
   const { content, patch } = useTentangContent()
+  const { team } = useTeam()
   const { isAdmin } = useEditMode()
   const t = content.tim
 
@@ -73,11 +74,19 @@ export default function TimSection() {
         </div>
 
         <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
-          {TEAM.map((member) => (
+          {team.map((member) => (
             <div key={member.id} className="card p-4 text-center">
-              <div className="mx-auto mb-2.5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:h-6 [&_svg]:w-6">
-                <AvatarPlaceholder />
-              </div>
+              {member.photo ? (
+                <img
+                  src={member.photo}
+                  alt={member.name}
+                  className="mx-auto mb-2.5 h-16 w-16 rounded-full object-cover"
+                />
+              ) : (
+                <div className="mx-auto mb-2.5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:h-6 [&_svg]:w-6">
+                  <AvatarPlaceholder />
+                </div>
+              )}
               <h3 className="mb-0.5 font-heading text-sm font-bold text-navy">{member.name}</h3>
               <p className="text-[10px] font-semibold uppercase tracking-[0.05em] text-gray-400">{member.role}</p>
             </div>

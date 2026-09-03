@@ -50,15 +50,28 @@ export default function DonationMethodsManager({
     setJenisForm({ label: j.label || '', programLabel: j.programLabel || '' })
     setJenisModal(true)
   }
-  const submitJenis = (e) => {
+  const submitJenis = async (e) => {
     e.preventDefault()
     const label = jenisForm.label.trim()
     if (!label) return
-    saveJenis({ id: jenisEditId || undefined, label, programLabel: jenisForm.programLabel.trim() || label })
-    setJenisModal(false)
+    try {
+      await saveJenis({
+        id: jenisEditId || undefined,
+        label,
+        programLabel: jenisForm.programLabel.trim() || label,
+      })
+      setJenisModal(false)
+    } catch (err) {
+      window.alert(err.message || 'Gagal menyimpan jenis donasi')
+    }
   }
-  const deleteJenis = (j) => {
-    if (window.confirm(`Hapus jenis donasi "${j.label}"?`)) removeJenis(j.id)
+  const deleteJenis = async (j) => {
+    if (!window.confirm(`Hapus jenis donasi "${j.label}"?`)) return
+    try {
+      await removeJenis(j.id)
+    } catch (err) {
+      window.alert(err.message || 'Gagal menghapus jenis donasi')
+    }
   }
 
   const openAddBank = () => {
@@ -76,22 +89,31 @@ export default function DonationMethodsManager({
     })
     setBankModal(true)
   }
-  const submitBank = (e) => {
+  const submitBank = async (e) => {
     e.preventDefault()
     const name = bankForm.name.trim()
     const noRek = bankForm.noRek.trim()
     if (!name || !noRek) return
-    saveBank({
-      id: bankEditId || undefined,
-      name,
-      noRek,
-      short: (bankForm.short.trim() || name.slice(0, 3)).toUpperCase(),
-      badgeClass: bankForm.badgeClass,
-    })
-    setBankModal(false)
+    try {
+      await saveBank({
+        id: bankEditId || undefined,
+        name,
+        noRek,
+        short: (bankForm.short.trim() || name.slice(0, 3)).toUpperCase(),
+        badgeClass: bankForm.badgeClass,
+      })
+      setBankModal(false)
+    } catch (err) {
+      window.alert(err.message || 'Gagal menyimpan rekening')
+    }
   }
-  const deleteBank = (b) => {
-    if (window.confirm(`Hapus rekening "${b.name}"?`)) removeBank(b.id)
+  const deleteBank = async (b) => {
+    if (!window.confirm(`Hapus rekening "${b.name}"?`)) return
+    try {
+      await removeBank(b.id)
+    } catch (err) {
+      window.alert(err.message || 'Gagal menghapus rekening')
+    }
   }
 
   return (

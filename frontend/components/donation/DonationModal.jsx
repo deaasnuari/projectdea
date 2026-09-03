@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { formatRp, formatCountdown } from '@/services/format'
+import { fileToResizedDataUrl } from '@/services/imageFile'
+import { createDonation } from '@/services/donations'
 import { useDonationMethods } from './donationMethodsData'
 
 const NOMINAL_PRESETS = [50000, 100000, 250000, 500000, 'lainnya', 1000000]
@@ -175,7 +177,13 @@ function BankBadge({ bank, size = 'md' }) {
   )
 }
 
-export default function DonationModal({ open, onClose, initialJenisId = null, scope = 'tentang' }) {
+export default function DonationModal({
+  open,
+  onClose,
+  initialJenisId = null,
+  scope = 'tentang',
+  sourceLabel = null,
+}) {
   const { jenisList, banks } = useDonationMethods(scope)
 
   const [step, setStep] = useState(1)
@@ -195,8 +203,11 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
   const [buktiFile, setBuktiFile] = useState(null)
   const [buktiPreview, setBuktiPreview] = useState('')
   const [buktiError, setBuktiError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
-  const jenis = jenisList.find((j) => j.id === jenisId) || null
+  const jenis =
+    jenisList.find((j) => j.key === jenisId || String(j.id) === String(jenisId)) || null
   const bank = banks.find((b) => b.id === bankId) || null
   const effectiveNominal = customNominal ? Number(customNominal) : nominal
 
@@ -219,6 +230,8 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
     setBuktiFile(null)
     setBuktiPreview('')
     setBuktiError('')
+    setSubmitting(false)
+    setSubmitError('')
   }, [open, initialJenisId])
 
   // Hitung mundur "Batas Bayar" — cuma jalan selama nomor rekening bank
@@ -254,6 +267,41 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
     reader.readAsDataURL(file)
   }
 
+  const handleConfirm = async () => {
+    if (submitting) return
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      let proof = null
+      if (buktiFile) {
+        try {
+          proof = await fileToResizedDataUrl(buktiFile, { maxDim: 1400, quality: 0.8 })
+        } catch {
+          proof = buktiPreview || null
+        }
+      }
+      await createDonation({
+        donorName: anonim ? 'Anonim' : nama.trim(),
+        anonymous: anonim,
+        source: scope, // 'program' | 'tentang'
+        jenisId: jenis?.key || jenis?.id || null,
+        jenisLabel: jenis?.label || null,
+        program: sourceLabel || jenis?.programLabel || jenis?.label || null,
+        amount: effectiveNominal,
+        bankId: bank?.id || null,
+        bankName: bank?.name || null,
+        nik: nik.trim() || null,
+        note: niat.trim() || null,
+        proof,
+      })
+      setStep(4)
+    } catch (err) {
+      setSubmitError(err.message || 'Gagal mengirim. Coba lagi.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const copyNoRek = async () => {
     if (!bank) return
     try {
@@ -268,7 +316,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
 
   return (
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-navy-dark/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-navy-dark/70 p-3 backdrop-blur-sm sm:p-4"
       onClick={onClose}
     >
       {/* Bentuk sudut tajam / lengkung dalam yang sama seperti card lain
@@ -279,7 +327,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
           disembunyikan (.no-scrollbar) supaya tidak nongol di sudut yang
           melengkung. */}
       <div
-        className="no-scrollbar relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-lg rounded-br-lg bg-white p-6 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8"
+        className="no-scrollbar relative max-h-[92vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white p-5 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:rounded-tr-[2.5rem] sm:rounded-bl-[2.5rem] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -324,21 +372,22 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
         {step === 1 && (
           <div>
             <h4 className="mb-4 text-sm font-bold text-navy">Pilih Jenis Donasi</h4>
-            <div className="mb-6 grid grid-cols-3 gap-3">
+            <div className="mb-6 grid grid-cols-2 gap-2.5 min-[400px]:grid-cols-3 sm:gap-3">
               {jenisList.map((item) => {
-                const active = jenisId === item.id
+                const val = item.key || String(item.id)
+                const active = String(jenisId) === val
                 return (
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setJenisId(item.id)}
+                    onClick={() => setJenisId(val)}
                     className={`flex flex-col items-center gap-2 rounded-xl border px-3 py-5 text-center transition-all ${
                       active
                         ? 'border-navy bg-navy text-white'
                         : 'border-gray-200 text-navy hover:border-primary/40 hover:bg-primary/5'
                     }`}
                   >
-                    <JenisIcon id={item.id} className={active ? 'text-gold' : 'text-primary'} />
+                    <JenisIcon id={val} className={active ? 'text-gold' : 'text-primary'} />
                     <span className="text-xs font-bold">{item.label}</span>
                   </button>
                 )
@@ -361,7 +410,7 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
         {step === 2 && (
           <div>
             <h4 className="mb-3 text-sm font-bold text-navy">Pilih Nominal Donasi</h4>
-            <div className="mb-3 grid grid-cols-3 gap-3">
+            <div className="mb-3 grid grid-cols-2 gap-2.5 min-[400px]:grid-cols-3 sm:gap-3">
               {NOMINAL_PRESETS.map((preset) =>
                 preset === 'lainnya' ? (
                   <button
@@ -538,11 +587,11 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
 
             <div className="mb-5 rounded-xl border border-gray-200 p-4">
               <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">Nomor Rekening</div>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                <div className="flex min-w-0 items-center gap-3">
                   <BankBadge bank={bank} size="sm" />
-                  <div>
-                    <div className="font-heading text-lg font-bold tracking-wide text-navy-dark">{bank.noRek}</div>
+                  <div className="min-w-0">
+                    <div className="break-all font-heading text-lg font-bold tracking-wide text-navy-dark">{bank.noRek}</div>
                     <div className="text-xs text-gray-400">{bank.name}</div>
                   </div>
                 </div>
@@ -624,14 +673,17 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
               {buktiError && <p className="mt-2 text-xs font-semibold text-coral">{buktiError}</p>}
             </div>
 
+            {submitError && (
+              <p className="mb-3 text-center text-xs font-semibold text-coral">{submitError}</p>
+            )}
             <button
               type="button"
-              disabled={!buktiFile}
-              onClick={() => setStep(4)}
+              disabled={!buktiFile || submitting}
+              onClick={handleConfirm}
               className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
             >
-              Konfirmasi Pembayaran
-              <ArrowIcon />
+              {submitting ? 'Mengirim…' : 'Konfirmasi Pembayaran'}
+              {!submitting && <ArrowIcon />}
             </button>
 
             <button
@@ -668,24 +720,24 @@ export default function DonationModal({ open, onClose, initialJenisId = null, sc
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-gray-500">Program</span>
-                <strong className="text-navy-dark">{jenis?.programLabel || jenis?.label}</strong>
+              <div className="flex items-start justify-between gap-4">
+                <span className="shrink-0 text-gray-500">Program</span>
+                <strong className="text-right text-navy-dark">{jenis?.programLabel || jenis?.label}</strong>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-gray-500">Nominal</span>
-                <strong className="text-navy-dark">{formatRp(effectiveNominal)}</strong>
+              <div className="flex items-start justify-between gap-4">
+                <span className="shrink-0 text-gray-500">Nominal</span>
+                <strong className="text-right text-navy-dark">{formatRp(effectiveNominal)}</strong>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-gray-500">Bank</span>
-                <strong className="text-navy-dark">{bank?.name}</strong>
+              <div className="flex items-start justify-between gap-4">
+                <span className="shrink-0 text-gray-500">Bank</span>
+                <strong className="text-right text-navy-dark">{bank?.name}</strong>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-gray-500">No. Rekening</span>
-                <strong className="text-navy-dark">{bank?.noRek}</strong>
+              <div className="flex items-start justify-between gap-4">
+                <span className="shrink-0 text-gray-500">No. Rekening</span>
+                <strong className="break-all text-right text-navy-dark">{bank?.noRek}</strong>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-gray-500">Status</span>
+              <div className="flex items-start justify-between gap-4">
+                <span className="shrink-0 text-gray-500">Status</span>
                 <strong className="inline-flex items-center gap-1.5 text-gold-dark">
                   <span className="h-1.5 w-1.5 rounded-full bg-gold" />
                   Menunggu Verifikasi

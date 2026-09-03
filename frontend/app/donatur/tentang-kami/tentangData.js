@@ -1,15 +1,10 @@
 'use client'
 
-// Semua teks bagian "Tentang Kami" ada di SATU file ini (data default +
-// baca/simpan + hook) — sengaja tidak dipecah-pecah. Admin mengeditnya
-// langsung di halaman lewat inline editing (lihat components/inline-edit/*),
-// mirip "Kami Peduli". Belum ada backend: perubahan disimpan di localStorage
-// supaya tetap ada setelah refresh.
+// Data awal + hook untuk bagian "Tentang Kami". Sumber kebenaran di backend
+// (key: "tentang"); DEFAULT_TENTANG_CONTENT dipakai sebagai fallback.
 
-import { useCallback, useEffect, useState } from 'react'
-
-export const TENTANG_STORAGE_KEY = 'lazis-pln-tentang-content'
-export const TENTANG_UPDATED_EVENT = 'tentang-content-updated'
+import { useCallback } from 'react'
+import { useSiteContent } from '@/services/siteContent'
 
 export const DEFAULT_TENTANG_CONTENT = {
   hero: {
@@ -118,89 +113,33 @@ export const DEFAULT_TENTANG_CONTENT = {
   ],
 }
 
-function mergeWithDefault(saved) {
-  if (!saved || typeof saved !== 'object') return DEFAULT_TENTANG_CONTENT
-  const d = DEFAULT_TENTANG_CONTENT
-
-  const pickList = (savedList, defaultList) => {
-    if (!Array.isArray(savedList)) return defaultList
-    return savedList
-      .filter((s) => s && typeof s === 'object' && s.id)
-      .map((s) => {
-        const base = defaultList.find((x) => x.id === s.id)
-        return base ? { ...base, ...s } : s
-      })
-  }
-
-  return {
-    hero: { ...d.hero, ...(saved.hero || {}) },
-    keunggulan: pickList(saved.keunggulan, d.keunggulan),
-    visiMisi: { ...d.visiMisi, ...(saved.visiMisi || {}) },
-    misi: pickList(saved.misi, d.misi),
-    sejarah: { ...d.sejarah, ...(saved.sejarah || {}) },
-    milestones: pickList(saved.milestones, d.milestones),
-    pencapaian: { ...d.pencapaian, ...(saved.pencapaian || {}) },
-    nilai: { ...d.nilai, ...(saved.nilai || {}) },
-    values: pickList(saved.values, d.values),
-    tim: { ...d.tim, ...(saved.tim || {}) },
-  }
-}
-
-export function getTentangContent() {
-  if (typeof window === 'undefined') return DEFAULT_TENTANG_CONTENT
-  try {
-    const saved = window.localStorage.getItem(TENTANG_STORAGE_KEY)
-    if (!saved) return DEFAULT_TENTANG_CONTENT
-    return mergeWithDefault(JSON.parse(saved))
-  } catch {
-    return DEFAULT_TENTANG_CONTENT
-  }
-}
-
-export function saveTentangContent(content) {
-  if (typeof window === 'undefined') return
-  // TODO(backend): kirim ke API di sini begitu server tersedia.
-  window.localStorage.setItem(TENTANG_STORAGE_KEY, JSON.stringify(content))
-  window.dispatchEvent(new Event(TENTANG_UPDATED_EVENT))
-}
-
-// Hook: baca konten + fungsi ubah. Dipakai semua section Tentang Kami.
+// Hook: baca konten dari backend + fungsi ubah. Dipakai semua section Tentang Kami.
 export function useTentangContent() {
-  const [content, setContent] = useState(DEFAULT_TENTANG_CONTENT)
+  const [content, update] = useSiteContent('tentang', DEFAULT_TENTANG_CONTENT)
 
-  useEffect(() => {
-    const refresh = () => setContent(getTentangContent())
-    refresh()
-    window.addEventListener(TENTANG_UPDATED_EVENT, refresh)
-    window.addEventListener('storage', refresh)
-    return () => {
-      window.removeEventListener(TENTANG_UPDATED_EVENT, refresh)
-      window.removeEventListener('storage', refresh)
-    }
-  }, [])
+  const patch = useCallback(
+    (section, p) => update((c) => ({ ...c, [section]: { ...c[section], ...p } })),
+    [update],
+  )
 
-  const patch = useCallback((section, p) => {
-    const cur = getTentangContent()
-    saveTentangContent({ ...cur, [section]: { ...cur[section], ...p } })
-  }, [])
+  const patchListItem = useCallback(
+    (listKey, id, p) =>
+      update((c) => ({
+        ...c,
+        [listKey]: c[listKey].map((it) => (it.id === id ? { ...it, ...p } : it)),
+      })),
+    [update],
+  )
 
-  const patchListItem = useCallback((listKey, id, p) => {
-    const cur = getTentangContent()
-    saveTentangContent({
-      ...cur,
-      [listKey]: cur[listKey].map((it) => (it.id === id ? { ...it, ...p } : it)),
-    })
-  }, [])
+  const addListItem = useCallback(
+    (listKey, item) => update((c) => ({ ...c, [listKey]: [...c[listKey], item] })),
+    [update],
+  )
 
-  const addListItem = useCallback((listKey, item) => {
-    const cur = getTentangContent()
-    saveTentangContent({ ...cur, [listKey]: [...cur[listKey], item] })
-  }, [])
-
-  const removeListItem = useCallback((listKey, id) => {
-    const cur = getTentangContent()
-    saveTentangContent({ ...cur, [listKey]: cur[listKey].filter((it) => it.id !== id) })
-  }, [])
+  const removeListItem = useCallback(
+    (listKey, id) => update((c) => ({ ...c, [listKey]: c[listKey].filter((it) => it.id !== id) })),
+    [update],
+  )
 
   return { content, patch, patchListItem, addListItem, removeListItem }
 }

@@ -1,32 +1,29 @@
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useParams } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { PROGRAMS } from '../programData'
-import { getProgramById } from '@/services/program'
 import ProgramDetailSection from './ProgramDetailSection'
+import { usePrograms } from '../usePrograms'
 
-export function generateStaticParams() {
-  return PROGRAMS.map((program) => ({ id: program.id }))
-}
+export default function ProgramDetailPage() {
+  const { id } = useParams() // nilai route = slug program
+  const { programs: allPrograms, loading } = usePrograms()
+  const programs = allPrograms.filter((p) => p.active !== false) // program yang ditutup tidak bisa dibuka donatur
 
-export async function generateMetadata({ params }) {
-  const { id } = await params
-  const program = getProgramById(id)
-  if (!program) return { title: 'Program — Lazis PLN Batam' }
-  return { title: `${program.title} — Lazis PLN Batam` }
-}
-
-export default async function ProgramDetailPage({ params }) {
-  const { id } = await params
-  const program = getProgramById(id)
-  if (!program) notFound()
-
-  const otherPrograms = PROGRAMS.filter((p) => p.id !== program.id).slice(0, 2)
+  const program = programs.find((p) => p.slug === id || String(p.id) === id)
+  const otherPrograms = programs.filter((p) => p !== program).slice(0, 2)
 
   return (
     <>
       <Navbar />
-      <ProgramDetailSection program={program} otherPrograms={otherPrograms} />
+      {program ? (
+        <ProgramDetailSection program={program} otherPrograms={otherPrograms} />
+      ) : (
+        <div className="container py-40 text-center text-sm text-gray-500">
+          {loading ? 'Memuat program…' : 'Program tidak ditemukan.'}
+        </div>
+      )}
       <Footer />
     </>
   )
