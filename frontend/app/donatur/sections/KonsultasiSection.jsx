@@ -58,7 +58,7 @@ export default function KonsultasiSection() {
   const set = (patch) => patchSection('konsultasi', patch)
 
   return (
-    <section id="konsultasi" className="bg-white py-24">
+    <section id="konsultasi" className="bg-white py-14">
       <div className="container grid grid-cols-[0.85fr_1.15fr] gap-12 max-[900px]:grid-cols-1">
         <div>
           <EditableText

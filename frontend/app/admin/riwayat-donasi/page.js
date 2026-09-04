@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { formatRp } from '@/services/format'
 import { useDonations, proofUrl } from '@/services/donations'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const TABS = [
   { key: 'semua', label: 'Semua' },
@@ -49,11 +50,31 @@ export default function AdminRiwayatDonasiPage() {
 
   const handleDelete = async (d) => {
     const nama = d.anonymous ? 'Anonim' : d.donor_name
-    if (!window.confirm(`Hapus donasi dari "${nama}" (${formatRp(Number(d.amount))})? Tindakan ini permanen.`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus donasi?',
+      message: `Donasi dari "${nama}" (${formatRp(Number(d.amount))}) akan dihapus permanen.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeDonation(d.id)
+      toast('Donasi dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus donasi')
+      toast(err.message || 'Gagal menghapus donasi', { tone: 'error' })
+    }
+  }
+
+  const STATUS_MSG = {
+    terverifikasi: 'Donasi diverifikasi.',
+    ditolak: 'Donasi ditolak.',
+    menunggu: 'Status dikembalikan ke menunggu.',
+  }
+  const applyStatus = async (id, status) => {
+    try {
+      await changeStatus(id, status)
+      toast(STATUS_MSG[status] || 'Status diperbarui.', { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal memperbarui status', { tone: 'error' })
     }
   }
 
@@ -88,7 +109,7 @@ export default function AdminRiwayatDonasiPage() {
       {d.status !== 'terverifikasi' && (
         <button
           type="button"
-          onClick={() => changeStatus(d.id, 'terverifikasi')}
+          onClick={() => applyStatus(d.id, 'terverifikasi')}
           className="rounded-lg bg-green-100 px-2.5 py-1 text-[11px] font-semibold text-green-700 transition-colors hover:bg-green-200"
         >
           Verifikasi
@@ -97,7 +118,7 @@ export default function AdminRiwayatDonasiPage() {
       {d.status !== 'ditolak' && (
         <button
           type="button"
-          onClick={() => changeStatus(d.id, 'ditolak')}
+          onClick={() => applyStatus(d.id, 'ditolak')}
           className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
         >
           Tolak
@@ -106,7 +127,7 @@ export default function AdminRiwayatDonasiPage() {
       {d.status !== 'menunggu' && (
         <button
           type="button"
-          onClick={() => changeStatus(d.id, 'menunggu')}
+          onClick={() => applyStatus(d.id, 'menunggu')}
           className="rounded-lg bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-500 transition-colors hover:bg-gray-200"
         >
           Batalkan

@@ -120,7 +120,7 @@ export default function ProgramKamiSection() {
   }
 
   return (
-    <section id="programs" className="bg-gray-50 pt-24 pb-14">
+    <section id="programs" className="bg-gray-50 pt-12 pb-14">
       <div className="container">
         {/* Judul bagian — teksnya bisa diedit inline oleh admin (di halaman
             /admin/konten-kami-peduli). Daftar video & galeri dikelola lewat

@@ -135,5 +135,31 @@ export function usePrograms() {
     [refresh],
   )
 
-  return { programs, loading, error, refresh, saveProgram, removeProgram, setProgramActive }
+  // Ubah status program sekaligus: { active, donationOpen }.
+  //  - active:false        → program hilang dari halaman donatur
+  //  - donationOpen:false  → tetap tampil, tombol donasi dinonaktifkan
+  const setProgramState = useCallback(
+    async (program, patch) => {
+      const id = program && typeof program === 'object' ? program.id : program
+      if (id == null) return
+      const body = {}
+      if (typeof patch.active === 'boolean') body.active = patch.active
+      if (typeof patch.donationOpen === 'boolean') body.donationOpen = patch.donationOpen
+      await updateProgram(id, body)
+      broadcastChange()
+      await refresh()
+    },
+    [refresh],
+  )
+
+  return {
+    programs,
+    loading,
+    error,
+    refresh,
+    saveProgram,
+    removeProgram,
+    setProgramActive,
+    setProgramState,
+  }
 }

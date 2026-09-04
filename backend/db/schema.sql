@@ -98,9 +98,12 @@ create table if not exists programs (
   updated_at   timestamptz not null default now()
 );
 
--- Program yang "ditutup" admin → active=false → hilang dari tampilan donatur
--- (tetap terlihat di panel admin). Ditambah terpisah agar aman untuk DB lama.
+-- Dua cara "menutup" program (terpisah, aman untuk DB lama):
+--   active = false        → program disembunyikan sepenuhnya dari halaman donatur
+--   donation_open = false  → program tetap tampil di donatur, tapi tombol donasi
+--                            dinonaktifkan + keterangan "Donasi Ditutup".
 alter table programs add column if not exists active boolean not null default true;
+alter table programs add column if not exists donation_open boolean not null default true;
 
 create index if not exists programs_sort_idx on programs (sort_order, created_at);
 
@@ -238,3 +241,34 @@ create table if not exists contact_messages (
 );
 
 create index if not exists contact_messages_created_idx on contact_messages (created_at desc);
+
+-- Pengaturan tipografi per halaman publik (jenis & ukuran font) yang bisa
+-- diubah admin lalu dikembalikan ke bawaan. Satu baris per halaman; id
+-- 12345 = halaman "Kami Peduli" (halaman lain menyusul dengan id lain).
+create table if not exists page_typography (
+  id            bigint primary key,
+  label         text not null default '',
+  body_font     text not null default 'default',
+  heading_font  text not null default 'default',
+  font_scale    numeric(4,2) not null default 1.00,
+  updated_at    timestamptz not null default now()
+);
+
+insert into page_typography (id, label)
+  values (12345, 'Kami Peduli')
+  on conflict (id) do nothing;
+
+-- Akun admin panel. Login mengecek tabel ini dulu; kalau username tidak ada
+-- di sini, jatuh ke akun bawaan dari environment (ADMIN_USERNAME/PASSWORD)
+-- supaya akses awal tidak pernah terkunci. Password disimpan sebagai hash
+-- scrypt (lib/password.js), bukan teks polos.
+create table if not exists admin_accounts (
+  id            bigserial primary key,
+  username      text not null unique,
+  name          text not null default '',
+  nik           text not null default '',
+  email         text not null default '',
+  password_hash text not null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);

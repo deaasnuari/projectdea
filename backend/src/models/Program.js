@@ -19,6 +19,7 @@ function toApi(row) {
     collected: Number(row.collected) || 0,
     donors: Number(row.donors) || 0,
     active: row.active !== false,
+    donationOpen: row.donation_open !== false,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }
@@ -108,7 +109,7 @@ async function update(id, d) {
        slug = $2, title = $3, badge = $4, icon = $5, image = $6, jenis_id = $7,
        theme = $8, "desc" = $9, harapan = $10, deskripsi = $11::jsonb,
        manfaat = $12::jsonb, target = $13, collected = $14, donors = $15,
-       active = $16, updated_at = now()
+       active = $16, donation_open = $17, updated_at = now()
      where id = $1
      returning *`,
     [
@@ -128,6 +129,7 @@ async function update(id, d) {
       Math.round(Number(val(d.collected, cur.collected)) || 0),
       Math.round(Number(val(d.donors, cur.donors)) || 0),
       typeof d.active === 'boolean' ? d.active : cur.active,
+      typeof d.donationOpen === 'boolean' ? d.donationOpen : cur.donationOpen,
     ],
   )
   return toApi(rows[0])

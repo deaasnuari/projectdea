@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import KamiPeduliTypography from '@/components/layout/KamiPeduliTypography'
 import HeroSection from './sections/HeroSection'
 import DonorStatsSection from './sections/DonorStatsSection'
 import ProgramKamiSection from './sections/ProgramKamiSection'
@@ -10,11 +11,13 @@ export default function DonaturLandingPage() {
   return (
     <>
       <Navbar />
-      <HeroSection />
-      <DonorStatsSection />
-      <ProgramKamiSection />
-      <ZakatCalculatorSection />
-      <KonsultasiSection />
+      <KamiPeduliTypography>
+        <HeroSection />
+        <DonorStatsSection />
+        <ProgramKamiSection />
+        <ZakatCalculatorSection />
+        <KonsultasiSection />
+      </KamiPeduliTypography>
       <Footer />
     </>
   )

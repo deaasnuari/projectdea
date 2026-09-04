@@ -1,8 +1,6 @@
-import Navbar from '@/components/layout/Navbar'
+import Link from 'next/link'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
-import AuthCard from '@/components/auth/AuthCard'
 import LoginForm from './LoginForm'
-import BackHomeLink from '@/components/auth/BackHomeLink'
 
 export const metadata = {
   title: 'Masuk — Lazis PLN Batam',
@@ -10,36 +8,34 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <>
-      <Navbar />
-      {/* h-dvh + overflow-hidden mengunci halaman ini pas satu layar penuh —
-          background, navbar, dan card semuanya diam di tempat; tidak ada
-          yang bisa di-scroll. Pakai dvh (bukan vh) supaya tingginya tetap
-          akurat di HP saat address bar browser muncul/hilang. "safe center"
-          bikin card berada di tengah secara vertikal di layar normal, tapi
-          kalau jendelanya terlalu pendek, card ditempatkan di bawah navbar
-          saja (bukan dipaksa ke tengah sampai tertutup navbar yang fixed).
-          Kalau ruang yang tersisa masih kurang, padding card dan teks
-          header opsionalnya akan mengecil sendiri (lihat aturan class
-          auth-* di globals.css). */}
-      <main className="h-dvh overflow-hidden">
-        <PageHeroBackground className="auth-shell-gap flex h-full items-safe-center justify-center px-4 pb-10 pt-24">
-          {/* auth-page-cozy: teks header di halaman login ini cukup pendek
-              sehingga masih muat di jendela yang lebih pendek dibanding
-              halaman register — lihat override .auth-page-cozy di
-              globals.css. */}
-          <div className="auth-page-cozy flex flex-col items-center">
-            <BackHomeLink />
-            <AuthCard
-              eyebrow="Portal Admin"
-              title="Masuk ke Akun Anda"
-              subtitle="Kelola donasi dan program Lazis PLN Batam dari satu tempat."
-            >
-              <LoginForm />
-            </AuthCard>
+    <PageHeroBackground className="flex min-h-[100dvh] items-center justify-center px-4 py-8">
+      <div className="w-full max-w-[360px]">
+        <Link
+          href="/"
+          className="mb-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-white/75 transition-colors hover:text-white"
+        >
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+            <path d="M12.5 15L7.5 10l5-5" />
+          </svg>
+          Kembali ke Beranda
+        </Link>
+
+        <div className="overflow-hidden rounded-tr-[1.5rem] rounded-bl-[1.5rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_30px_60px_-24px_rgba(6,30,40,0.55)]">
+          <div className="flex flex-col items-center px-7 pb-4 pt-6 text-center">
+            <img
+              src="/images/logo lazis pln.png"
+              alt="Lazis PLN Batam"
+              className="h-8 w-auto rounded-md bg-white px-1"
+            />
+            <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Portal Admin</p>
+            <h1 className="mt-0.5 font-heading text-lg font-bold text-navy">Masuk ke Akun</h1>
           </div>
-        </PageHeroBackground>
-      </main>
-    </>
+
+          <div className="px-7 pb-6">
+            <LoginForm />
+          </div>
+        </div>
+      </div>
+    </PageHeroBackground>
   )
 }

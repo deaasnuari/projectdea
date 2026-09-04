@@ -15,6 +15,7 @@ const homePageRoutes = require('./homePage.routes')
 const aboutPageRoutes = require('./aboutPage.routes')
 const contactPageRoutes = require('./contactPage.routes')
 const contactMessageRoutes = require('./contactMessages.routes')
+const pageTypographyRoutes = require('./pageTypography.routes')
 
 const router = Router()
 
@@ -35,5 +36,6 @@ router.use('/home', homePageRoutes)
 router.use('/about', aboutPageRoutes)
 router.use('/contact', contactPageRoutes)
 router.use('/contact-messages', contactMessageRoutes)
+router.use('/page-typography', pageTypographyRoutes)
 
 module.exports = router

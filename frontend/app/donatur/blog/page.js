@@ -8,7 +8,7 @@ import { useBlogPosts } from './useBlogPosts'
 import { formatBlogDate } from '@/services/blog'
 
 export default function BlogPage() {
-  const { posts } = useBlogPosts()
+  const { posts, loading } = useBlogPosts()
 
   // Sampai 3 artikel: grid biasa. Lebih dari itu: baris yang digeser ke
   // samping (scroll-snap) supaya halaman tidak makin panjang ke bawah —
@@ -71,7 +71,15 @@ export default function BlogPage() {
             <span className="italic text-gold">untuk Karyawan PLN Batam</span>
           </h1>
 
-          {slideMode ? (
+          {posts.length === 0 ? (
+            // Diam saja selagi memuat pertama kali — tanpa spinner/skeleton,
+            // biar tidak ada kesan "loading" di antara kartu.
+            <div aria-hidden className="min-h-[40vh]">
+              {!loading && (
+                <p className="text-sm text-white/70">Belum ada artikel.</p>
+              )}
+            </div>
+          ) : slideMode ? (
             <div className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2">
               {posts.map(renderCard)}
             </div>

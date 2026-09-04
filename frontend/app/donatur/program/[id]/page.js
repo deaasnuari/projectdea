@@ -8,11 +8,13 @@ import { usePrograms } from '../usePrograms'
 
 export default function ProgramDetailPage() {
   const { id } = useParams() // nilai route = slug program
-  const { programs: allPrograms, loading } = usePrograms()
-  const programs = allPrograms.filter((p) => p.active !== false) // program yang ditutup tidak bisa dibuka donatur
+  const { programs, loading } = usePrograms()
 
-  const program = programs.find((p) => p.slug === id || String(p.id) === id)
-  const otherPrograms = programs.filter((p) => p !== program).slice(0, 2)
+  // "Sembunyikan" (active=false) → halaman program dianggap tidak ada.
+  // "Tutup donasi" (donationOpen=false) → halaman tetap dibuka, donasi mati.
+  const found = programs.find((p) => p.slug === id || String(p.id) === id)
+  const program = found && found.active !== false ? found : null
+  const otherPrograms = programs.filter((p) => p !== program && p.active !== false).slice(0, 2)
 
   return (
     <>

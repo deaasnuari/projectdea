@@ -58,10 +58,11 @@ function broadcastChange() {
   }
 }
 
-// Hook dipakai di halaman publik & admin. `POSTS` jadi tampilan awal
-// (offline fallback) sampai data dari API tiba.
+// Hook dipakai di halaman publik & admin. Mulai dari daftar kosong supaya
+// tidak ada "kedipan" fallback → data asli; `POSTS` hanya dipakai kalau API
+// benar-benar gagal.
 export function useBlogPosts() {
-  const [posts, setPosts] = useState(POSTS)
+  const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -74,7 +75,10 @@ export function useBlogPosts() {
           setError('')
         }
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => {
+        setError(e.message)
+        setPosts((p) => (p.length ? p : POSTS)) // offline fallback
+      })
       .finally(() => setLoading(false))
   }, [])
 

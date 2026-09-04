@@ -2,6 +2,8 @@ import HeroSection from '@/app/donatur/sections/HeroSection'
 import ProgramKamiSection from '@/app/donatur/sections/ProgramKamiSection'
 import KonsultasiSection from '@/app/donatur/sections/KonsultasiSection'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import KamiPeduliTypography from '@/components/layout/KamiPeduliTypography'
+import TypographySettingsPanel from './TypographySettingsPanel'
 
 export const metadata = {
   title: 'Konten Kami Peduli — Panel Admin',
@@ -20,6 +22,8 @@ export default function AdminKontenKamiPeduliPage() {
         </p>
       </div>
 
+      <TypographySettingsPanel />
+
       {/* Pratinjau halaman dibingkai dalam kartu. Hero aslinya setinggi 1
           layar penuh (min-h-screen, konten di bawah) — di pratinjau admin
           tidak perlu navbar, jadi tingginya dikecilkan & jarak atasnya
@@ -27,12 +31,13 @@ export default function AdminKontenKamiPeduliPage() {
           tampilan publik). */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#top]:!min-h-0 [&_#top_.container]:!pt-10 [&_#top_.container]:!pb-4">
         <InlineEditProvider defaultEditing>
-          <HeroSection />
-          <ProgramKamiSection />
-          <KonsultasiSection />
+          <KamiPeduliTypography>
+            <HeroSection />
+            <ProgramKamiSection />
+            <KonsultasiSection />
+          </KamiPeduliTypography>
         </InlineEditProvider>
       </div>
     </div>
   )
 }
- 

@@ -5,6 +5,7 @@ import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { uploadImage } from '@/services/imageFile'
 import { useTeam } from '@/services/team'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const EMPTY_FORM = { id: null, name: '', role: '', photo: '' }
 
@@ -60,11 +61,17 @@ export default function AdminTimPage() {
   }
 
   const handleDelete = async (member) => {
-    if (!window.confirm(`Hapus anggota tim "${member.name}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus anggota tim?',
+      message: `"${member.name}" akan dihapus dari daftar tim.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeMember(member)
+      toast('Anggota tim dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus anggota tim')
+      toast(err.message || 'Gagal menghapus anggota tim', { tone: 'error' })
     }
   }
 
@@ -81,8 +88,10 @@ export default function AdminTimPage() {
         photo: form.photo || '',
       })
       setModalOpen(false)
+      toast(editing ? 'Perubahan anggota tim disimpan.' : 'Anggota tim ditambahkan.', { tone: 'success' })
     } catch (err) {
       setSaveError(err.message || 'Gagal menyimpan anggota tim')
+      toast(err.message || 'Gagal menyimpan anggota tim', { tone: 'error' })
     } finally {
       setSaving(false)
     }

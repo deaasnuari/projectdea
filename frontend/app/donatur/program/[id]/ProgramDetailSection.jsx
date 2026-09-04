@@ -11,6 +11,7 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
   const percent = program.target > 0 ? Math.round((program.collected / program.target) * 100) : 0
   const reached = program.target > 0 && program.collected >= program.target
   const lebih = Math.max(0, program.collected - program.target)
+  const closed = program.donationOpen === false
 
   return (
     <>
@@ -46,6 +47,11 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                 >
                   {program.badge}
                 </span>
+                {closed && (
+                  <span className="absolute right-6 top-6 z-[1] rounded-full bg-navy px-3 py-1 text-xs font-bold text-white">
+                    Donasi Ditutup
+                  </span>
+                )}
               </div>
 
               <div className="px-6 py-10 sm:px-12 sm:py-14">
@@ -76,21 +82,36 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
                   )}
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">{program.donors} donatur telah berdonasi</span>
-                    <button
-                      type="button"
-                      onClick={() => setDonationOpen(true)}
-                      className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-colors ${program.buttonBg} ${program.buttonText} ${program.buttonHover}`}
-                    >
-                      Donasi Sekarang
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
-                        <path
-                          fillRule="evenodd"
-                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
+                    {closed ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2 text-xs font-bold text-gray-400">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                          <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V8H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm2.5 7V5.5a2.5 2.5 0 00-5 0V8h5z" clipRule="evenodd" />
+                        </svg>
+                        Donasi Ditutup
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setDonationOpen(true)}
+                        className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-colors ${program.buttonBg} ${program.buttonText} ${program.buttonHover}`}
+                      >
+                        Donasi Sekarang
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                          <path
+                            fillRule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
+                  {closed && (
+                    <p className="mt-4 rounded-lg border border-gray-200 bg-white px-4 py-3 text-xs font-medium text-gray-500">
+                      Donasi untuk program ini sudah ditutup. Terima kasih atas dukungan yang telah diberikan —
+                      donasi tidak bisa lagi dilakukan untuk program ini.
+                    </p>
+                  )}
                 </div>
 
                 {/* Menjadi Harapan Bersama */}

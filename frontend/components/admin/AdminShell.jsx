@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import AdminTopbar from '@/components/admin/AdminTopbar'
+import AdminProfileMenu from '@/components/admin/AdminProfileMenu'
 
 export default function AdminShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -53,6 +54,7 @@ export default function AdminShell({ children }) {
           >
             Lihat Situs
           </Link>
+          <AdminProfileMenu compact />
         </header>
 
         <AdminTopbar />

@@ -9,6 +9,7 @@ import { usePrograms } from '@/services/programs'
 import { PROGRAM_THEMES, themeKeyOf } from '@/app/donatur/program/programData'
 import { useDonationMethods, DEFAULT_JENIS_DONASI } from '@/components/donation/donationMethodsData'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 //ini halaman admin CRUD "Daftar Program" — tersimpan di tabel `programs` di
 // backend. Jenis donasi & rekening dikelola di panel bawah halaman ini.
@@ -34,7 +35,7 @@ export default function AdminProgramPage() {
   // scope 'program' (dikelola di panel bawah halaman ini) — terpisah dari
   // metode donasi "Donasi via Transfer" di halaman Tentang Kami.
   const { jenisList } = useDonationMethods('program')
-  const { programs, loading, error, saveProgram, removeProgram, setProgramActive } = usePrograms()
+  const { programs, loading, error, saveProgram, removeProgram, setProgramState } = usePrograms()
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -42,6 +43,35 @@ export default function AdminProgramPage() {
   const [imgError, setImgError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+
+  // Sampai 3 program: grid biasa (3 kolom). Lebih dari itu: baris yang digeser
+  // ke samping (scroll-snap) supaya halaman tidak makin panjang ke bawah —
+  // pola yang sama seperti Dokumentasi & Blog.
+  const slideMode = programs.length > 3
+
+  // Status tampilan program di halaman donatur.
+  const stateOf = (p) =>
+    p.active === false ? 'hidden' : p.donationOpen === false ? 'donation_closed' : 'active'
+
+  const changeState = async (p, next) => {
+    const patch =
+      next === 'hidden'
+        ? { active: false }
+        : next === 'donation_closed'
+        ? { active: true, donationOpen: false }
+        : { active: true, donationOpen: true }
+    const MSG = {
+      hidden: `Program "${p.title}" disembunyikan dari halaman donatur.`,
+      donation_closed: `Donasi program "${p.title}" ditutup — tampilan tetap ada di donatur.`,
+      active: `Program "${p.title}" aktif kembali.`,
+    }
+    try {
+      await setProgramState(p, patch)
+      toast(MSG[next], { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal mengubah status program', { tone: 'error' })
+    }
+  }
 
   const openAdd = () => {
     setEditing(null)
@@ -92,11 +122,17 @@ export default function AdminProgramPage() {
   }
 
   const handleDelete = async (program) => {
-    if (!window.confirm(`Hapus program "${program.title}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus program?',
+      message: `Program "${program.title}" akan dihapus permanen dari daftar.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeProgram(program)
+      toast('Program dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus program')
+      toast(err.message || 'Gagal menghapus program', { tone: 'error' })
     }
   }
 
@@ -126,8 +162,10 @@ export default function AdminProgramPage() {
         donors: Number(form.donors) || 0,
       })
       setModalOpen(false)
+      toast(editing ? 'Perubahan program disimpan.' : 'Program baru ditambahkan.', { tone: 'success' })
     } catch (err) {
       setSaveError(err.message || 'Gagal menyimpan program')
+      toast(err.message || 'Gagal menyimpan program', { tone: 'error' })
     } finally {
       setSaving(false)
     }
@@ -140,8 +178,9 @@ export default function AdminProgramPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
           <h1 className="font-heading text-xl font-bold text-navy">Daftar Program</h1>
           <p className="mt-1 text-[13px] text-gray-500">
-            Program yang tampil di halaman Daftar Program situs donatur. Tombol <b>Tutup</b> menyembunyikan
-            program dari halaman donatur — tetap terlihat di sini.
+            Program yang tampil di halaman Daftar Program situs donatur. Lewat menu <b>Status</b> tiap
+            kartu: <b>Tutup donasi</b> (program tetap tampil, tombol donasi mati) atau <b>Sembunyikan</b>
+            (program hilang dari halaman donatur). Semua tetap terlihat di sini.
           </p>
         </div>
         <button type="button" onClick={openAdd} className="btn btn-primary shrink-0 self-start sm:self-auto">
@@ -158,14 +197,28 @@ export default function AdminProgramPage() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-6 max-[768px]:grid-cols-1">
+      <div
+        className={
+          slideMode
+            ? 'no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2'
+            : 'grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[768px]:grid-cols-1'
+        }
+      >
         {programs.map((p) => {
           const percent = p.target > 0 ? Math.round((p.collected / p.target) * 100) : 0
           const reached = p.target > 0 && p.collected >= p.target
           const lebih = Math.max(0, p.collected - p.target)
-          const closed = p.active === false
+          const state = stateOf(p)
+          const dim = state !== 'active'
           return (
-            <div key={p.id} className={`card ${closed ? 'opacity-60' : ''}`}>
+            <div
+              key={p.id}
+              className={`card ${
+                slideMode
+                  ? 'w-[280px] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]'
+                  : ''
+              } ${dim ? 'opacity-70' : ''}`}
+            >
               <div className={`relative flex h-28 items-center justify-center overflow-hidden ${p.blockBg}`}>
                 {p.image ? (
                   <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
@@ -175,9 +228,14 @@ export default function AdminProgramPage() {
                 <span className={`absolute left-4 top-4 z-[1] rounded-full px-3 py-1 text-xs font-semibold ${p.badgeBg} ${p.badgeText}`}>
                   {p.badge}
                 </span>
-                {closed && (
+                {state === 'hidden' && (
                   <span className="absolute right-4 top-4 z-[1] rounded-full bg-navy px-2.5 py-1 text-[11px] font-bold text-white">
-                    Ditutup
+                    Disembunyikan
+                  </span>
+                )}
+                {state === 'donation_closed' && (
+                  <span className="absolute right-4 top-4 z-[1] rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-bold text-white">
+                    Donasi Ditutup
                   </span>
                 )}
               </div>
@@ -201,20 +259,58 @@ export default function AdminProgramPage() {
                     Target tercapai{lebih > 0 ? ` · lebih ${formatRp(lebih)}` : ''}
                   </p>
                 )}
+                <div className="mb-2.5">
+                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+                    Status di halaman donatur
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {[
+                      {
+                        key: 'active',
+                        label: 'Aktif — tampil & donasi dibuka',
+                        on: 'border-green-600 bg-green-600 text-white',
+                        off: 'border-green-200 text-green-700 hover:bg-green-50',
+                      },
+                      {
+                        key: 'donation_closed',
+                        label: 'Tutup donasi — tetap tampil di donatur',
+                        on: 'border-amber-500 bg-amber-500 text-white',
+                        off: 'border-amber-200 text-amber-700 hover:bg-amber-50',
+                      },
+                      {
+                        key: 'hidden',
+                        label: 'Sembunyikan — hilang dari donatur',
+                        on: 'border-navy bg-navy text-white',
+                        off: 'border-gray-200 text-gray-500 hover:bg-gray-50',
+                      },
+                    ].map((opt) => {
+                      const isOn = state === opt.key
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => !isOn && changeState(p, opt.key)}
+                          aria-pressed={isOn}
+                          className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[11px] font-semibold transition-colors ${
+                            isOn ? opt.on : `bg-white ${opt.off}`
+                          }`}
+                        >
+                          <span
+                            className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
+                              isOn ? 'border-white' : 'border-current'
+                            }`}
+                          >
+                            {isOn && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                          </span>
+                          {opt.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-gray-400">{p.donors} donatur</span>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setProgramActive(p, closed)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        closed
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-navy/10 text-navy hover:bg-navy/20'
-                      }`}
-                    >
-                      {closed ? 'Buka' : 'Tutup'}
-                    </button>
                     <button
                       type="button"
                       onClick={() => openEdit(p)}

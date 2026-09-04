@@ -8,6 +8,7 @@ import { useKamiPeduliContent } from '@/app/donatur/sections/useKamiPeduliConten
 import { youtubeThumb, youtubeWatchUrl, youtubeId } from '@/services/youtube'
 import { uploadImage } from '@/services/imageFile'
 import { toDateInputValue, formatDateID as fmtDateID } from '@/services/dateText'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const EMPTY_VIDEO = { id: null, image: '', badge: '', title: '', desc: '', videoUrl: '', date: '' }
 const EMPTY_FOTO = { id: null, image: '', caption: '' }
@@ -85,18 +86,26 @@ export default function AdminDokumentasiPage() {
         date: videoForm.date.trim(),
       })
       setVideoModal(false)
+      toast(editingVideo ? 'Perubahan video disimpan.' : 'Video ditambahkan.', { tone: 'success' })
     } catch (err) {
       setVideoErr(err.message || 'Gagal menyimpan video')
+      toast(err.message || 'Gagal menyimpan video', { tone: 'error' })
     } finally {
       setVideoBusy(false)
     }
   }
   const deleteVideo = async (v) => {
-    if (!window.confirm(`Hapus video "${v.title}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus video?',
+      message: `Video "${v.title}" akan dihapus dari dokumentasi.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeVideo(v)
+      toast('Video dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus video')
+      toast(err.message || 'Gagal menghapus video', { tone: 'error' })
     }
   }
 
@@ -143,18 +152,26 @@ export default function AdminDokumentasiPage() {
         caption: fotoForm.caption.trim(),
       })
       setFotoModal(false)
+      toast(editingFoto ? 'Perubahan foto disimpan.' : 'Foto ditambahkan.', { tone: 'success' })
     } catch (err) {
       setFotoErr(err.message || 'Gagal menyimpan foto')
+      toast(err.message || 'Gagal menyimpan foto', { tone: 'error' })
     } finally {
       setFotoBusy(false)
     }
   }
   const deleteFoto = async (f) => {
-    if (!window.confirm(`Hapus foto "${f.caption}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus foto?',
+      message: `Foto "${f.caption}" akan dihapus dari galeri.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removePhoto(f)
+      toast('Foto dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus foto')
+      toast(err.message || 'Gagal menghapus foto', { tone: 'error' })
     }
   }
 

@@ -82,6 +82,7 @@ async function update(req, res, next) {
     if (b.collected != null) patch.collected = b.collected
     if (b.donors != null) patch.donors = b.donors
     if (typeof b.active === 'boolean') patch.active = b.active
+    if (typeof b.donationOpen === 'boolean') patch.donationOpen = b.donationOpen
 
     const p = await Program.update(id, patch)
     if (!p) return res.status(404).json({ error: 'Program tidak ditemukan' })

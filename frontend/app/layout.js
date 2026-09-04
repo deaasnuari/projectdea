@@ -1,5 +1,6 @@
 import { Inter, Fraunces } from 'next/font/google'
 import './globals.css'
+import FeedbackHost from '@/components/ui/feedback'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,7 +32,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${fraunces.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <FeedbackHost />
+      </body>
     </html>
   )
 }

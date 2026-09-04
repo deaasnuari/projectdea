@@ -4,6 +4,7 @@ import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { useDonationMethods } from './donationMethodsData'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const BADGE_COLORS = [
   { value: 'bg-[#00754A]', label: 'Hijau' },
@@ -61,16 +62,23 @@ export default function DonationMethodsManager({
         programLabel: jenisForm.programLabel.trim() || label,
       })
       setJenisModal(false)
+      toast(jenisEditId ? 'Jenis donasi disimpan.' : 'Jenis donasi ditambahkan.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menyimpan jenis donasi')
+      toast(err.message || 'Gagal menyimpan jenis donasi', { tone: 'error' })
     }
   }
   const deleteJenis = async (j) => {
-    if (!window.confirm(`Hapus jenis donasi "${j.label}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus jenis donasi?',
+      message: `"${j.label}" akan dihapus.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeJenis(j.id)
+      toast('Jenis donasi dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus jenis donasi')
+      toast(err.message || 'Gagal menghapus jenis donasi', { tone: 'error' })
     }
   }
 
@@ -105,16 +113,23 @@ export default function DonationMethodsManager({
         badgeClass: bankForm.badgeClass,
       })
       setBankModal(false)
+      toast(bankEditId ? 'Rekening disimpan.' : 'Rekening ditambahkan.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menyimpan rekening')
+      toast(err.message || 'Gagal menyimpan rekening', { tone: 'error' })
     }
   }
   const deleteBank = async (b) => {
-    if (!window.confirm(`Hapus rekening "${b.name}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus rekening?',
+      message: `Rekening "${b.name}" akan dihapus.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeBank(b.id)
+      toast('Rekening dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus rekening')
+      toast(err.message || 'Gagal menghapus rekening', { tone: 'error' })
     }
   }
 

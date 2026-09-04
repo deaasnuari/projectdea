@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useContactMessages } from '@/services/contactMessages'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const TABS = [
   { key: 'semua', label: 'Semua' },
@@ -35,11 +36,17 @@ export default function AdminPesanMasukPage() {
   const { messages, stats, loading, error, changeStatus, removeMessage } = useContactMessages(tab)
 
   const handleDelete = async (m) => {
-    if (!window.confirm(`Hapus pesan dari "${m.name}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus pesan?',
+      message: `Pesan dari "${m.name}" akan dihapus permanen.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removeMessage(m.id)
+      toast('Pesan dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus pesan')
+      toast(err.message || 'Gagal menghapus pesan', { tone: 'error' })
     }
   }
 

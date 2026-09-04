@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { logoutAdmin, getAdminProfile } from '@/services/adminAuth'
+import { logoutAdmin } from '@/services/adminAuth'
 
 // Dikelompokkan jadi dua bagian (Utama & Konten) supaya menu yang jumlahnya
 // makin banyak tetap gampang dipindai, bukan satu tumpukan panjang rata.
@@ -51,7 +51,7 @@ const NAV_SECTIONS = [
     items: [
       {
         href: '/admin/konten-kami-peduli',
-        label: 'Konten Situs',
+        label: 'Konten Kami Peduli',
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
             <path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5" />
@@ -100,7 +100,7 @@ const NAV_SECTIONS = [
       },
       {
         href: '/admin/donatur',
-        label: 'Informasi Donatur',
+        label: 'Informasi Donatur Kami Peduli',
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -122,7 +122,7 @@ const NAV_SECTIONS = [
       },
       {
         href: '/admin/dokumentasi',
-        label: 'Dokumentasi',
+        label: 'Dokumentasi Kami Peduli',
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
             <rect x="2.5" y="6.5" width="13" height="11" rx="2" />
@@ -134,36 +134,18 @@ const NAV_SECTIONS = [
   },
 ]
 
-function formatLoginAt(ms) {
-  if (!ms) return null
-  try {
-    return new Date(ms).toLocaleString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return null
-  }
-}
-
 const STORAGE_KEY = 'lazispln_admin_sidebar'
 
 export default function AdminSidebar({ mobileOpen = false, onClose = () => {} }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [profileOpen, setProfileOpen] = useState(false)
-  const [profile, setProfile] = useState(null)
   const [collapsed, setCollapsed] = useState(false)
   const [isDesktop, setIsDesktop] = useState(true)
-  const profileRef = useRef(null)
 
   // Rail (ikon-saja) hanya berlaku di desktop. Di HP/iPad drawer selalu penuh.
   const rail = collapsed && isDesktop
 
   useEffect(() => {
-    getAdminProfile().then(setProfile)
     try {
       setCollapsed(localStorage.getItem(STORAGE_KEY) === 'collapsed')
     } catch {
@@ -189,22 +171,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
       }
       return next
     })
-    setProfileOpen(false)
   }
-
-  useEffect(() => {
-    if (!profileOpen) return
-    const onDown = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false)
-    }
-    const onKey = (e) => e.key === 'Escape' && setProfileOpen(false)
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [profileOpen])
 
   const handleLogout = async () => {
     await logoutAdmin()
@@ -340,94 +307,40 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
           ))}
         </nav>
 
-        <div ref={profileRef} className="relative border-t border-white/10 px-3 py-4">
-          {profileOpen && (
-            <div
-              className={`absolute z-20 overflow-hidden rounded-xl border border-gray-200 bg-white text-navy shadow-[0_16px_40px_-12px_rgba(6,30,40,0.5)] ${
-                rail ? 'bottom-2 left-full ml-2 w-56' : 'inset-x-3 bottom-[calc(100%-0.5rem)]'
-              }`}
-            >
-              <div className="flex items-center gap-3 border-b border-gray-100 p-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-base font-bold text-navy">
-                  A
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate font-heading text-sm font-bold">Administrator</p>
-                  <p className="truncate text-xs text-gray-400">@{profile?.username || 'admin'}</p>
-                </div>
-              </div>
-              <dl className="flex flex-col gap-2 p-4 text-xs">
-                <div className="flex justify-between gap-3">
-                  <dt className="text-gray-400">Peran</dt>
-                  <dd className="font-semibold">Administrator</dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt className="text-gray-400">Panel</dt>
-                  <dd className="font-semibold">LAZIS PLN Batam</dd>
-                </div>
-                {formatLoginAt(profile?.loginAt) && (
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-gray-400">Masuk</dt>
-                    <dd className="font-semibold">{formatLoginAt(profile.loginAt)}</dd>
-                  </div>
-                )}
-              </dl>
-              <Link
-                href="/register"
-                onClick={() => setProfileOpen(false)}
-                className="flex w-full items-center gap-2 border-t border-gray-100 px-4 py-3 text-left text-xs font-bold text-primary-dark transition-colors hover:bg-primary/5"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                  <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M19 8v6M22 11h-6" />
-                </svg>
-                Daftar Akun Baru
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center gap-2 border-t border-gray-100 px-4 py-3 text-left text-xs font-bold text-coral transition-colors hover:bg-coral/5"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                  <path d="M16 17l5-5-5-5" />
-                  <path d="M21 12H9" />
-                </svg>
-                Keluar
-              </button>
-            </div>
-          )}
+        <div className="border-t border-white/10 px-3 py-4">
+          {/* Kartu profil admin dipindah ke ujung kanan topbar. Di sini hanya
+              tersisa aksi yang harus selalu kelihatan. */}
+          <Link
+            href="/admin/daftar-akun"
+            onClick={onClose}
+            title={rail ? 'Daftar Akun Baru' : undefined}
+            className={`flex w-full items-center rounded-lg text-[13px] font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white ${
+              rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
+            }`}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M19 8v6M22 11h-6" />
+            </svg>
+            {!rail && 'Daftar Akun Baru'}
+          </Link>
 
           <button
             type="button"
-            onClick={() => setProfileOpen((o) => !o)}
-            aria-expanded={profileOpen}
-            title={rail ? 'Administrator' : undefined}
-            className={`flex w-full items-center rounded-lg text-left transition-colors ${
-              rail ? 'justify-center px-0 py-1.5' : 'gap-3 px-3 py-2'
-            } ${profileOpen ? 'bg-white/[0.08]' : 'hover:bg-white/[0.06]'}`}
+            onClick={handleLogout}
+            title={rail ? 'Keluar' : undefined}
+            aria-label="Keluar"
+            className={`mt-0.5 flex w-full items-center rounded-lg text-[13px] font-semibold text-coral transition-colors hover:bg-coral/10 ${
+              rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
+            }`}
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-bold text-navy">
-              A
-            </span>
-            {!rail && (
-              <>
-                <div className="min-w-0 flex-1 leading-tight">
-                  <p className="truncate text-[13px] font-semibold text-white">Administrator</p>
-                  <p className="truncate text-[11px] text-white/40">@{profile?.username || 'admin'}</p>
-                </div>
-                <svg
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  width="14"
-                  height="14"
-                  className={`shrink-0 text-white/40 transition-transform ${profileOpen ? 'rotate-180' : ''}`}
-                >
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </>
-            )}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <path d="M16 17l5-5-5-5" />
+              <path d="M21 12H9" />
+            </svg>
+            {!rail && 'Keluar'}
           </button>
         </div>
       </aside>

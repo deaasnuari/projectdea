@@ -5,6 +5,7 @@ import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { uploadImage } from '@/services/imageFile'
 import { useBlogPosts, formatBlogDate, toDateInputValue } from '@/services/blog'
+import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const EMPTY_FORM = { id: null, slug: '', title: '', badge: '', date: '', image: '', desc: '', content: '' }
 
@@ -62,11 +63,17 @@ export default function AdminBlogPage() {
   }
 
   const handleDelete = async (post) => {
-    if (!window.confirm(`Hapus artikel "${post.title}"?`)) return
+    const ok = await confirmDialog({
+      title: 'Hapus artikel?',
+      message: `Artikel "${post.title}" akan dihapus permanen.`,
+      confirmLabel: 'Hapus',
+    })
+    if (!ok) return
     try {
       await removePost(post)
+      toast('Artikel dihapus.', { tone: 'success' })
     } catch (err) {
-      window.alert(err.message || 'Gagal menghapus artikel')
+      toast(err.message || 'Gagal menghapus artikel', { tone: 'error' })
     }
   }
 
@@ -87,8 +94,10 @@ export default function AdminBlogPage() {
         content: form.content, // string paragraf — dipecah di backend
       })
       setModalOpen(false)
+      toast(editing ? 'Perubahan artikel disimpan.' : 'Artikel baru ditambahkan.', { tone: 'success' })
     } catch (err) {
       setSaveError(err.message || 'Gagal menyimpan artikel')
+      toast(err.message || 'Gagal menyimpan artikel', { tone: 'error' })
     } finally {
       setSaving(false)
     }

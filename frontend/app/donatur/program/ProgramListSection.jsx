@@ -9,7 +9,9 @@ import { usePrograms } from './usePrograms'
 
 export default function ProgramListSection() {
   const { programs: allPrograms } = usePrograms()
-  const programs = allPrograms.filter((p) => p.active !== false) // sembunyikan yang ditutup admin
+  // "Sembunyikan" (active=false) → program tidak tampil sama sekali.
+  // "Tutup donasi" (donationOpen=false) → tetap tampil, tombol donasi mati.
+  const programs = allPrograms.filter((p) => p.active !== false)
   const [donationProgram, setDonationProgram] = useState(null)
 
   return (
@@ -30,6 +32,7 @@ export default function ProgramListSection() {
               const percent = p.target > 0 ? Math.round((p.collected / p.target) * 100) : 0
               const reached = p.target > 0 && p.collected >= p.target
               const lebih = Math.max(0, p.collected - p.target)
+              const closed = p.donationOpen === false
               return (
                 <div key={p.id} className="card">
                   <Link
@@ -37,7 +40,7 @@ export default function ProgramListSection() {
                     className={`relative flex aspect-[16/9] items-center justify-center overflow-hidden ${p.blockBg}`}
                   >
                     {p.image ? (
-                      <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-400 hover:scale-[1.05]" />
+                      <img src={p.image} alt={p.title} className={`absolute inset-0 h-full w-full object-cover transition-transform duration-400 hover:scale-[1.05] ${closed ? 'grayscale' : ''}`} />
                     ) : (
                       <span className="text-6xl">{p.icon}</span>
                     )}
@@ -46,6 +49,11 @@ export default function ProgramListSection() {
                     >
                       {p.badge}
                     </span>
+                    {closed && (
+                      <span className="absolute right-4 top-4 z-[1] rounded-full bg-navy px-3 py-1 text-xs font-bold text-white">
+                        Donasi Ditutup
+                      </span>
+                    )}
                   </Link>
 
                   <div className="p-6">
@@ -82,21 +90,35 @@ export default function ProgramListSection() {
                           Selengkapnya
                         </Link>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setDonationProgram(p)}
-                        className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-colors ${p.buttonBg} ${p.buttonText} ${p.buttonHover}`}
-                      >
-                        Donasi
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
-                          <path
-                            fillRule="evenodd"
-                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
+                      {closed ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-4 py-2 text-xs font-bold text-gray-400">
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                            <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V8H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm2.5 7V5.5a2.5 2.5 0 00-5 0V8h5z" clipRule="evenodd" />
+                          </svg>
+                          Ditutup
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setDonationProgram(p)}
+                          className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-bold transition-colors ${p.buttonBg} ${p.buttonText} ${p.buttonHover}`}
+                        >
+                          Donasi
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                            <path
+                              fillRule="evenodd"
+                              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      )}
                     </div>
+                    {closed && (
+                      <p className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-[11px] font-medium text-gray-500">
+                        Donasi program ini sudah ditutup — tidak bisa berdonasi lagi.
+                      </p>
+                    )}
                   </div>
                 </div>
               )

@@ -35,7 +35,7 @@ async function fetchJenisOptions() {
   return (await res.json()).data || []
 }
 
-async function fetchStats() {
+export async function fetchStats() {
   const res = await fetch(`${BASE}/api/donations/stats`, { credentials: 'include', cache: 'no-store' })
   if (!res.ok) throw new Error(`GET stats → ${res.status}`)
   return res.json()

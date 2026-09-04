@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import AdminProfileMenu from '@/components/admin/AdminProfileMenu'
 
 // Judul halaman ditentukan dari URL supaya topbar tidak kosong di sisi kiri
 // dan admin tahu sedang di menu mana. Urutan penting: yang lebih spesifik dulu,
@@ -9,13 +10,14 @@ import { usePathname } from 'next/navigation'
 const PAGE_TITLES = [
   ['/admin/riwayat-donasi', 'Riwayat Donasi'],
   ['/admin/pesan-masuk', 'Pesan Masuk'],
-  ['/admin/konten-kami-peduli', 'Konten Situs'],
+  ['/admin/konten-kami-peduli', 'Konten Kami Peduli'],
   ['/admin/konten-tentang-kami', 'Konten Tentang Kami'],
   ['/admin/konten-kontak-kami', 'Konten Kontak Kami'],
   ['/admin/blog', 'Blog & Kursus'],
   ['/admin/program', 'Daftar Program'],
-  ['/admin/donatur', 'Informasi Donatur'],
-  ['/admin/dokumentasi', 'Dokumentasi'],
+  ['/admin/donatur', 'Informasi Donatur Kami Peduli'],
+  ['/admin/dokumentasi', 'Dokumentasi Kami Peduli'],
+  ['/admin/daftar-akun', 'Daftar Akun Baru'],
   ['/admin/tim', 'Tim'],
   ['/admin', 'Dashboard'],
 ]
@@ -51,9 +53,7 @@ export default function AdminTopbar() {
           Lihat Situs
         </Link>
         <span className="h-5 w-px bg-gray-200" />
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">
-          A
-        </span>
+        <AdminProfileMenu />
       </div>
     </header>
   )
