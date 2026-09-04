@@ -1,10 +1,10 @@
 'use client'
 
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useTentangContent } from './tentangData'
 
 export default function PencapaianSection() {
-  const { content, patch } = useTentangContent()
+  const { content } = useTentangContent()
   const p = content.pencapaian
 
   return (
@@ -24,34 +24,38 @@ export default function PencapaianSection() {
       </svg>
 
       <div className="container relative z-[1] text-center">
-        <EditableText
+        <EditableRichText
+          elementKey="tentang-kami.pencapaian.label"
+          section="pencapaian"
           as="p"
           className="section-label !mb-1 !justify-center !text-[10px] !text-gold"
-          value={p.label}
-          onSave={(v) => patch('pencapaian', { label: v })}
+          defaultText={p.label}
           label="label Bukti Nyata"
         />
         <h2 className="mb-2 font-heading text-base font-semibold leading-[1.15] text-white">
-          <EditableText
+          <EditableRichText
+            elementKey="tentang-kami.pencapaian.title"
+            section="pencapaian"
             as="span"
-            value={p.titleMain}
-            onSave={(v) => patch('pencapaian', { titleMain: v })}
+            defaultText={p.titleMain}
             label="judul Pencapaian"
           />{' '}
-          <EditableText
+          <EditableRichText
+            elementKey="tentang-kami.pencapaian.highlight"
+            section="pencapaian"
             as="span"
             className="italic text-gold"
-            value={p.titleHighlight}
-            onSave={(v) => patch('pencapaian', { titleHighlight: v })}
+            defaultText={p.titleHighlight}
             label="kata yang ditonjolkan"
           />
         </h2>
 
-        <EditableText
+        <EditableRichText
+          elementKey="tentang-kami.pencapaian.text"
+          section="pencapaian"
           as="p"
           className="mx-auto max-w-[480px] text-[11px] leading-[1.6] text-white/80"
-          value={p.text}
-          onSave={(v) => patch('pencapaian', { text: v })}
+          defaultText={p.text}
           label="paragraf pencapaian"
           multiline
         />

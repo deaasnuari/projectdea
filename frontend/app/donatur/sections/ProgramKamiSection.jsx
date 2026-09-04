@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
@@ -36,7 +36,7 @@ function TambahKontenButton() {
 }
 
 export default function ProgramKamiSection() {
-  const { content, patchSection } = useKamiPeduliContent()
+  const { content } = useKamiPeduliContent()
   const { videos: rawVideos } = useDocVideos()
   const { photos: rawGaleri } = useDocPhotos()
   const { isAdmin } = useEditMode()
@@ -127,25 +127,28 @@ export default function ProgramKamiSection() {
             halaman /admin/dokumentasi (tambah / edit / hapus). */}
         <div className="mb-8 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
           <div>
-            <EditableText
+            <EditableRichText
+              elementKey="kami-peduli.program.label"
+              section="program"
               as="p"
               className="section-label !mb-1.5 !text-xs"
-              value={ph.label}
-              onSave={(v) => patchSection('programHeading', { label: v })}
+              defaultText={ph.label}
               label="label section program"
             />
             <h2 className="section-title !text-2xl">
-              <EditableText
+              <EditableRichText
+                elementKey="kami-peduli.program.title"
+                section="program"
                 as="span"
                 style={TITLE_MAIN_STYLE}
-                value={ph.titleMain}
-                onSave={(v) => patchSection('programHeading', { titleMain: v })}
+                defaultText={ph.titleMain}
                 label="judul section program"
               />{' '}
-              <EditableText
+              <EditableRichText
+                elementKey="kami-peduli.program.highlight"
+                section="program"
                 as="span"
-                value={ph.titleHighlight}
-                onSave={(v) => patchSection('programHeading', { titleHighlight: v })}
+                defaultText={ph.titleHighlight}
                 label="kata yang ditonjolkan"
               />
             </h2>
@@ -156,9 +159,10 @@ export default function ProgramKamiSection() {
               <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              <EditableText
-                value={ph.buttonLabel}
-                onSave={(v) => patchSection('programHeading', { buttonLabel: v })}
+              <EditableRichText
+                elementKey="kami-peduli.program.cta_label"
+                section="program"
+                defaultText={ph.buttonLabel}
                 label="tombol Lihat Semua Video"
               />
             </a>
@@ -180,25 +184,28 @@ export default function ProgramKamiSection() {
         <div className="mt-10">
           <div className="mb-5 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-start">
             <div>
-              <EditableText
+              <EditableRichText
+                elementKey="kami-peduli.galeri.label"
+                section="galeri"
                 as="p"
                 className="section-label"
-                value={gh.label}
-                onSave={(v) => patchSection('galeriHeading', { label: v })}
+                defaultText={gh.label}
                 label="label section galeri"
               />
               <h2 className="section-title">
-                <EditableText
+                <EditableRichText
+                  elementKey="kami-peduli.galeri.title"
+                  section="galeri"
                   as="span"
                   style={TITLE_MAIN_STYLE}
-                  value={gh.titleMain}
-                  onSave={(v) => patchSection('galeriHeading', { titleMain: v })}
+                  defaultText={gh.titleMain}
                   label="judul galeri"
                 />{' '}
-                <EditableText
+                <EditableRichText
+                  elementKey="kami-peduli.galeri.highlight"
+                  section="galeri"
                   as="span"
-                  value={gh.titleHighlight}
-                  onSave={(v) => patchSection('galeriHeading', { titleHighlight: v })}
+                  defaultText={gh.titleHighlight}
                   label="kata yang ditonjolkan"
                 />
               </h2>

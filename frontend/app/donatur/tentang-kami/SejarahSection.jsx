@@ -1,6 +1,6 @@
 'use client'
 
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
@@ -8,7 +8,7 @@ import { useTentangContent, uid } from './tentangData'
 const TITLE_MAIN_STYLE = { fontStyle: 'normal', color: 'inherit' }
 
 export default function SejarahSection() {
-  const { content, patch, patchListItem, addListItem, removeListItem } = useTentangContent()
+  const { content, addListItem, removeListItem } = useTentangContent()
   const { isAdmin } = useEditMode()
   const s = content.sejarah
 
@@ -17,25 +17,28 @@ export default function SejarahSection() {
       <div className="container">
         <div className="mb-6 flex items-end justify-between gap-4 max-[600px]:flex-col max-[600px]:items-start">
           <div>
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.sejarah.label"
+              section="sejarah"
               as="p"
               className="section-label !mb-1 !text-xs"
-              value={s.label}
-              onSave={(v) => patch('sejarah', { label: v })}
+              defaultText={s.label}
               label="label Perjalanan Kami"
             />
             <h2 className="section-title !text-xl">
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.sejarah.title"
+                section="sejarah"
                 as="span"
                 style={TITLE_MAIN_STYLE}
-                value={s.titleMain}
-                onSave={(v) => patch('sejarah', { titleMain: v })}
+                defaultText={s.titleMain}
                 label="judul Sejarah"
               />{' '}
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.sejarah.highlight"
+                section="sejarah"
                 as="span"
-                value={s.titleHighlight}
-                onSave={(v) => patch('sejarah', { titleHighlight: v })}
+                defaultText={s.titleHighlight}
                 label="kata yang ditonjolkan"
               />
             </h2>
@@ -53,18 +56,20 @@ export default function SejarahSection() {
         <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
           {content.milestones.map((m) => (
             <div key={m.id} className="relative border-t-2 border-gold pt-3">
-              <EditableText
+              <EditableRichText
+                elementKey={`tentang-kami.sejarah.milestone.${m.id}.label`}
+                section="sejarah"
                 as="h3"
                 className="mb-1.5 font-heading text-xs font-bold uppercase tracking-[0.05em] text-primary"
-                value={m.label}
-                onSave={(v) => patchListItem('milestones', m.id, { label: v })}
+                defaultText={m.label}
                 label="judul milestone"
               />
-              <EditableText
+              <EditableRichText
+                elementKey={`tentang-kami.sejarah.milestone.${m.id}.desc`}
+                section="sejarah"
                 as="p"
                 className="text-xs leading-relaxed text-gray-500"
-                value={m.desc}
-                onSave={(v) => patchListItem('milestones', m.id, { desc: v })}
+                defaultText={m.desc}
                 label="keterangan milestone"
                 multiline
               />

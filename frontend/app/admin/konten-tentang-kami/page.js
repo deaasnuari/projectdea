@@ -4,6 +4,7 @@ import PencapaianSection from '@/app/donatur/tentang-kami/PencapaianSection'
 import NilaiSection from '@/app/donatur/tentang-kami/NilaiSection'
 import TimSection from '@/app/donatur/tentang-kami/TimSection'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
 
 export const metadata = {
@@ -27,11 +28,13 @@ export default function AdminKontenTentangKamiPage() {
           untuk pratinjau admin (tanpa mengubah tampilan publik). */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#tentang-hero]:!pt-10 [&_#tentang-hero]:!pb-6">
         <InlineEditProvider defaultEditing>
-          <TentangSection />
-          <SejarahSection />
-          <PencapaianSection />
-          <NilaiSection />
-          <TimSection />
+          <TextElementsProvider page="tentang-kami">
+            <TentangSection />
+            <SejarahSection />
+            <PencapaianSection />
+            <NilaiSection />
+            <TimSection />
+          </TextElementsProvider>
         </InlineEditProvider>
       </div>
 

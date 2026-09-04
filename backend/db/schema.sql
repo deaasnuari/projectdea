@@ -242,22 +242,6 @@ create table if not exists contact_messages (
 
 create index if not exists contact_messages_created_idx on contact_messages (created_at desc);
 
--- Pengaturan tipografi per halaman publik (jenis & ukuran font) yang bisa
--- diubah admin lalu dikembalikan ke bawaan. Satu baris per halaman; id
--- 12345 = halaman "Kami Peduli" (halaman lain menyusul dengan id lain).
-create table if not exists page_typography (
-  id            bigint primary key,
-  label         text not null default '',
-  body_font     text not null default 'default',
-  heading_font  text not null default 'default',
-  font_scale    numeric(4,2) not null default 1.00,
-  updated_at    timestamptz not null default now()
-);
-
-insert into page_typography (id, label)
-  values (12345, 'Kami Peduli')
-  on conflict (id) do nothing;
-
 -- Akun admin panel. Login mengecek tabel ini dulu; kalau username tidak ada
 -- di sini, jatuh ke akun bawaan dari environment (ADMIN_USERNAME/PASSWORD)
 -- supaya akses awal tidak pernah terkunci. Password disimpan sebagai hash
@@ -272,3 +256,29 @@ create table if not exists admin_accounts (
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
+
+-- Editor teks visual ala WordPress: tiap elemen teks yang punya ikon pensil
+-- di panel admin menyimpan ISI + seluruh konfigurasi tampilannya di sini,
+-- di-key oleh `element_key` unik (mis. "homepage.hero.title"). Kolom style
+-- boleh null → frontend memakai style bawaan komponen. Tabel baru, tidak
+-- menyentuh data konten yang sudah ada.
+create table if not exists text_elements (
+  id              bigserial primary key,
+  element_key     text not null unique,
+  page            text not null default '',
+  section         text not null default '',
+  content         text,
+  font_family     text,
+  font_size       text,
+  font_weight     text,
+  font_style      text,
+  text_decoration text,
+  text_color      text,
+  text_align      text,
+  line_height     text,
+  letter_spacing  text,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+create index if not exists text_elements_page_idx on text_elements (page);

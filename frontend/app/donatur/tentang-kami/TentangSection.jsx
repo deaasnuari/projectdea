@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
@@ -22,7 +22,7 @@ function CheckIcon() {
 
 export default function TentangSection() {
   const [donationOpen, setDonationOpen] = useState(false)
-  const { content, patch, patchListItem, addListItem, removeListItem } = useTentangContent()
+  const { content, addListItem, removeListItem } = useTentangContent()
   const { isAdmin } = useEditMode()
   const h = content.hero
   const vm = content.visiMisi
@@ -33,34 +33,38 @@ export default function TentangSection() {
         <div className="container grid grid-cols-[1.1fr_0.9fr] items-start gap-12 max-[900px]:grid-cols-1">
           {/* Kiri: teks pengantar */}
           <div>
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.hero.label"
+              section="hero"
               as="p"
               className="section-label !text-gold"
-              value={h.label}
-              onSave={(v) => patch('hero', { label: v })}
+              defaultText={h.label}
               label="label Tentang Kami"
             />
             <h1 className="mb-6 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.hero.title"
+                section="hero"
                 as="span"
-                value={h.titleMain}
-                onSave={(v) => patch('hero', { titleMain: v })}
+                defaultText={h.titleMain}
                 label="judul utama"
               />
               <br />
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.hero.highlight"
+                section="hero"
                 as="span"
                 className="italic text-gold"
-                value={h.titleHighlight}
-                onSave={(v) => patch('hero', { titleHighlight: v })}
+                defaultText={h.titleHighlight}
                 label="judul (ditonjolkan)"
               />
             </h1>
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.hero.description"
+              section="hero"
               as="p"
               className="mb-8 max-w-[520px] leading-[1.7] text-white/80"
-              value={h.description}
-              onSave={(v) => patch('hero', { description: v })}
+              defaultText={h.description}
               label="paragraf pengantar"
               multiline
             />
@@ -75,9 +79,10 @@ export default function TentangSection() {
                     <CheckIcon />
                   </span>
                   <span className="flex-1 text-sm leading-snug text-white/90">
-                    <EditableText
-                      value={item.text}
-                      onSave={(v) => patchListItem('keunggulan', item.id, { text: v })}
+                    <EditableRichText
+                      elementKey={`tentang-kami.hero.keunggulan.${item.id}.text`}
+                      section="hero"
+                      defaultText={item.text}
                       label="poin keunggulan"
                       multiline
                     />
@@ -130,25 +135,28 @@ export default function TentangSection() {
       <section className="bg-gray-50 py-12">
         <div className="container">
           <div className="mb-6">
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.visimisi.label"
+              section="visimisi"
               as="p"
               className="section-label !mb-1 !text-xs"
-              value={vm.label}
-              onSave={(v) => patch('visiMisi', { label: v })}
+              defaultText={vm.label}
               label="label Arah Kami"
             />
             <h2 className="section-title !text-xl">
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.visimisi.title"
+                section="visimisi"
                 as="span"
                 style={TITLE_MAIN_STYLE}
-                value={vm.titleMain}
-                onSave={(v) => patch('visiMisi', { titleMain: v })}
+                defaultText={vm.titleMain}
                 label="judul Visi & Misi"
               />{' '}
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.visimisi.highlight"
+                section="visimisi"
                 as="span"
-                value={vm.titleHighlight}
-                onSave={(v) => patch('visiMisi', { titleHighlight: v })}
+                defaultText={vm.titleHighlight}
                 label="kata yang ditonjolkan"
               />
             </h2>
@@ -156,29 +164,32 @@ export default function TentangSection() {
 
           <div className="grid grid-cols-[0.8fr_1.2fr] gap-4 max-[900px]:grid-cols-1">
             <div className="card flex flex-col justify-center bg-gradient-to-br from-navy to-primary-dark p-5">
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.visimisi.visi_title"
+                section="visimisi"
                 as="h3"
                 className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.5px] text-gold"
-                value={vm.visiTitle}
-                onSave={(v) => patch('visiMisi', { visiTitle: v })}
+                defaultText={vm.visiTitle}
                 label="judul Visi"
               />
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.visimisi.visi_text"
+                section="visimisi"
                 as="p"
                 className="text-xs leading-[1.6] text-white/85"
-                value={vm.visiText}
-                onSave={(v) => patch('visiMisi', { visiText: v })}
+                defaultText={vm.visiText}
                 label="isi Visi"
                 multiline
               />
             </div>
 
             <div className="card p-5">
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.visimisi.misi_title"
+                section="visimisi"
                 as="h3"
                 className="mb-2.5 font-heading text-sm font-bold uppercase tracking-[0.5px] text-primary"
-                value={vm.misiTitle}
-                onSave={(v) => patch('visiMisi', { misiTitle: v })}
+                defaultText={vm.misiTitle}
                 label="judul Misi"
               />
               <ul className="flex flex-col gap-2.5">
@@ -188,9 +199,10 @@ export default function TentangSection() {
                       <CheckIcon />
                     </span>
                     <span className="flex-1">
-                      <EditableText
-                        value={item.text}
-                        onSave={(v) => patchListItem('misi', item.id, { text: v })}
+                      <EditableRichText
+                        elementKey={`tentang-kami.visimisi.misi.${item.id}.text`}
+                        section="visimisi"
+                        defaultText={item.text}
                         label="poin misi"
                         multiline
                       />

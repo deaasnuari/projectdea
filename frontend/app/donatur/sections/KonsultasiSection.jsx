@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
@@ -43,7 +43,7 @@ function ContactRow({ icon, value }) {
 export default function KonsultasiSection() {
   const [openIndex, setOpenIndex] = useState(0)
   const panelRefs = useRef([])
-  const { content, patchSection, patchFaq, addFaq, removeFaq } = useKamiPeduliContent()
+  const { content, addFaq, removeFaq } = useKamiPeduliContent()
   const { content: kontak } = useKontakContent()
   const { editing } = useEditMode()
   const k = content.konsultasi
@@ -55,40 +55,43 @@ export default function KonsultasiSection() {
   const address = infoVal('alamat') || k.address
 
   const toggle = (i) => setOpenIndex((prev) => (prev === i ? -1 : i))
-  const set = (patch) => patchSection('konsultasi', patch)
 
   return (
     <section id="konsultasi" className="bg-white py-14">
       <div className="container grid grid-cols-[0.85fr_1.15fr] gap-12 max-[900px]:grid-cols-1">
         <div>
-          <EditableText
+          <EditableRichText
+            elementKey="kami-peduli.konsultasi.label"
+            section="konsultasi"
             as="p"
             className="section-label"
-            value={k.label}
-            onSave={(v) => set({ label: v })}
+            defaultText={k.label}
             label="label Konsultasi"
           />
           <h2 className="section-title">
-            <EditableText
+            <EditableRichText
+              elementKey="kami-peduli.konsultasi.title"
+              section="konsultasi"
               as="span"
               style={TITLE_MAIN_STYLE}
-              value={k.titleMain}
-              onSave={(v) => set({ titleMain: v })}
+              defaultText={k.titleMain}
               label="judul Konsultasi"
             />
             <br />
-            <EditableText
+            <EditableRichText
+              elementKey="kami-peduli.konsultasi.highlight"
+              section="konsultasi"
               as="span"
-              value={k.titleHighlight}
-              onSave={(v) => set({ titleHighlight: v })}
+              defaultText={k.titleHighlight}
               label="kata yang ditonjolkan"
             />
           </h2>
-          <EditableText
+          <EditableRichText
+            elementKey="kami-peduli.konsultasi.description"
+            section="konsultasi"
             as="p"
             className="my-4 mb-8 max-w-[380px] leading-[1.7] text-gray-500"
-            value={k.description}
-            onSave={(v) => set({ description: v })}
+            defaultText={k.description}
             label="paragraf Konsultasi"
             multiline
           />
@@ -116,9 +119,10 @@ export default function KonsultasiSection() {
                     onClick={() => !editing && toggle(i)}
                     className="flex-1 text-left"
                   >
-                    <EditableText
-                      value={item.q}
-                      onSave={(v) => patchFaq(item.id, { q: v })}
+                    <EditableRichText
+                      elementKey={`kami-peduli.konsultasi.faq.${item.id}.q`}
+                      section="konsultasi"
+                      defaultText={item.q}
                       label="pertanyaan"
                       multiline
                     />
@@ -155,10 +159,11 @@ export default function KonsultasiSection() {
                     ref={(el) => (panelRefs.current[i] = el)}
                     className="max-w-[560px] pb-6 text-sm leading-[1.75] text-gray-600"
                   >
-                    <EditableText
+                    <EditableRichText
+                      elementKey={`kami-peduli.konsultasi.faq.${item.id}.a`}
+                      section="konsultasi"
                       as="span"
-                      value={item.a}
-                      onSave={(v) => patchFaq(item.id, { a: v })}
+                      defaultText={item.a}
                       label="jawaban"
                       multiline
                     />

@@ -1,6 +1,6 @@
 'use client'
 
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
@@ -35,7 +35,7 @@ const VALUE_ICONS = [
 ]
 
 export default function NilaiSection() {
-  const { content, patch, patchListItem, addListItem, removeListItem } = useTentangContent()
+  const { content, addListItem, removeListItem } = useTentangContent()
   const { isAdmin } = useEditMode()
   const n = content.nilai
 
@@ -44,25 +44,28 @@ export default function NilaiSection() {
       <div className="container">
         <div className="mb-6 flex items-end justify-between gap-4 max-[600px]:flex-col max-[600px]:items-start">
           <div>
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.nilai.label"
+              section="nilai"
               as="p"
               className="section-label !mb-1 !text-xs"
-              value={n.label}
-              onSave={(v) => patch('nilai', { label: v })}
+              defaultText={n.label}
               label="label Prinsip Kerja"
             />
             <h2 className="section-title !text-xl">
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.nilai.title"
+                section="nilai"
                 as="span"
                 style={TITLE_MAIN_STYLE}
-                value={n.titleMain}
-                onSave={(v) => patch('nilai', { titleMain: v })}
+                defaultText={n.titleMain}
                 label="judul Nilai-Nilai"
               />{' '}
-              <EditableText
+              <EditableRichText
+                elementKey="tentang-kami.nilai.highlight"
+                section="nilai"
                 as="span"
-                value={n.titleHighlight}
-                onSave={(v) => patch('nilai', { titleHighlight: v })}
+                defaultText={n.titleHighlight}
                 label="kata yang ditonjolkan"
               />
             </h2>
@@ -83,18 +86,20 @@ export default function NilaiSection() {
               <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:h-[18px] [&_svg]:w-[18px]">
                 {VALUE_ICONS[i] || VALUE_ICONS[VALUE_ICONS.length - 1]}
               </div>
-              <EditableText
+              <EditableRichText
+                elementKey={`tentang-kami.nilai.value.${v.id}.title`}
+                section="nilai"
                 as="h3"
                 className="mb-1.5 font-heading text-sm font-bold text-navy"
-                value={v.title}
-                onSave={(val) => patchListItem('values', v.id, { title: val })}
+                defaultText={v.title}
                 label="nama nilai"
               />
-              <EditableText
+              <EditableRichText
+                elementKey={`tentang-kami.nilai.value.${v.id}.desc`}
+                section="nilai"
                 as="p"
                 className="text-xs leading-relaxed text-gray-500"
-                value={v.desc}
-                onSave={(val) => patchListItem('values', v.id, { desc: val })}
+                defaultText={v.desc}
                 label="keterangan nilai"
                 multiline
               />

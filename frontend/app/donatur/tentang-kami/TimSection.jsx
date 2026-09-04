@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useTentangContent } from './tentangData'
 import { useTeam } from './useTeam'
@@ -17,7 +17,7 @@ function AvatarPlaceholder() {
 }
 
 export default function TimSection() {
-  const { content, patch } = useTentangContent()
+  const { content } = useTentangContent()
   const { team } = useTeam()
   const { isAdmin } = useEditMode()
   const t = content.tim
@@ -26,33 +26,37 @@ export default function TimSection() {
     <section className="bg-white py-12">
       <div className="container">
         <div className="mb-6 text-center">
-          <EditableText
+          <EditableRichText
+            elementKey="tentang-kami.tim.label"
+            section="tim"
             as="p"
             className="section-label !justify-center !text-xs"
-            value={t.label}
-            onSave={(v) => patch('tim', { label: v })}
+            defaultText={t.label}
             label="label Kenali Tim Kami"
           />
           <h2 className="section-title !text-xl">
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.tim.title"
+              section="tim"
               as="span"
               style={TITLE_MAIN_STYLE}
-              value={t.titleMain}
-              onSave={(v) => patch('tim', { titleMain: v })}
+              defaultText={t.titleMain}
               label="judul Tim"
             />{' '}
-            <EditableText
+            <EditableRichText
+              elementKey="tentang-kami.tim.highlight"
+              section="tim"
               as="span"
-              value={t.titleHighlight}
-              onSave={(v) => patch('tim', { titleHighlight: v })}
+              defaultText={t.titleHighlight}
               label="kata yang ditonjolkan"
             />
           </h2>
-          <EditableText
+          <EditableRichText
+            elementKey="tentang-kami.tim.description"
+            section="tim"
             as="p"
             className="mx-auto mt-2 max-w-[480px] text-xs leading-relaxed text-gray-500"
-            value={t.description}
-            onSave={(v) => patch('tim', { description: v })}
+            defaultText={t.description}
             label="paragraf Tim"
             multiline
           />

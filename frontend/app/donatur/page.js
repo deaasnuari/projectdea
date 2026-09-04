@@ -1,6 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import KamiPeduliTypography from '@/components/layout/KamiPeduliTypography'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import HeroSection from './sections/HeroSection'
 import DonorStatsSection from './sections/DonorStatsSection'
 import ProgramKamiSection from './sections/ProgramKamiSection'
@@ -11,13 +11,13 @@ export default function DonaturLandingPage() {
   return (
     <>
       <Navbar />
-      <KamiPeduliTypography>
+      <TextElementsProvider page="kami-peduli">
         <HeroSection />
         <DonorStatsSection />
         <ProgramKamiSection />
         <ZakatCalculatorSection />
         <KonsultasiSection />
-      </KamiPeduliTypography>
+      </TextElementsProvider>
       <Footer />
     </>
   )

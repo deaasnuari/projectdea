@@ -32,6 +32,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${fraunces.variable}`}>
+      <head>
+        {/* Font pilihan untuk editor teks visual admin (dipakai lewat
+            konfigurasi per-elemen di tabel text_elements). Inter & Fraunces
+            sudah dimuat via next/font di atas. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Merriweather:wght@300;400;700&family=Roboto+Slab:wght@300;400;600;700&family=Lobster&family=Pacifico&family=Irish+Grover&display=swap"
+        />
+      </head>
       <body>
         {children}
         <FeedbackHost />

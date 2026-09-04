@@ -1,6 +1,7 @@
 'use client'
 
-import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
+import EditableImageElement from '@/components/inline-edit/EditableImageElement'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { DEFAULT_KAMI_PEDULI_CONTENT } from './kamiPeduliData'
@@ -43,10 +44,9 @@ const FEATURE_META = [
 ]
 
 export default function HeroSection() {
-  const { content, patchSection, patchListItem } = useKamiPeduliContent()
+  const { content } = useKamiPeduliContent()
   const { isAdmin } = useEditMode()
   const hero = content.hero
-  const setHero = (patch) => patchSection('hero', patch)
   const features = content.features || DEFAULT_KAMI_PEDULI_CONTENT.features
   const featureById = (id) => features.find((f) => f.id === id) || {}
 
@@ -54,7 +54,14 @@ export default function HeroSection() {
     <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[600px]:min-h-0 max-[600px]:pb-8">
       {/* Latar belakang */}
       <div className="absolute inset-0 z-0">
-        <img src="/images/hero-bg.png" alt="Masjid" className="h-full w-full object-cover" />
+        <EditableImageElement
+          elementKey="kami-peduli.hero.background"
+          section="hero"
+          defaultSrc="/images/hero-bg.png"
+          alt="Masjid"
+          className="h-full w-full object-cover"
+          label="latar Hero"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(10,46,60,0.92)] via-[rgba(10,126,126,0.75)] to-[rgba(10,46,60,0.85)]" />
         {/* Pola bintang delapan sudut yang samar — terinspirasi ornamen
             geometris Islam, bukan sekadar gradasi warna biasa. Dibuat
@@ -77,36 +84,39 @@ export default function HeroSection() {
       <div className="container relative z-[1] pt-32 max-[600px]:pt-[104px]">
         {/* Konten */}
         <div className="max-w-[650px] animate-fade-in-up">
-          <EditableText
+          <EditableRichText
+            elementKey="kami-peduli.hero.badge"
+            section="hero"
             as="p"
             className="section-label !mb-3 !text-gold"
-            value={hero.label}
-            onSave={(v) => setHero({ label: v })}
+            defaultText={hero.label}
             label="teks sambutan"
             multiline
           />
           <h1 className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
-            <EditableText
+            <EditableRichText
+              elementKey="kami-peduli.hero.title"
+              section="hero"
               as="span"
-              value={hero.titleBefore}
-              onSave={(v) => setHero({ titleBefore: v })}
+              defaultText={hero.titleBefore}
               label="judul hero"
               multiline
-              preserveWhitespace
             />{' '}
-            <EditableText
+            <EditableRichText
+              elementKey="kami-peduli.hero.highlight"
+              section="hero"
               as="span"
               className="italic text-gold"
-              value={hero.titleHighlight}
-              onSave={(v) => setHero({ titleHighlight: v })}
+              defaultText={hero.titleHighlight}
               label="kata yang ditonjolkan"
             />
           </h1>
-          <EditableText
+          <EditableRichText
+            elementKey="kami-peduli.hero.description"
+            section="hero"
             as="p"
             className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80"
-            value={hero.description}
-            onSave={(v) => setHero({ description: v })}
+            defaultText={hero.description}
             label="deskripsi hero"
             multiline
           />
@@ -115,9 +125,10 @@ export default function HeroSection() {
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
               </svg>
-              <EditableText
-                value={hero.ctaZakat}
-                onSave={(v) => setHero({ ctaZakat: v })}
+              <EditableRichText
+                elementKey="kami-peduli.hero.cta_zakat"
+                section="hero"
+                defaultText={hero.ctaZakat}
                 label="tombol Tunaikan Zakat"
               />
             </a>
@@ -126,9 +137,10 @@ export default function HeroSection() {
                 <circle cx="10" cy="10" r="7.5" />
                 <path d="M12.6 7.4l-1.8 3.8-3.8 1.8 1.8-3.8 3.8-1.8z" />
               </svg>
-              <EditableText
-                value={hero.ctaJelajahi}
-                onSave={(v) => setHero({ ctaJelajahi: v })}
+              <EditableRichText
+                elementKey="kami-peduli.hero.cta_jelajahi"
+                section="hero"
+                defaultText={hero.ctaJelajahi}
                 label="tombol Jelajahi Kami"
               />
             </a>
@@ -154,18 +166,20 @@ export default function HeroSection() {
                   {meta.icon}
                 </div>
                 <div>
-                  <EditableText
+                  <EditableRichText
+                    elementKey={`kami-peduli.hero.feature.${meta.id}.title`}
+                    section="hero"
                     as="h4"
                     className="mb-1 font-heading text-base font-semibold text-white"
-                    value={f.title}
-                    onSave={(v) => patchListItem('features', meta.id, { title: v })}
+                    defaultText={f.title}
                     label="judul kartu fitur"
                   />
-                  <EditableText
+                  <EditableRichText
+                    elementKey={`kami-peduli.hero.feature.${meta.id}.desc`}
+                    section="hero"
                     as="p"
                     className="text-xs leading-[1.5] text-white/60"
-                    value={f.desc}
-                    onSave={(v) => patchListItem('features', meta.id, { desc: v })}
+                    defaultText={f.desc}
                     label="deskripsi kartu fitur"
                     multiline
                   />

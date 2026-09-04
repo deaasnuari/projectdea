@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import TentangSection from './TentangSection'
 import SejarahSection from './SejarahSection'
 import PencapaianSection from './PencapaianSection'
@@ -15,11 +16,13 @@ export default function TentangKamiPage() {
   return (
     <>
       <Navbar />
-      <TentangSection />
-      <SejarahSection />
-      <PencapaianSection />
-      <NilaiSection />
-      <TimSection />
+      <TextElementsProvider page="tentang-kami">
+        <TentangSection />
+        <SejarahSection />
+        <PencapaianSection />
+        <NilaiSection />
+        <TimSection />
+      </TextElementsProvider>
       <GabungMisiSection />
       <Footer />
     </>
