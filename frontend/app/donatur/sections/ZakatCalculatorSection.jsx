@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { formatRp } from '@/services/format'
+import { formatRp, formatRupiahInput, parseRupiah } from '@/services/format'
 import { NISAB_MAAL, NISAB_PROFESI, hitungZakatProfesi, hitungZakatMaal } from '@/services/zakat'
 
 export default function ZakatCalculatorSection() {
@@ -55,11 +55,11 @@ export default function ZakatCalculatorSection() {
             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 transition-colors focus-within:border-primary">
               <span className="text-sm font-semibold text-gray-500">Rp</span>
               <input
-                type="number"
-                min="0"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={gajiPokok || ''}
-                onChange={(e) => setGajiPokok(Number(e.target.value))}
+                value={formatRupiahInput(gajiPokok)}
+                onChange={(e) => setGajiPokok(parseRupiah(e.target.value))}
                 className="flex-1 text-sm font-semibold text-gray-800"
               />
             </div>
@@ -71,11 +71,11 @@ export default function ZakatCalculatorSection() {
             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 transition-colors focus-within:border-primary">
               <span className="text-sm font-semibold text-gray-500">Rp</span>
               <input
-                type="number"
-                min="0"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={tunjangan || ''}
-                onChange={(e) => setTunjangan(Number(e.target.value))}
+                value={formatRupiahInput(tunjangan)}
+                onChange={(e) => setTunjangan(parseRupiah(e.target.value))}
                 className="flex-1 text-sm font-semibold text-gray-800"
               />
             </div>
@@ -87,11 +87,11 @@ export default function ZakatCalculatorSection() {
             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 transition-colors focus-within:border-primary">
               <span className="text-sm font-semibold text-gray-500">Rp</span>
               <input
-                type="number"
-                min="0"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={tabungan || ''}
-                onChange={(e) => setTabungan(Number(e.target.value))}
+                value={formatRupiahInput(tabungan)}
+                onChange={(e) => setTabungan(parseRupiah(e.target.value))}
                 className="flex-1 text-sm font-semibold text-gray-800"
               />
             </div>
@@ -103,11 +103,11 @@ export default function ZakatCalculatorSection() {
             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 transition-colors focus-within:border-primary">
               <span className="text-sm font-semibold text-gray-500">Rp</span>
               <input
-                type="number"
-                min="0"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={emas || ''}
-                onChange={(e) => setEmas(Number(e.target.value))}
+                value={formatRupiahInput(emas)}
+                onChange={(e) => setEmas(parseRupiah(e.target.value))}
                 className="flex-1 text-sm font-semibold text-gray-800"
               />
             </div>
@@ -119,12 +119,16 @@ export default function ZakatCalculatorSection() {
               {zakatProfesi ? formatRp(zakatProfesi) : 'Belum mencapai nisab'}
             </strong>
           </div>
-          <div className={`mb-2 flex items-center justify-between gap-4 rounded-lg p-3 ${zakatMaal ? 'bg-primary/[0.08]' : 'bg-gray-50'}`}>
+          <div className={`mb-1 flex items-center justify-between gap-4 rounded-lg p-3 ${zakatMaal ? 'bg-primary/[0.08]' : 'bg-gray-50'}`}>
             <span className="text-[11px] font-bold uppercase tracking-[0.4px] text-gray-500">Zakat Maal (Tahunan)</span>
             <strong className={zakatMaal ? 'text-sm text-primary-dark' : 'text-xs text-gray-400'}>
               {zakatMaal ? formatRp(zakatMaal) : 'Belum mencapai nisab'}
             </strong>
           </div>
+          <p className="mb-2 text-[11px] italic leading-relaxed text-gray-400">
+            Zakat Maal berlaku untuk harta (tabungan &amp; emas) yang telah mencapai syarat haul —
+            dimiliki genap satu tahun.
+          </p>
 
           <a href="#konsultasi" className="btn btn-primary mt-5 w-full justify-center !py-2.5 text-sm">
             Konsultasikan Perhitungan Ini

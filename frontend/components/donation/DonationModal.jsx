@@ -273,9 +273,12 @@ export default function DonationModal({
       let proof = null
       if (buktiFile) {
         try {
-          proof = await fileToResizedDataUrl(buktiFile, { maxDim: 1400, quality: 0.8 })
+          proof = await fileToResizedDataUrl(buktiFile, { maxDim: 1280, quality: 0.75 })
         } catch {
-          proof = buktiPreview || null
+          // Perkecil gagal (mis. format HEIC) — jangan kirim gambar mentah yang
+          // bisa bikin request kegedean; donasi tetap terkirim tanpa bukti,
+          // admin bisa minta bukti belakangan.
+          proof = null
         }
       }
       await createDonation({

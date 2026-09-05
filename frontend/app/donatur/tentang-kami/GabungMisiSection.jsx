@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 
 export default function GabungMisiSection() {
   return (
@@ -19,18 +22,47 @@ export default function GabungMisiSection() {
 
       <div className="container relative z-[1] text-center">
         <h2 className="mx-auto mb-2 max-w-[600px] font-heading text-lg font-bold text-white max-[600px]:text-base">
-          Bergabung dalam <span className="italic text-gold">Misi Kami</span>
+          <EditableRichText
+            elementKey="tentang-kami.gabung.title"
+            section="gabung"
+            as="span"
+            defaultText="Bergabung dalam"
+            label="judul ajakan"
+          />{' '}
+          <EditableRichText
+            elementKey="tentang-kami.gabung.highlight"
+            section="gabung"
+            as="span"
+            className="italic text-gold"
+            defaultText="Misi Kami"
+            label="kata yang ditonjolkan"
+          />
         </h2>
-        <p className="mx-auto mb-4 max-w-[440px] text-xs leading-relaxed text-white/80">
-          Setiap zakat, infaq, dan shadaqah yang kamu tunaikan bersama LAZIS PLN Batam turut menghadirkan
-          kebaikan bagi mustahik di Kepulauan Riau. Ada pertanyaan? Tim kami siap membantu.
-        </p>
+        <EditableRichText
+          elementKey="tentang-kami.gabung.description"
+          section="gabung"
+          as="p"
+          className="mx-auto mb-4 max-w-[440px] text-xs leading-relaxed text-white/80"
+          defaultText="Setiap zakat, infaq, dan shadaqah yang kamu tunaikan bersama LAZIS PLN Batam turut menghadirkan kebaikan bagi mustahik di Kepulauan Riau. Ada pertanyaan? Tim kami siap membantu."
+          label="paragraf ajakan"
+          multiline
+        />
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link href="/donatur#zakat-calculator" className="btn btn-gold px-5 py-2 text-xs">
-            Tunaikan Zakat
+            <EditableRichText
+              elementKey="tentang-kami.gabung.cta_zakat"
+              section="gabung"
+              defaultText="Tunaikan Zakat"
+              label="tombol Tunaikan Zakat"
+            />
           </Link>
           <Link href="/donatur/kontak-kami" className="btn btn-outline px-5 py-2 text-xs">
-            Hubungi Kami
+            <EditableRichText
+              elementKey="tentang-kami.gabung.cta_kontak"
+              section="gabung"
+              defaultText="Hubungi Kami"
+              label="tombol Hubungi Kami"
+            />
             <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
               <path
                 fillRule="evenodd"

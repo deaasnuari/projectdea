@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import ContactSection from './ContactSection'
 
 export const metadata = {
@@ -10,7 +11,9 @@ export default function KontakKamiPage() {
   return (
     <>
       <Navbar />
-      <ContactSection />
+      <TextElementsProvider page="kontak-kami">
+        <ContactSection />
+      </TextElementsProvider>
       <Footer />
     </>
   )

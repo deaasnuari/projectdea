@@ -22,8 +22,8 @@ export default function TentangKamiPage() {
         <PencapaianSection />
         <NilaiSection />
         <TimSection />
+        <GabungMisiSection />
       </TextElementsProvider>
-      <GabungMisiSection />
       <Footer />
     </>
   )

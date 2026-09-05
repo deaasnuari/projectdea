@@ -7,12 +7,29 @@ const cookieParser = require('cookie-parser')
 const apiRoutes = require('./src/routes')
 
 const PORT = process.env.PORT || 3001
-const ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:3000'
+
+// Origin frontend yang diizinkan. FRONTEND_ORIGIN (bisa dipisah koma) untuk
+// produksi; saat dev kita terima localhost & 127.0.0.1 di port berapa pun
+// supaya tidak "Failed to fetch" hanya gara-gara beda host/port kecil.
+const EXTRA_ORIGINS = (process.env.FRONTEND_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+
+const isDevLocalhost = (origin) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+
+function corsOrigin(origin, cb) {
+  // Request tanpa Origin (curl, health check, same-origin) → izinkan.
+  if (!origin) return cb(null, true)
+  if (EXTRA_ORIGINS.includes(origin) || isDevLocalhost(origin)) return cb(null, true)
+  cb(new Error(`Origin tidak diizinkan: ${origin}`))
+}
 
 const app = express()
 
-app.use(cors({ origin: ORIGIN, credentials: true }))
-app.use(express.json({ limit: '10mb' })) // upload gambar dikirim sebagai data URL
+app.use(cors({ origin: corsOrigin, credentials: true }))
+app.use(express.json({ limit: '15mb' })) // upload gambar / bukti transfer dikirim sebagai data URL
 app.use(cookieParser())
 
 // File gambar hasil upload admin (folder ./uploads, di-gitignore).

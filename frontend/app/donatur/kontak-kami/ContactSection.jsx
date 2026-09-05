@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableText from '@/components/inline-edit/EditableText'
+import EditableRichText from '@/components/inline-edit/EditableRichText'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKontakContent, kontakHref } from './kontakData'
@@ -44,7 +45,7 @@ export default function ContactSection() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
-  const { content, patch, patchInfo, addInfo, removeInfo } = useKontakContent()
+  const { content, patchInfo, addInfo, removeInfo } = useKontakContent()
   const { isAdmin } = useEditMode()
   const h = content.hero
 
@@ -75,33 +76,37 @@ export default function ContactSection() {
     <>
       <PageHeroBackground id="kontak-hero" className="pb-10 pt-32">
         <div className="container">
-          <EditableText
+          <EditableRichText
+            elementKey="kontak-kami.hero.label"
+            section="hero"
             as="p"
             className="section-label !text-gold"
-            value={h.label}
-            onSave={(v) => patch('hero', { label: v })}
+            defaultText={h.label}
             label="label Kontak Kami"
           />
           <h1 className="mb-4 max-w-[640px] font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
-            <EditableText
+            <EditableRichText
+              elementKey="kontak-kami.hero.title"
+              section="hero"
               as="span"
-              value={h.titleMain}
-              onSave={(v) => patch('hero', { titleMain: v })}
+              defaultText={h.titleMain}
               label="judul"
             />{' '}
-            <EditableText
+            <EditableRichText
+              elementKey="kontak-kami.hero.highlight"
+              section="hero"
               as="span"
               className="italic text-gold"
-              value={h.titleHighlight}
-              onSave={(v) => patch('hero', { titleHighlight: v })}
+              defaultText={h.titleHighlight}
               label="kata yang ditonjolkan"
             />
           </h1>
-          <EditableText
+          <EditableRichText
+            elementKey="kontak-kami.hero.description"
+            section="hero"
             as="p"
             className="max-w-[560px] leading-[1.7] text-white/80"
-            value={h.description}
-            onSave={(v) => patch('hero', { description: v })}
+            defaultText={h.description}
             label="paragraf pengantar"
             multiline
           />
@@ -159,18 +164,20 @@ export default function ContactSection() {
 
           {/* Kanan: formulir pesan */}
           <div className="card p-5">
-            <EditableText
+            <EditableRichText
+              elementKey="kontak-kami.form.title"
+              section="form"
               as="h3"
               className="mb-1.5 font-heading text-lg font-bold text-navy"
-              value={content.form.title}
-              onSave={(v) => patch('form', { title: v })}
+              defaultText={content.form.title}
               label="judul formulir"
             />
-            <EditableText
+            <EditableRichText
+              elementKey="kontak-kami.form.description"
+              section="form"
               as="p"
               className="mb-3 text-xs leading-relaxed text-gray-500"
-              value={content.form.description}
-              onSave={(v) => patch('form', { description: v })}
+              defaultText={content.form.description}
               label="keterangan formulir"
               multiline
             />
@@ -255,9 +262,10 @@ export default function ContactSection() {
                   'Mengirim…'
                 ) : (
                   <>
-                    <EditableText
-                      value={content.form.buttonLabel}
-                      onSave={(v) => patch('form', { buttonLabel: v })}
+                    <EditableRichText
+                      elementKey="kontak-kami.form.button_label"
+                      section="form"
+                      defaultText={content.form.buttonLabel}
                       label="teks tombol kirim"
                     />
                     <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">

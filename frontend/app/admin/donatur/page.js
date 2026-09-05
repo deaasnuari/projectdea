@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { DEFAULT_DONOR_CONTENT, useDonorContent, DONOR_STAT_METRICS } from '@/app/donatur/sections/donorData'
 import { fetchStats } from '@/services/donations'
@@ -30,6 +30,17 @@ function toForm(content) {
   }
 }
 
+const IconText = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <path d="M4 7V5h16v2M9 20h6M12 5v15" />
+  </svg>
+)
+const IconChart = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <path d="M3 3v18h18M8 17V9M13 17V5M18 17v-6" />
+  </svg>
+)
+
 export default function AdminDonaturPage() {
   const { content, save } = useDonorContent()
   const [form, setForm] = useState(() => toForm(DEFAULT_DONOR_CONTENT))
@@ -46,11 +57,29 @@ export default function AdminDonaturPage() {
       .catch(() => setLiveStats(null))
   }, [])
 
-  const livePreview = (metric) => {
+  const liveNumber = (metric) => {
     const getter = METRIC_FROM_LIVE[metric]
     const v = getter ? getter(liveStats) : null
-    return v == null ? '—' : Number(v).toLocaleString('id-ID')
+    return v == null ? null : Number(v)
   }
+  const livePreview = (metric) => {
+    const n = liveNumber(metric)
+    return n == null ? '—' : n.toLocaleString('id-ID')
+  }
+
+  // Angka final tiap stat (manual = yang diketik, auto = angka live), untuk
+  // pratinjau tampilan publik di atas form.
+  const previewStats = useMemo(
+    () =>
+      form.stats
+        .filter((s) => s.label.trim())
+        .map((s) => {
+          const n = s.source === 'auto' ? liveNumber(s.metric) : Number(s.value)
+          return { label: s.label.trim(), text: (n || 0).toLocaleString('id-ID') }
+        }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [form.stats, liveStats],
+  )
 
   const updateStat = (index, field, value) => {
     setForm((current) => ({
@@ -108,12 +137,12 @@ export default function AdminDonaturPage() {
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-4xl">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
           <h1 className="font-heading text-xl font-bold text-navy">Informasi Donatur</h1>
-          <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
+          <p className="mt-1 text-[13px] text-gray-500">
             Perbarui judul, pengantar, dan ringkasan angka yang tampil di halaman publik. Tiap angka bisa
             diisi <b>manual</b> atau <b>otomatis</b> mengikuti data Riwayat Donasi.
           </p>
@@ -126,11 +155,47 @@ export default function AdminDonaturPage() {
         </button>
       </div>
 
-      <form id="donor-info-form" onSubmit={handleSubmit} className="card max-w-4xl p-4 sm:p-6">
-        <div className="mb-5 border-b border-gray-100 pb-5">
-          <h2 className="font-heading text-sm font-bold text-navy">Informasi utama</h2>
-          <p className="mt-0.5 text-[13px] text-gray-500">Teks ini menjadi pengantar singkat pada bagian Donatur.</p>
-          <div className="mt-3 flex flex-col gap-3">
+      {/* Pratinjau tampilan publik */}
+      <div className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-navy-dark p-5 text-white shadow-sm sm:p-6">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white/70">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" />
+          </svg>
+          Pratinjau di halaman publik
+        </span>
+        <h3 className="mt-3 font-heading text-base font-bold">{form.title || 'Judul informasi'}</h3>
+        <p className="mt-1 max-w-lg text-[13px] leading-relaxed text-white/65">
+          {form.description || 'Teks pengantar akan tampil di sini.'}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+          {previewStats.length === 0 ? (
+            <span className="text-[13px] text-white/40">Belum ada ringkasan angka.</span>
+          ) : (
+            previewStats.map((s, i) => (
+              <div key={i}>
+                <span className="block font-heading text-xl font-extrabold text-gold">{s.text}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                  {s.label}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <form id="donor-info-form" onSubmit={handleSubmit} className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        {/* Bagian 1: Informasi utama */}
+        <section className="border-b border-gray-100 p-5 sm:p-6">
+          <div className="mb-3 flex items-start gap-2.5">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              {IconText}
+            </span>
+            <div>
+              <h2 className="font-heading text-sm font-bold text-navy">Informasi utama</h2>
+              <p className="text-[12px] text-gray-400">Judul &amp; teks pengantar pada bagian Donatur.</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
             <div>
               <label htmlFor="donor-title" className={labelClass}>Nama / Judul Informasi</label>
               <input
@@ -162,19 +227,33 @@ export default function AdminDonaturPage() {
               />
             </div>
           </div>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="font-heading text-sm font-bold text-navy">Ringkasan jumlah donatur</h2>
-          <p className="mt-0.5 text-[13px] text-gray-500">
-            Pilih <b>Manual</b> untuk mengetik angka sendiri, atau <b>Dari Riwayat Donasi</b> agar angka
-            ikut otomatis dari transaksi yang sudah diterima.
-          </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+        {/* Bagian 2: Ringkasan jumlah donatur */}
+        <section className="p-5 sm:p-6">
+          <div className="mb-4 flex items-start gap-2.5">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              {IconChart}
+            </span>
+            <div>
+              <h2 className="font-heading text-sm font-bold text-navy">Ringkasan jumlah donatur</h2>
+              <p className="text-[12px] text-gray-400">
+                <b>Manual</b> = ketik angka sendiri. <b>Dari Riwayat Donasi</b> = ikut otomatis dari
+                transaksi yang sudah diterima.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {form.stats.map((stat, index) => (
-              <div key={index} className="rounded-xl border border-gray-100 bg-gray-50 p-3.5">
-                <div className="mb-2.5 flex items-center justify-between gap-2">
-                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">Informasi {index + 1}</p>
+              <div
+                key={index}
+                className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50/60 p-3.5"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                    {index + 1}
+                  </span>
                   {form.stats.length > 1 && (
                     <button
                       type="button"
@@ -186,94 +265,101 @@ export default function AdminDonaturPage() {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  {/* Pemilih sumber angka */}
-                  <div className="grid grid-cols-2 gap-1 rounded-lg bg-white p-1 ring-1 ring-gray-200">
-                    {[
-                      { key: 'manual', label: 'Manual' },
-                      { key: 'auto', label: 'Dari Riwayat Donasi' },
-                    ].map((opt) => (
-                      <button
-                        key={opt.key}
-                        type="button"
-                        onClick={() => updateStat(index, 'source', opt.key)}
-                        className={`rounded-md px-2 py-1.5 text-[11px] font-semibold transition-colors ${
-                          stat.source === opt.key
-                            ? 'bg-primary text-white'
-                            : 'text-gray-500 hover:bg-gray-100'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
+                {/* Pemilih sumber angka */}
+                <div className="grid grid-cols-2 gap-1 rounded-lg bg-white p-1 ring-1 ring-gray-200">
+                  {[
+                    { key: 'manual', label: 'Manual' },
+                    { key: 'auto', label: 'Dari Riwayat Donasi' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => updateStat(index, 'source', opt.key)}
+                      className={`rounded-md px-2 py-1.5 text-[11px] font-semibold leading-tight transition-colors ${
+                        stat.source === opt.key
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'text-gray-500 hover:bg-gray-100'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
 
-                  {stat.source === 'auto' ? (
-                    <div>
-                      <label htmlFor={`donor-metric-${index}`} className={labelClass}>Ambil angka dari</label>
-                      <select
-                        id={`donor-metric-${index}`}
-                        value={stat.metric}
-                        onChange={(event) => updateStat(index, 'metric', event.target.value)}
-                        className={inputClass}
-                      >
-                        {DONOR_STAT_METRICS.map((m) => (
-                          <option key={m.key} value={m.key}>{m.label}</option>
-                        ))}
-                      </select>
-                      <p className="mt-1 rounded-md bg-primary/5 px-2 py-1 text-[11px] text-primary-dark">
-                        Nilai sekarang: <b>{livePreview(stat.metric)}</b> · otomatis diperbarui.
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <label htmlFor={`donor-value-${index}`} className={labelClass}>Jumlah</label>
-                      <input
-                        id={`donor-value-${index}`}
-                        type="number"
-                        min="0"
-                        required
-                        value={stat.value}
-                        onChange={(event) => updateStat(index, 'value', event.target.value)}
-                        className={inputClass}
-                      />
-                    </div>
-                  )}
-
+                {stat.source === 'auto' ? (
                   <div>
-                    <label htmlFor={`donor-label-${index}`} className={labelClass}>Nama / Label</label>
-                    <input
-                      id={`donor-label-${index}`}
-                      type="text"
-                      required
-                      value={stat.label}
-                      onChange={(event) => updateStat(index, 'label', event.target.value)}
+                    <label htmlFor={`donor-metric-${index}`} className={labelClass}>Ambil angka dari</label>
+                    <select
+                      id={`donor-metric-${index}`}
+                      value={stat.metric}
+                      onChange={(event) => updateStat(index, 'metric', event.target.value)}
                       className={inputClass}
-                      placeholder="Contoh: Donatur Zakat"
+                    >
+                      {DONOR_STAT_METRICS.map((m) => (
+                        <option key={m.key} value={m.key}>{m.label}</option>
+                      ))}
+                    </select>
+                    <p className="mt-1.5 flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1.5 text-[11px] text-primary-dark">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                        <path d="M21 12a9 9 0 11-6.2-8.5" /><path d="M21 3v6h-6" />
+                      </svg>
+                      Nilai sekarang: <b>{livePreview(stat.metric)}</b>
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <label htmlFor={`donor-value-${index}`} className={labelClass}>Jumlah</label>
+                    <input
+                      id={`donor-value-${index}`}
+                      type="number"
+                      min="0"
+                      required
+                      value={stat.value}
+                      onChange={(event) => updateStat(index, 'value', event.target.value)}
+                      className={inputClass}
                     />
                   </div>
+                )}
+
+                <div>
+                  <label htmlFor={`donor-label-${index}`} className={labelClass}>Nama / Label</label>
+                  <input
+                    id={`donor-label-${index}`}
+                    type="text"
+                    required
+                    value={stat.label}
+                    onChange={(event) => updateStat(index, 'label', event.target.value)}
+                    className={inputClass}
+                    placeholder="Contoh: Donatur Zakat"
+                  />
                 </div>
               </div>
             ))}
+
+            {/* Kartu "Tambah" */}
+            <button
+              type="button"
+              onClick={addStat}
+              className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 p-3.5 text-xs font-bold text-primary-dark transition-colors hover:border-primary/60 hover:bg-primary/5"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                  <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                </svg>
+              </span>
+              Tambah Informasi
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={addStat}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-primary/40 px-3 py-2 text-xs font-bold text-primary-dark transition-colors hover:bg-primary/5"
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-              <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
-            </svg>
-            Tambah Informasi
-          </button>
-        </div>
-
-        {savedMessage && (
-          <p role="status" className="mt-5 border-t border-gray-100 pt-4 text-[13px] text-primary">
-            {savedMessage}
-          </p>
-        )}
+          {savedMessage && (
+            <p role="status" className="mt-4 flex items-center gap-1.5 rounded-lg bg-primary/[0.07] px-3 py-2 text-[13px] font-medium text-primary-dark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              {savedMessage}
+            </p>
+          )}
+        </section>
       </form>
     </div>
   )

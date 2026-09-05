@@ -3,6 +3,7 @@ import SejarahSection from '@/app/donatur/tentang-kami/SejarahSection'
 import PencapaianSection from '@/app/donatur/tentang-kami/PencapaianSection'
 import NilaiSection from '@/app/donatur/tentang-kami/NilaiSection'
 import TimSection from '@/app/donatur/tentang-kami/TimSection'
+import GabungMisiSection from '@/app/donatur/tentang-kami/GabungMisiSection'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
@@ -34,6 +35,7 @@ export default function AdminKontenTentangKamiPage() {
             <PencapaianSection />
             <NilaiSection />
             <TimSection />
+            <GabungMisiSection />
           </TextElementsProvider>
         </InlineEditProvider>
       </div>

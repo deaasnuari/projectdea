@@ -1,5 +1,6 @@
 import ContactSection from '@/app/donatur/kontak-kami/ContactSection'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 
 export const metadata = {
   title: 'Konten Kontak Kami — Panel Admin',
@@ -25,7 +26,9 @@ export default function AdminKontenKontakKamiPage() {
           tampilan publik). */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#kontak-hero]:!pt-10 [&_#kontak-hero]:!pb-6">
         <InlineEditProvider defaultEditing>
-          <ContactSection />
+          <TextElementsProvider page="kontak-kami">
+            <ContactSection />
+          </TextElementsProvider>
         </InlineEditProvider>
       </div>
     </div>

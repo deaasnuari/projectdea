@@ -164,7 +164,10 @@ async function stats() {
         count(distinct donor_name) filter (where status = 'terverifikasi' and not anonymous)
         + count(*) filter (where status = 'terverifikasi' and anonymous)
       )::int as donatur,
-      coalesce(sum(amount) filter (where status = 'terverifikasi'), 0)::bigint as total_terverifikasi
+      coalesce(sum(amount) filter (where status = 'terverifikasi'), 0)::bigint as total_terverifikasi,
+      -- Dana terkumpul dipecah per sumber donasi.
+      coalesce(sum(amount) filter (where status = 'terverifikasi' and source = 'program'), 0)::bigint as dana_program,
+      coalesce(sum(amount) filter (where status = 'terverifikasi' and source = 'tentang'), 0)::bigint as dana_tentang
     from donations
   `)
   return rows[0]

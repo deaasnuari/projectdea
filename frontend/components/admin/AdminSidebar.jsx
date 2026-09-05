@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { logoutAdmin } from '@/services/adminAuth'
+import { fetchStats } from '@/services/donations'
 
 // Dikelompokkan jadi dua bagian (Utama & Konten) supaya menu yang jumlahnya
 // makin banyak tetap gampang dipindai, bukan satu tumpukan panjang rata.
@@ -141,6 +142,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
   const router = useRouter()
   const [collapsed, setCollapsed] = useState(false)
   const [isDesktop, setIsDesktop] = useState(true)
+  const [pendingDonasi, setPendingDonasi] = useState(0)
 
   // Rail (ikon-saja) hanya berlaku di desktop. Di HP/iPad drawer selalu penuh.
   const rail = collapsed && isDesktop
@@ -159,6 +161,33 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
     sync()
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  // Jumlah donasi yang masih "menunggu verifikasi" — ditampilkan sebagai
+  // badge merah pada menu "Riwayat Donasi" supaya admin langsung tahu ada
+  // yang perlu ditindaklanjuti, dari halaman mana pun.
+  useEffect(() => {
+    let alive = true
+    const load = async () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+      try {
+        const s = await fetchStats()
+        if (alive) setPendingDonasi(Number(s?.menunggu) || 0)
+      } catch {
+        /* belum login / server mati — abaikan */
+      }
+    }
+    load()
+    const timer = setInterval(load, 20000)
+    const onFocus = () => load()
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onFocus)
+    return () => {
+      alive = false
+      clearInterval(timer)
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onFocus)
+    }
   }, [])
 
   const toggleCollapsed = () => {
@@ -282,14 +311,15 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                   }
 
                   const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
+                  const badge = item.href === '/admin/riwayat-donasi' ? pendingDonasi : 0
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
                       aria-current={active ? 'page' : undefined}
-                      title={rail ? item.label : undefined}
-                      className={`flex items-center rounded-lg text-[13px] transition-colors ${
+                      title={rail ? `${item.label}${badge ? ` (${badge} menunggu)` : ''}` : undefined}
+                      className={`relative flex items-center rounded-lg text-[13px] transition-colors ${
                         rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
                       } ${
                         active
@@ -299,6 +329,14 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                     >
                       {item.icon}
                       {!rail && item.label}
+                      {badge > 0 &&
+                        (rail ? (
+                          <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-coral ring-2 ring-navy-dark" />
+                        ) : (
+                          <span className="ml-auto inline-flex min-w-[20px] items-center justify-center rounded-full bg-coral px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                            {badge > 99 ? '99+' : badge}
+                          </span>
+                        ))}
                     </Link>
                   )
                 })}

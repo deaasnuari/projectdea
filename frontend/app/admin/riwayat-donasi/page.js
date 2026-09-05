@@ -30,6 +30,33 @@ const SOURCE_META = {
   umum: { label: 'Umum', cls: 'bg-gray-100 text-gray-500' },
 }
 
+const STAT_ICONS = {
+  total: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <path d="M4 4h13a2 2 0 012 2v13l-2.5-1.5L14 20l-2.5-1.5L9 20l-2.5-1.5L4 20V4z" />
+      <path d="M8 8h8M8 12h8M8 16h5" />
+    </svg>
+  ),
+  menunggu: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </svg>
+  ),
+  terverifikasi: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <path d="M12 3a9 9 0 100 18 9 9 0 000-18z" />
+      <path d="M8.5 12l2.5 2.5L16 9" />
+    </svg>
+  ),
+  dana: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <path d="M3 7h15a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+      <path d="M3 7l3-3h10l3 3M16 13h.01" />
+    </svg>
+  ),
+}
+
 function fmtDate(iso) {
   try {
     const d = new Date(iso)
@@ -86,10 +113,32 @@ export default function AdminRiwayatDonasiPage() {
   }, [proof])
 
   const CARDS = [
-    { label: 'Total Donasi', value: stats?.total ?? 0 },
-    { label: 'Menunggu', value: stats?.menunggu ?? 0, accent: 'text-amber-600' },
-    { label: 'Terverifikasi', value: stats?.terverifikasi ?? 0, accent: 'text-green-600' },
-    { label: 'Dana Terkumpul', value: formatRp(Number(stats?.total_terverifikasi ?? 0)), accent: 'text-navy' },
+    { label: 'Total Donasi', value: stats?.total ?? 0, ink: 'text-navy', tint: 'bg-navy/5', icon: STAT_ICONS.total },
+    { label: 'Menunggu', value: stats?.menunggu ?? 0, ink: 'text-amber-600', tint: 'bg-amber-50', icon: STAT_ICONS.menunggu },
+    { label: 'Terverifikasi', value: stats?.terverifikasi ?? 0, ink: 'text-green-600', tint: 'bg-green-50', icon: STAT_ICONS.terverifikasi },
+    {
+      label: 'Dana Terkumpul',
+      value: formatRp(Number(stats?.total_terverifikasi ?? 0)),
+      ink: 'text-primary-dark',
+      tint: 'bg-primary/10',
+      icon: STAT_ICONS.dana,
+      sub: (
+        <span className="mt-2 flex w-full flex-col gap-1 border-t border-gray-100 pt-2 text-left text-[10px] leading-tight text-gray-400">
+          <span className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary-dark" /> Program
+            </span>
+            <b className="font-semibold text-primary-dark">{formatRp(Number(stats?.dana_program ?? 0))}</b>
+          </span>
+          <span className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-navy" /> Tentang Kami
+            </span>
+            <b className="font-semibold text-navy">{formatRp(Number(stats?.dana_tentang ?? 0))}</b>
+          </span>
+        </span>
+      ),
+    },
   ]
 
   // Tombol aksi dipakai di tabel (laptop) & di kartu (HP/iPad).
@@ -143,22 +192,51 @@ export default function AdminRiwayatDonasiPage() {
     </>
   )
 
+  const menunggu = Number(stats?.menunggu) || 0
+
   return (
     <div>
-      <div className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Donasi</p>
-        <h1 className="font-heading text-xl font-bold text-navy">Riwayat Donasi</h1>
-        <p className="mt-1 text-[13px] text-gray-500">
-          Donasi via transfer yang dikirim donatur — verifikasi atau tolak setelah bukti dicek.
-        </p>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Donasi</p>
+          <h1 className="font-heading text-xl font-bold text-navy">Riwayat Donasi</h1>
+          <p className="mt-1 text-[13px] text-gray-500">
+            Donasi via transfer yang dikirim donatur — verifikasi atau tolak setelah bukti dicek.
+          </p>
+        </div>
+        {menunggu > 0 && (
+          <button
+            type="button"
+            onClick={() => setTab('menunggu')}
+            className="inline-flex animate-pulse items-center gap-2 rounded-full bg-coral px-3.5 py-2 text-xs font-bold text-white shadow-[0_6px_16px_-4px_rgba(231,76,60,0.6)] transition-transform hover:scale-[1.02]"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+            </span>
+            {menunggu} donasi menunggu verifikasi
+          </button>
+        )}
       </div>
 
       {/* Ringkasan */}
-      <div className="mb-5 grid grid-cols-4 gap-3 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
+      <div className="mb-5 grid grid-cols-4 items-start gap-3 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
         {CARDS.map((s) => (
-          <div key={s.label} className="card p-3.5">
-            <p className={`font-heading text-lg font-extrabold leading-tight ${s.accent || 'text-navy'}`}>{s.value}</p>
-            <p className="mt-0.5 text-[11px] text-gray-400">{s.label}</p>
+          <div key={s.label} className="card p-4">
+            <div className="flex items-center gap-3">
+              <span
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${s.tint} ${s.ink}`}
+              >
+                {s.icon}
+              </span>
+              <div className="min-w-0">
+                <p className={`font-heading text-lg font-extrabold leading-tight ${s.ink}`}>{s.value}</p>
+                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-gray-400">
+                  {s.label}
+                </p>
+              </div>
+            </div>
+            {s.sub}
           </div>
         ))}
       </div>
