@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { logoutAdmin } from '@/services/adminAuth'
 import { fetchStats } from '@/services/donations'
+import { fetchMessageStats } from '@/services/contactMessages'
 
 // Dikelompokkan jadi dua bagian (Utama & Konten) supaya menu yang jumlahnya
 // makin banyak tetap gampang dipindai, bukan satu tumpukan panjang rata.
@@ -143,6 +144,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
   const [collapsed, setCollapsed] = useState(false)
   const [isDesktop, setIsDesktop] = useState(true)
   const [pendingDonasi, setPendingDonasi] = useState(0)
+  const [pesanBaru, setPesanBaru] = useState(0)
 
   // Rail (ikon-saja) hanya berlaku di desktop. Di HP/iPad drawer selalu penuh.
   const rail = collapsed && isDesktop
@@ -163,9 +165,9 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
     return () => mq.removeEventListener('change', sync)
   }, [])
 
-  // Jumlah donasi yang masih "menunggu verifikasi" — ditampilkan sebagai
-  // badge merah pada menu "Riwayat Donasi" supaya admin langsung tahu ada
-  // yang perlu ditindaklanjuti, dari halaman mana pun.
+  // Badge merah pada menu: donasi yang masih "menunggu verifikasi" dan pesan
+  // masuk yang masih "baru". Di-polling dari halaman mana pun supaya admin
+  // langsung tahu ada yang perlu ditindaklanjuti tanpa reload.
   useEffect(() => {
     let alive = true
     const load = async () => {
@@ -173,6 +175,12 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
       try {
         const s = await fetchStats()
         if (alive) setPendingDonasi(Number(s?.menunggu) || 0)
+      } catch {
+        /* belum login / server mati — abaikan */
+      }
+      try {
+        const m = await fetchMessageStats()
+        if (alive) setPesanBaru(Number(m?.baru) || 0)
       } catch {
         /* belum login / server mati — abaikan */
       }
@@ -236,8 +244,8 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
             <img
               src="/images/logo lazis pln.png"
               alt="Lazis PLN Batam"
-              className={`shrink-0 rounded-md bg-white ${
-                rail ? 'h-8 w-10 object-contain p-1' : 'h-7 w-auto px-1.5 py-1'
+              className={`shrink-0 ${
+                rail ? 'h-7 w-10 object-contain' : 'h-7 w-auto'
               }`}
             />
             {!rail && (
@@ -311,7 +319,12 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                   }
 
                   const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
-                  const badge = item.href === '/admin/riwayat-donasi' ? pendingDonasi : 0
+                  const badge =
+                    item.href === '/admin/riwayat-donasi'
+                      ? pendingDonasi
+                      : item.href === '/admin/pesan-masuk'
+                        ? pesanBaru
+                        : 0
                   return (
                     <Link
                       key={item.href}

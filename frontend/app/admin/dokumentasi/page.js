@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
+import VisibilityStatus from '@/components/admin/VisibilityStatus'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
 import { useKamiPeduliContent } from '@/app/donatur/sections/useKamiPeduliContent'
@@ -94,6 +95,27 @@ export default function AdminDokumentasiPage() {
       setVideoBusy(false)
     }
   }
+  const setVideoActive = async (v, active) => {
+    try {
+      await saveVideo({
+        id: v.id,
+        title: v.title,
+        videoUrl: v.videoUrl,
+        image: v.image,
+        badge: v.badge,
+        desc: v.desc,
+        date: v.date,
+        active,
+      })
+      toast(
+        active ? `Video "${v.title}" tampil di donatur.` : `Video "${v.title}" disembunyikan dari donatur.`,
+        { tone: 'success' },
+      )
+    } catch (err) {
+      toast(err.message || 'Gagal mengubah status video', { tone: 'error' })
+    }
+  }
+
   const deleteVideo = async (v) => {
     const ok = await confirmDialog({
       title: 'Hapus video?',
@@ -160,6 +182,18 @@ export default function AdminDokumentasiPage() {
       setFotoBusy(false)
     }
   }
+  const setFotoActive = async (f, active) => {
+    try {
+      await savePhoto({ id: f.id, image: f.image, caption: f.caption, active })
+      toast(
+        active ? 'Foto tampil di galeri donatur.' : 'Foto disembunyikan dari galeri donatur.',
+        { tone: 'success' },
+      )
+    } catch (err) {
+      toast(err.message || 'Gagal mengubah status foto', { tone: 'error' })
+    }
+  }
+
   const deleteFoto = async (f) => {
     const ok = await confirmDialog({
       title: 'Hapus foto?',
@@ -182,9 +216,19 @@ export default function AdminDokumentasiPage() {
   const slideRow = 'no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2'
 
   const renderVideoCard = (v) => (
-    <div key={v.id} className={`card ${slideVideos ? 'w-[min(340px,75vw)] shrink-0 snap-start' : ''}`}>
+    <div
+      key={v.id}
+      className={`card ${slideVideos ? 'w-[min(340px,75vw)] shrink-0 snap-start' : ''} ${
+        v.active === false ? 'opacity-70' : ''
+      }`}
+    >
       <div className="relative aspect-video overflow-hidden">
         {v.image && <img src={v.image} alt={v.title} className="h-full w-full object-cover" />}
+        {v.active === false && (
+          <span className="absolute right-3 top-3 z-[1] rounded-full bg-navy px-2.5 py-1 text-[11px] font-bold text-white">
+            Disembunyikan
+          </span>
+        )}
         <span className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-coral shadow-[0_4px_20px_rgba(231,76,60,0.4)]">
           <svg viewBox="0 0 24 24" fill="currentColor" className="ml-[3px] h-5 w-5 text-white">
             <path d="M8 5v14l11-7z" />
@@ -205,6 +249,10 @@ export default function AdminDokumentasiPage() {
             {v.videoUrl}
           </p>
         )}
+        <VisibilityStatus
+          active={v.active !== false}
+          onChange={(active) => setVideoActive(v, active)}
+        />
         <div className="mt-2 flex items-center gap-2">
           <button
             type="button"
@@ -226,9 +274,27 @@ export default function AdminDokumentasiPage() {
   )
 
   const renderPhotoCard = (f) => (
-    <div key={f.id} className={`card p-3 ${slidePhotos ? 'w-[170px] shrink-0 snap-start' : ''}`}>
-      <img src={f.image} alt={f.caption} className="mb-2 aspect-square w-full rounded-lg object-cover" />
+    <div
+      key={f.id}
+      className={`card p-3 ${slidePhotos ? 'w-[170px] shrink-0 snap-start' : ''} ${
+        f.active === false ? 'opacity-70' : ''
+      }`}
+    >
+      <div className="relative mb-2">
+        <img src={f.image} alt={f.caption} className="aspect-square w-full rounded-lg object-cover" />
+        {f.active === false && (
+          <span className="absolute right-2 top-2 rounded-full bg-navy px-2 py-0.5 text-[10px] font-bold text-white">
+            Disembunyikan
+          </span>
+        )}
+      </div>
       <p className="mb-2 line-clamp-2 text-xs font-semibold text-navy">{f.caption}</p>
+      <VisibilityStatus
+        compact
+        label="Status di donatur"
+        active={f.active !== false}
+        onChange={(active) => setFotoActive(f, active)}
+      />
       <div className="flex items-center gap-2">
         <button
           type="button"

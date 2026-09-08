@@ -12,8 +12,9 @@ export default function BlogDetailPage() {
   const { slug } = useParams()
   const { posts, loading } = useBlogPosts()
 
-  const post = posts.find((p) => p.slug === slug)
-  const otherPosts = posts.filter((p) => p.slug !== slug).slice(0, 2)
+  // Artikel yang di-"Sembunyikan" di admin dianggap tidak ada di donatur.
+  const post = posts.find((p) => p.slug === slug && p.active !== false)
+  const otherPosts = posts.filter((p) => p.slug !== slug && p.active !== false).slice(0, 2)
 
   if (!post) {
     return (
@@ -30,7 +31,7 @@ export default function BlogDetailPage() {
   return (
     <>
       <Navbar />
-      <PageHeroBackground className="pb-24 pt-32">
+      <PageHeroBackground className="pb-16 pt-24 sm:pb-24">
         <div className="container">
           <div className="mx-auto max-w-[820px]">
             <Link

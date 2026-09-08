@@ -57,6 +57,7 @@ export default function ZakatCalculatorSection() {
               <input
                 type="text"
                 inputMode="numeric"
+                aria-label="Gaji pokok per bulan (Rp)"
                 placeholder="0"
                 value={formatRupiahInput(gajiPokok)}
                 onChange={(e) => setGajiPokok(parseRupiah(e.target.value))}
@@ -73,6 +74,7 @@ export default function ZakatCalculatorSection() {
               <input
                 type="text"
                 inputMode="numeric"
+                aria-label="Tunjangan tetap per bulan (Rp)"
                 placeholder="0"
                 value={formatRupiahInput(tunjangan)}
                 onChange={(e) => setTunjangan(parseRupiah(e.target.value))}
@@ -89,6 +91,7 @@ export default function ZakatCalculatorSection() {
               <input
                 type="text"
                 inputMode="numeric"
+                aria-label="Total tabungan dan deposito (Rp)"
                 placeholder="0"
                 value={formatRupiahInput(tabungan)}
                 onChange={(e) => setTabungan(parseRupiah(e.target.value))}
@@ -105,6 +108,7 @@ export default function ZakatCalculatorSection() {
               <input
                 type="text"
                 inputMode="numeric"
+                aria-label="Nilai emas dan perhiasan (Rp)"
                 placeholder="0"
                 value={formatRupiahInput(emas)}
                 onChange={(e) => setEmas(parseRupiah(e.target.value))}

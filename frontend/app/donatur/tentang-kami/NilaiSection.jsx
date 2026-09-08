@@ -82,8 +82,11 @@ export default function NilaiSection() {
 
         <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
           {content.values.map((v, i) => (
-            <div key={v.id} className="card p-4">
-              <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:h-[18px] [&_svg]:w-[18px]">
+            <div
+              key={v.id}
+              className="card group border-t-2 border-transparent p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:shadow-[0_18px_40px_-18px_rgba(6,30,40,0.35)]"
+            >
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-white shadow-[0_8px_18px_-8px_rgba(10,126,126,0.6)] transition-transform duration-300 group-hover:scale-105 [&_svg]:h-[20px] [&_svg]:w-[20px]">
                 {VALUE_ICONS[i] || VALUE_ICONS[VALUE_ICONS.length - 1]}
               </div>
               <EditableRichText

@@ -6,6 +6,7 @@ function toApi(row) {
     id: row.id,
     image: row.image || '',
     caption: row.caption || '',
+    active: row.active !== false,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }
@@ -40,13 +41,14 @@ async function update(id, d) {
   const cur = await findById(id)
   if (!cur) return null
   const { rows } = await query(
-    `update doc_photos set image = $2, caption = $3, updated_at = now()
+    `update doc_photos set image = $2, caption = $3, active = $4, updated_at = now()
      where id = $1
      returning *`,
     [
       id,
       d.image != null ? String(d.image).trim() : cur.image,
       d.caption != null ? String(d.caption).trim() : cur.caption,
+      typeof d.active === 'boolean' ? d.active : cur.active,
     ],
   )
   return toApi(rows[0])

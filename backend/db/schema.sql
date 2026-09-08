@@ -71,6 +71,9 @@ begin
   end if;
 end $$;
 
+-- Sembunyikan artikel dari halaman Blog donatur tanpa menghapusnya.
+alter table blog_posts add column if not exists active boolean not null default true;
+
 create index if not exists blog_posts_created_idx on blog_posts (created_at desc);
 
 -- "Daftar Program" — CRUD penuh oleh admin di menu "Daftar Program",
@@ -175,6 +178,9 @@ create table if not exists doc_videos (
   updated_at  timestamptz not null default now()
 );
 
+-- Sembunyikan video dari halaman Kami Peduli donatur tanpa menghapusnya.
+alter table doc_videos add column if not exists active boolean not null default true;
+
 create index if not exists doc_videos_sort_idx on doc_videos (sort_order, created_at);
 
 -- Dokumentasi Kami Peduli — galeri foto.
@@ -186,6 +192,9 @@ create table if not exists doc_photos (
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+-- Sembunyikan foto dari galeri Kami Peduli donatur tanpa menghapusnya.
+alter table doc_photos add column if not exists active boolean not null default true;
 
 create index if not exists doc_photos_sort_idx on doc_photos (sort_order, created_at);
 

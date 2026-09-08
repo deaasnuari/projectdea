@@ -57,10 +57,11 @@ export default function HeroSection() {
         <EditableImageElement
           elementKey="kami-peduli.hero.background"
           section="hero"
-          defaultSrc="/images/hero-bg.png"
-          alt="Masjid"
+          defaultSrc="/images/hero-bg.jpg"
+          alt=""
           className="h-full w-full object-cover"
           label="latar Hero"
+          priority
         />
         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(10,46,60,0.92)] via-[rgba(10,126,126,0.75)] to-[rgba(10,46,60,0.85)]" />
         {/* Pola bintang delapan sudut yang samar — terinspirasi ornamen
@@ -81,19 +82,19 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      <div className="container relative z-[1] pt-32 max-[600px]:pt-[104px]">
+      <div className="container relative z-[1] pt-24 max-[600px]:pt-[86px]">
         {/* Konten */}
         <div className="max-w-[650px] animate-fade-in-up">
           <EditableRichText
             elementKey="kami-peduli.hero.badge"
             section="hero"
             as="p"
-            className="section-label !mb-3 !text-gold"
+            className="section-label !mb-3 !text-gold max-[600px]:!mb-2 max-[600px]:!text-[10px]"
             defaultText={hero.label}
             label="teks sambutan"
             multiline
           />
-          <h1 className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:text-[1.875rem]">
+          <h1 className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:mb-2.5 max-[480px]:text-[1.6rem] max-[480px]:leading-[1.2]">
             <EditableRichText
               elementKey="kami-peduli.hero.title"
               section="hero"
@@ -115,13 +116,13 @@ export default function HeroSection() {
             elementKey="kami-peduli.hero.description"
             section="hero"
             as="p"
-            className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80"
+            className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80 max-[600px]:mb-4 max-[600px]:text-[13px] max-[600px]:leading-[1.55]"
             defaultText={hero.description}
             label="deskripsi hero"
             multiline
           />
-          <div className="mb-6 flex flex-wrap gap-4 max-[600px]:flex-col">
-            <a href="#zakat-calculator" className="btn btn-gold">
+          <div className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
+            <a href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
               </svg>
@@ -132,7 +133,7 @@ export default function HeroSection() {
                 label="tombol Tunaikan Zakat"
               />
             </a>
-            <a href="/donatur/program" className="btn btn-primary">
+            <a href="/donatur/program" className="btn btn-primary max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                 <circle cx="10" cy="10" r="7.5" />
                 <path d="M12.6 7.4l-1.8 3.8-3.8 1.8 1.8-3.8 3.8-1.8z" />
@@ -149,7 +150,7 @@ export default function HeroSection() {
 
         {/* Kartu-kartu fitur */}
         <div
-          className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[900px]:grid-cols-1"
+          className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[900px]:grid-cols-1 max-[600px]:mb-0 max-[600px]:gap-2.5"
           style={{ animationDelay: '0.3s' }}
         >
           {FEATURE_META.map((meta) => {
@@ -160,17 +161,17 @@ export default function HeroSection() {
               <Tag
                 key={meta.id}
                 href={meta.href}
-                className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+                className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)] max-[600px]:gap-3 max-[600px]:p-3.5"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[20px] [&>svg]:w-[20px]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/[0.15] text-gold transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-white group-active:bg-gold group-active:text-white [&>svg]:h-[20px] [&>svg]:w-[20px] max-[600px]:h-9 max-[600px]:w-9 max-[600px]:[&>svg]:h-[16px] max-[600px]:[&>svg]:w-[16px]">
                   {meta.icon}
                 </div>
                 <div>
                   <EditableRichText
                     elementKey={`kami-peduli.hero.feature.${meta.id}.title`}
                     section="hero"
-                    as="h4"
-                    className="mb-1 font-heading text-base font-semibold text-white"
+                    as="h2"
+                    className="mb-1 font-heading text-base font-semibold text-white max-[600px]:mb-0.5 max-[600px]:text-sm"
                     defaultText={f.title}
                     label="judul kartu fitur"
                   />
@@ -178,7 +179,7 @@ export default function HeroSection() {
                     elementKey={`kami-peduli.hero.feature.${meta.id}.desc`}
                     section="hero"
                     as="p"
-                    className="text-xs leading-[1.5] text-white/60"
+                    className="text-xs leading-[1.5] text-white/60 max-[600px]:text-[11px] max-[600px]:leading-snug"
                     defaultText={f.desc}
                     label="deskripsi kartu fitur"
                     multiline

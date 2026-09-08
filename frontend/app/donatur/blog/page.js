@@ -8,7 +8,9 @@ import { useBlogPosts } from './useBlogPosts'
 import { formatBlogDate } from '@/services/blog'
 
 export default function BlogPage() {
-  const { posts, loading } = useBlogPosts()
+  const { posts: allPosts, loading } = useBlogPosts()
+  // Artikel yang di-"Sembunyikan" di admin tidak tampil di halaman donatur.
+  const posts = allPosts.filter((p) => p.active !== false)
 
   // Sampai 3 artikel: grid biasa. Lebih dari itu: baris yang digeser ke
   // samping (scroll-snap) supaya halaman tidak makin panjang ke bawah —
@@ -62,7 +64,7 @@ export default function BlogPage() {
   return (
     <>
       <Navbar />
-      <PageHeroBackground className="pb-24 pt-32">
+      <PageHeroBackground className="pb-16 pt-24 sm:pb-24">
         <div className="container">
           <p className="section-label !text-gold">Blog &amp; Kursus Kami</p>
           <h1 className="mb-12 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">

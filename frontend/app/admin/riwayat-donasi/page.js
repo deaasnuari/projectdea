@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { formatRp } from '@/services/format'
-import { useDonations, proofUrl } from '@/services/donations'
+import { useDonations } from '@/services/donations'
 import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const TABS = [
@@ -72,7 +72,6 @@ function fmtDate(iso) {
 export default function AdminRiwayatDonasiPage() {
   const [tab, setTab] = useState('semua')
   const [sourceTab, setSourceTab] = useState('semua')
-  const [proof, setProof] = useState(null) // { id, name } bukti yang sedang dilihat
   const { rows, stats, loading, error, changeStatus, removeDonation } = useDonations(tab, sourceTab)
 
   const handleDelete = async (d) => {
@@ -104,13 +103,6 @@ export default function AdminRiwayatDonasiPage() {
       toast(err.message || 'Gagal memperbarui status', { tone: 'error' })
     }
   }
-
-  useEffect(() => {
-    if (!proof) return
-    const onKey = (e) => e.key === 'Escape' && setProof(null)
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [proof])
 
   const CARDS = [
     { label: 'Total Donasi', value: stats?.total ?? 0, ink: 'text-navy', tint: 'bg-navy/5', icon: STAT_ICONS.total },
@@ -144,17 +136,6 @@ export default function AdminRiwayatDonasiPage() {
   // Tombol aksi dipakai di tabel (laptop) & di kartu (HP/iPad).
   const renderActions = (d) => (
     <>
-      {d.has_proof ? (
-        <button
-          type="button"
-          onClick={() => setProof({ id: d.id, name: d.anonymous ? 'Anonim' : d.donor_name })}
-          className="rounded-lg border border-gray-200 px-2.5 py-1 text-[11px] font-semibold text-gray-600 transition-colors hover:bg-gray-50"
-        >
-          Bukti
-        </button>
-      ) : (
-        <span className="px-1 text-[11px] text-gray-300">—</span>
-      )}
       {d.status !== 'terverifikasi' && (
         <button
           type="button"
@@ -201,7 +182,7 @@ export default function AdminRiwayatDonasiPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Donasi</p>
           <h1 className="font-heading text-xl font-bold text-navy">Riwayat Donasi</h1>
           <p className="mt-1 text-[13px] text-gray-500">
-            Donasi via transfer yang dikirim donatur — verifikasi atau tolak setelah bukti dicek.
+            Donasi via transfer yang dikirim donatur — verifikasi atau tolak setelah pembayaran dicek.
           </p>
         </div>
         {menunggu > 0 && (
@@ -420,42 +401,6 @@ export default function AdminRiwayatDonasiPage() {
         })}
       </div>
 
-      {/* Pratinjau bukti transfer — popup kecil di dalam halaman admin */}
-      {proof && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-navy/50 p-4 backdrop-blur-sm"
-          onClick={() => setProof(null)}
-        >
-          <div
-            className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">Bukti Transfer</p>
-                <p className="truncate text-sm font-bold text-navy">{proof.name}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setProof(null)}
-                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-navy"
-                aria-label="Tutup"
-              >
-                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                </svg>
-              </button>
-            </div>
-            <div className="max-h-[70vh] overflow-auto bg-gray-50 p-3">
-              <img
-                src={proofUrl(proof.id)}
-                alt={`Bukti transfer ${proof.name}`}
-                className="mx-auto max-h-[62vh] w-auto rounded-lg"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

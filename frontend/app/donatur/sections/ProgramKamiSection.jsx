@@ -14,7 +14,7 @@ import { formatDateID, postSortKey } from '@/services/dateText'
 const TITLE_MAIN_STYLE = { fontStyle: 'normal', color: 'inherit' }
 
 const PlayIcon = (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="ml-[3px] h-6 w-6 text-white">
+  <svg viewBox="0 0 24 24" fill="currentColor" className="ml-[3px] h-6 w-6">
     <path d="M8 5v14l11-7z" />
   </svg>
 )
@@ -41,11 +41,14 @@ export default function ProgramKamiSection() {
   const { photos: rawGaleri } = useDocPhotos()
   const { isAdmin } = useEditMode()
 
-  // Di halaman donatur: yang terbaru (sesuai tanggal dibuat) tampil paling dulu.
-  const videos = [...rawVideos].sort((a, b) => postSortKey(b) - postSortKey(a))
-  const galeri = [...rawGaleri].sort(
-    (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
-  )
+  // Video / foto yang di-"Sembunyikan" di admin tidak tampil di donatur.
+  // Yang terbaru (sesuai tanggal dibuat) tampil paling dulu.
+  const videos = [...rawVideos]
+    .filter((v) => v.active !== false)
+    .sort((a, b) => postSortKey(b) - postSortKey(a))
+  const galeri = [...rawGaleri]
+    .filter((f) => f.active !== false)
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
   const ph = content.programHeading
   const gh = content.galeriHeading
 
@@ -54,12 +57,14 @@ export default function ProgramKamiSection() {
   // bawah — pola yang sama dengan galeri di bawahnya.
   const slideMode = videos.length > 4
 
-  // Baris geser (video >4 & galeri): di halaman publik dibiarkan "bleed"
-  // sampai tepi container (-mx-6 px-6). Di halaman admin Konten Situs area
-  // kontennya sudah mepet ke sidebar, jadi bleed bikin gambar nempel —
-  // di sana pakai padding container biasa saja supaya sejajar dengan judul.
+  // Baris geser (video >4 & galeri). Di HP & tablet TIDAK di-bleed — kartu
+  // ikut padding .container biasa supaya rata dengan judul/teks lain dan
+  // tidak terlihat "mepet ke pinggir kiri". Baru mulai desktop (lg) dibiarkan
+  // bleed sampai tepi (nilainya sama persis dengan padding .container di
+  // ukuran itu = px-6, jadi tidak menimbulkan horizontal scroll). Di halaman
+  // admin Konten Situs tidak pernah bleed karena sudah mepet sidebar.
   const slideRowClass = `flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:thin]${
-    isAdmin ? '' : ' -mx-6 px-6'
+    isAdmin ? '' : ' lg:-mx-6 lg:px-6'
   }`
 
   const renderVideoCard = (program, i) => {
@@ -70,8 +75,8 @@ export default function ProgramKamiSection() {
     return (
       <div
         key={program.id}
-        className={`card group animate-fade-in-up opacity-0 ${
-          slideMode ? 'w-[min(520px,85vw)] shrink-0 snap-start' : ''
+        className={`group flex animate-fade-in-up flex-col overflow-hidden rounded-2xl bg-white opacity-0 shadow-[0_2px_10px_rgba(6,30,40,0.05)] ring-1 ring-black/[0.05] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-20px_rgba(6,30,40,0.35)] ${
+          slideMode ? 'w-[78vw] shrink-0 snap-start sm:w-[380px] lg:w-[min(520px,85vw)]' : ''
         }`}
         style={{ animationDelay: `${i * 0.15}s` }}
       >
@@ -79,30 +84,44 @@ export default function ProgramKamiSection() {
           <img
             src={program.image}
             alt={program.title}
-            className="h-full w-full object-cover transition-transform duration-400 group-hover:scale-[1.08]"
+            width="640"
+            height="360"
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/50 via-navy-dark/0 to-navy-dark/10" />
           <PlayTag
             {...playProps}
-            className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-coral shadow-[0_4px_20px_rgba(231,76,60,0.4)] transition-all group-hover:scale-[1.15]"
+            aria-label={program.videoUrl ? `Tonton video: ${program.title}` : undefined}
+            className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-coral"
           >
-            {PlayIcon}
+            <span className="absolute inset-1 rounded-full bg-white/40 opacity-0 transition-opacity duration-300 group-hover:animate-ping group-hover:opacity-100" />
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-[0_10px_28px_rgba(0,0,0,0.28)] ring-1 ring-white/60 backdrop-blur transition-transform duration-300 group-hover:scale-110">
+              {PlayIcon}
+            </span>
           </PlayTag>
-          <span className="absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
+          <span className="absolute left-3.5 top-3.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-primary-dark shadow-sm backdrop-blur-sm">
             {program.badge}
           </span>
         </div>
-        <div className="p-6">
+        <div className="flex flex-1 flex-col p-5">
           {program.date && (
-            <p className="mb-1 text-xs font-medium text-gray-400">{formatDateID(program.date)}</p>
+            <p className="mb-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-400">
+              <span className="h-1 w-1 rounded-full bg-gold" />
+              {formatDateID(program.date)}
+            </p>
           )}
-          <h3 className="mb-2 font-heading text-lg font-bold leading-[1.3] text-navy">{program.title}</h3>
-          <p className="mb-4 text-sm leading-[1.6] text-gray-500">{program.desc}</p>
+          <h3 className="mb-1.5 font-heading text-base font-bold leading-snug text-navy transition-colors group-hover:text-primary">
+            {program.title}
+          </h3>
+          <p className="mb-4 line-clamp-2 text-[13px] leading-[1.6] text-gray-500">{program.desc}</p>
           {program.videoUrl && (
             <a
               href={program.videoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-all hover:gap-2 hover:text-primary-dark"
+              className="mt-auto inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-all hover:gap-2 hover:text-primary-dark"
             >
               {content.selengkapnyaLabel}
               <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
@@ -171,11 +190,11 @@ export default function ProgramKamiSection() {
 
         {/* Video: grid 2 kolom, atau baris geser ke samping kalau > 4 */}
         {slideMode ? (
-          <div className={`${slideRowClass} gap-8`}>
+          <div className={`${slideRowClass} gap-6`}>
             {videos.map(renderVideoCard)}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-8 max-[768px]:grid-cols-1">
+          <div className="grid grid-cols-2 gap-6 max-[768px]:grid-cols-1">
             {videos.map(renderVideoCard)}
           </div>
         )}
@@ -216,20 +235,25 @@ export default function ProgramKamiSection() {
           {/* Baris galeri yang bisa digeser ke samping (scroll-snap),
               bukan grid kartu, supaya foto bisa ditambah terus tanpa
               bikin section jadi makin tinggi ke bawah. */}
-          <div className={`${slideRowClass} gap-5`}>
+          <div className={`${slideRowClass} gap-4`}>
             {galeri.map((foto, i) => (
               <div
                 key={foto.id}
-                className="group relative aspect-square w-[240px] shrink-0 snap-start animate-fade-in-up overflow-hidden rounded-tr-xl rounded-bl-xl rounded-tl-md rounded-br-md opacity-0 max-[480px]:w-[200px]"
+                className="group relative aspect-square w-[260px] shrink-0 animate-fade-in-up snap-start overflow-hidden rounded-2xl opacity-0 shadow-[0_2px_10px_rgba(6,30,40,0.06)] ring-1 ring-black/[0.05] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-18px_rgba(6,30,40,0.4)] max-[480px]:w-[220px]"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <img
                   src={foto.image}
                   alt={foto.caption}
-                  className="h-full w-full object-cover transition-transform duration-400 group-hover:scale-[1.08]"
+                  width="260"
+                  height="260"
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.1]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/85 via-navy-dark/0 to-navy-dark/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="absolute inset-x-3 bottom-3 translate-y-2 text-sm font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                {/* gradasi tipis permanen + lebih pekat saat hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/60 via-navy-dark/0 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="absolute inset-x-3 bottom-3 translate-y-2 text-[13px] font-semibold leading-snug text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   {foto.caption}
                 </span>
               </div>

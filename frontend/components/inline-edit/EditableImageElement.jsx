@@ -30,6 +30,9 @@ export default function EditableImageElement({
   alt = '',
   className = '',
   label = 'gambar',
+  // `priority` → gambar penting (mis. latar hero / LCP): dimuat segera &
+  // diberi prioritas tinggi. Selain itu: lazy-load supaya tidak menahan.
+  priority = false,
 }) {
   const { editing } = useEditMode()
   const ctx = useTextElementsContext()
@@ -59,7 +62,17 @@ export default function EditableImageElement({
     }
   }, [editing, src])
 
-  const img = <img ref={imgRef} src={src} alt={alt} className={className} />
+  const img = (
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      className={className}
+      decoding="async"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
+    />
+  )
 
   if (!editing) return img
 

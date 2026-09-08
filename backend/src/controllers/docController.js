@@ -41,6 +41,7 @@ async function updateVideo(req, res, next) {
     for (const k of ['title', 'videoUrl', 'image', 'badge', 'desc', 'date', 'duration']) {
       if (b[k] != null) patch[k] = String(b[k])
     }
+    if (b.active != null) patch.active = !!b.active
     const row = await DocVideo.update(id, patch)
     if (!row) return res.status(404).json({ error: 'Video tidak ditemukan' })
     res.json(row)
@@ -89,6 +90,7 @@ async function updatePhoto(req, res, next) {
     const patch = {}
     if (b.image != null) patch.image = String(b.image)
     if (b.caption != null) patch.caption = String(b.caption)
+    if (b.active != null) patch.active = !!b.active
     const row = await DocPhoto.update(id, patch)
     if (!row) return res.status(404).json({ error: 'Foto tidak ditemukan' })
     res.json(row)

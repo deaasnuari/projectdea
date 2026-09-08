@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { formatRp, formatCountdown } from '@/services/format'
-import { fileToResizedDataUrl } from '@/services/imageFile'
 import { createDonation } from '@/services/donations'
 import { useDonationMethods } from './donationMethodsData'
 
@@ -87,16 +86,6 @@ function JenisIcon({ id, className }) {
   }
 }
 
-function UploadIcon({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="22" height="22" className={className}>
-      <path d="M21 15v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3" />
-      <path d="M17 8l-5-5-5 5" />
-      <path d="M12 3v12" />
-    </svg>
-  )
-}
-
 function ClockIcon({ className, width = 30, height = 30 }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width={width} height={height} className={className}>
@@ -138,32 +127,66 @@ function ArrowIcon({ className }) {
   )
 }
 
-function StepIndicator({ step }) {
+function CopyIcon({ width = 13, height = 13 }) {
   return (
-    <div className="mb-6 flex items-start">
-      {STEPS.map((s, i) => (
-        <div key={s.n} className={`flex items-center ${i < STEPS.length - 1 ? 'flex-1' : ''}`}>
-          <div className="flex flex-col items-center gap-1.5">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={width} height={height}>
+      <rect x="9" y="9" width="12" height="12" rx="2" />
+      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+    </svg>
+  )
+}
+
+function WalletIcon({ width = 20, height = 20 }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width={width} height={height}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20M16 14h.01" />
+    </svg>
+  )
+}
+
+// Progress langkah — batang tersegmen di dalam header gelap modal.
+function StepBar({ step }) {
+  return (
+    <div className="mt-4 flex gap-2">
+      {STEPS.map((s) => {
+        const on = step >= s.n
+        return (
+          <div key={s.n} className="flex-1">
+            <div className={`h-1 rounded-full transition-colors ${on ? 'bg-gold' : 'bg-white/15'}`} />
             <span
-              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
-                step > s.n ? 'bg-navy text-white' : step === s.n ? 'bg-gold text-navy' : 'bg-gray-100 text-gray-400'
+              className={`mt-1.5 flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.4px] transition-colors ${
+                on ? 'text-white/85' : 'text-white/35'
               }`}
             >
-              {step > s.n ? <CheckIcon /> : s.n}
-            </span>
-            <span
-              className={`whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.5px] ${
-                step >= s.n ? 'text-primary' : 'text-gray-400'
-              }`}
-            >
+              {step > s.n && <CheckIcon width={9} height={9} />}
               {s.label}
             </span>
           </div>
-          {i < STEPS.length - 1 && (
-            <div className={`mx-2 mb-4 h-px flex-1 transition-colors ${step > s.n ? 'bg-navy' : 'bg-gray-200'}`} />
-          )}
+        )
+      })}
+    </div>
+  )
+}
+
+// Header gelap ber-gradient di atas modal — dipakai di langkah pilih jenis,
+// isi nominal/data, dan pilih bank. Ikut "bleed" sampai tepi kartu.
+function ModalHeader({ step, jenis, sourceLabel }) {
+  return (
+    <div className="-mx-5 -mt-5 mb-6 bg-gradient-to-br from-navy to-primary-dark px-5 pb-5 pt-5 text-white sm:-mx-8 sm:-mt-8 sm:mb-7 sm:px-8 sm:pt-6">
+      <div className="flex items-center gap-3 pr-9">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gold ring-1 ring-white/15">
+          {jenis ? <JenisIcon id={jenis.id} width={20} height={20} /> : <WalletIcon />}
+        </span>
+        <div className="min-w-0">
+          <h3 className="font-heading text-base font-bold leading-tight">Donasi via Transfer</h3>
+          <p className="truncate text-[11px] text-white/60">
+            {jenis?.label || 'LAZIS PT PLN Batam'}
+            {sourceLabel ? ` · ${sourceLabel}` : ''}
+          </p>
         </div>
-      ))}
+      </div>
+      <StepBar step={step} />
     </div>
   )
 }
@@ -199,9 +222,6 @@ export default function DonationModal({
   const [secondsLeft, setSecondsLeft] = useState(BATAS_BAYAR_START)
   const [copied, setCopied] = useState(false)
 
-  const [buktiFile, setBuktiFile] = useState(null)
-  const [buktiPreview, setBuktiPreview] = useState('')
-  const [buktiError, setBuktiError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
@@ -225,9 +245,6 @@ export default function DonationModal({
     setBankId(null)
     setSecondsLeft(BATAS_BAYAR_START)
     setCopied(false)
-    setBuktiFile(null)
-    setBuktiPreview('')
-    setBuktiError('')
     setSubmitting(false)
     setSubmitError('')
   }, [open, initialJenisId])
@@ -244,43 +261,15 @@ export default function DonationModal({
 
   const canGoStep2 = Boolean(jenis)
   const canGoStep3 = effectiveNominal > 0 && (anonim || nama.trim().length > 0)
-
-  const MAX_BUKTI_SIZE = 5 * 1024 * 1024 // 5MB
-
-  const handleBuktiChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (!file.type.startsWith('image/')) {
-      setBuktiError('File harus berupa gambar (JPG/PNG)')
-      return
-    }
-    if (file.size > MAX_BUKTI_SIZE) {
-      setBuktiError('Ukuran file maksimal 5MB')
-      return
-    }
-    setBuktiError('')
-    setBuktiFile(file)
-    const reader = new FileReader()
-    reader.onload = () => setBuktiPreview(reader.result)
-    reader.readAsDataURL(file)
-  }
+  // Header gelap ber-gradient tampil di langkah pilih jenis, isi data, dan
+  // pilih bank — tidak di rincian pembayaran (punya tata letak sendiri) & sukses.
+  const darkHeader = step === 1 || step === 2 || (step === 3 && !bank)
 
   const handleConfirm = async () => {
     if (submitting) return
     setSubmitting(true)
     setSubmitError('')
     try {
-      let proof = null
-      if (buktiFile) {
-        try {
-          proof = await fileToResizedDataUrl(buktiFile, { maxDim: 1280, quality: 0.75 })
-        } catch {
-          // Perkecil gagal (mis. format HEIC) — jangan kirim gambar mentah yang
-          // bisa bikin request kegedean; donasi tetap terkirim tanpa bukti,
-          // admin bisa minta bukti belakangan.
-          proof = null
-        }
-      }
       await createDonation({
         donorName: anonim ? 'Anonim' : nama.trim(),
         anonymous: anonim,
@@ -292,7 +281,6 @@ export default function DonationModal({
         bankId: bank?.id || null,
         bankName: bank?.name || null,
         note: niat.trim() || null,
-        proof,
       })
       setStep(4)
     } catch (err) {
@@ -327,47 +315,25 @@ export default function DonationModal({
           disembunyikan (.no-scrollbar) supaya tidak nongol di sudut yang
           melengkung. */}
       <div
-        className="no-scrollbar relative max-h-[92vh] w-full max-w-[480px] overflow-y-auto rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white p-5 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:rounded-tr-[2.5rem] sm:rounded-bl-[2.5rem] sm:p-8"
+        className="no-scrollbar relative max-h-[92vh] w-full max-w-[480px] animate-fade-in-up overflow-y-auto rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white p-5 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:rounded-tr-[2.5rem] sm:rounded-bl-[2.5rem] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className={`absolute right-4 top-4 z-[1] flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+            darkHeader
+              ? 'text-white/70 hover:bg-white/15 hover:text-white'
+              : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+          }`}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         </button>
 
-        {(step === 1 || step === 2) && (
-          <>
-            <div className="mb-6 flex items-center gap-3 pr-8">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-dark">
-                {jenis ? (
-                  <JenisIcon id={jenis.id} />
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-                    <rect x="2" y="5" width="20" height="14" rx="2" />
-                    <path d="M2 10h20" />
-                  </svg>
-                )}
-              </span>
-              <div>
-                <h3 className="font-heading text-lg font-bold text-primary-dark">Donasi via Transfer</h3>
-                {step === 1 ? (
-                  <p className="text-xs text-gray-400">LAZIS PT PLN Batam</p>
-                ) : (
-                  <span className="mt-0.5 inline-block rounded bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.5px] text-gray-500">
-                    {jenis?.label}
-                  </span>
-                )}
-              </div>
-            </div>
-            <StepIndicator step={step} />
-          </>
-        )}
+        {darkHeader && <ModalHeader step={step} jenis={jenis} sourceLabel={sourceLabel} />}
 
         {step === 1 && (
           <div>
@@ -381,13 +347,18 @@ export default function DonationModal({
                     key={item.id}
                     type="button"
                     onClick={() => setJenisId(val)}
-                    className={`flex flex-col items-center gap-2 rounded-xl border px-3 py-5 text-center transition-all ${
+                    className={`relative flex flex-col items-center gap-2 rounded-xl border px-3 py-5 text-center transition-all ${
                       active
-                        ? 'border-navy bg-navy text-white'
+                        ? 'border-primary bg-primary/[0.07] text-primary-dark shadow-[0_8px_20px_-12px_rgba(10,126,126,0.55)] ring-1 ring-primary'
                         : 'border-gray-200 text-navy hover:border-primary/40 hover:bg-primary/5'
                     }`}
                   >
-                    <JenisIcon id={val} className={active ? 'text-gold' : 'text-primary'} />
+                    {active && (
+                      <span className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white">
+                        <CheckIcon width={9} height={9} />
+                      </span>
+                    )}
+                    <JenisIcon id={val} className={active ? 'text-primary' : 'text-primary/70'} />
                     <span className="text-xs font-bold">{item.label}</span>
                   </button>
                 )
@@ -422,7 +393,7 @@ export default function DonationModal({
                     }}
                     className={`rounded-xl border px-3 py-3 text-sm font-bold transition-all ${
                       customNominal
-                        ? 'border-navy bg-navy text-white'
+                        ? 'border-primary bg-primary/[0.07] text-primary-dark ring-1 ring-primary'
                         : 'border-gray-200 text-navy hover:border-primary/40 hover:bg-primary/5'
                     }`}
                   >
@@ -438,7 +409,7 @@ export default function DonationModal({
                     }}
                     className={`rounded-xl border px-3 py-3 text-sm font-bold transition-all ${
                       !customNominal && nominal === preset
-                        ? 'border-navy bg-navy text-white'
+                        ? 'border-primary bg-primary/[0.07] text-primary-dark ring-1 ring-primary'
                         : 'border-gray-200 text-navy hover:border-primary/40 hover:bg-primary/5'
                     }`}
                   >
@@ -459,9 +430,10 @@ export default function DonationModal({
                 className="flex-1 bg-transparent text-sm font-semibold text-gray-800 outline-none"
               />
             </div>
-            <p className="mb-6 text-center text-xs text-gray-500">
-              Nominal: <strong className="text-navy">{formatRp(effectiveNominal)}</strong>
-            </p>
+            <div className="mb-6 flex items-center justify-between rounded-xl bg-primary/[0.06] px-4 py-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-gray-500">Nominal donasi</span>
+              <strong className="font-heading text-lg font-extrabold text-primary-dark">{formatRp(effectiveNominal)}</strong>
+            </div>
 
             <div className="mb-4 flex items-center justify-between">
               <h4 className="text-sm font-bold text-navy">Data Donatur</h4>
@@ -551,117 +523,88 @@ export default function DonationModal({
 
         {step === 3 && bank && (
           <div>
-            <div className="mb-5 flex items-start justify-between gap-4 pr-8">
-              <div className="flex items-center gap-3">
-                <BankBadge bank={bank} />
-                <div>
-                  <div className="text-sm font-bold text-navy">{bank.name}</div>
-                  <div className="text-xs text-gray-400">Rekening · {bank.owner || 'LAZIS PT PLN Batam'}</div>
+            <div className="mb-4 flex items-center justify-between gap-3 pr-9">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <BankBadge bank={bank} size="sm" />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold text-navy">{bank.name}</div>
+                  <div className="truncate text-[11px] text-gray-400">a.n. {bank.owner || 'LAZIS PT PLN Batam'}</div>
                 </div>
               </div>
-              <div className="shrink-0 text-right">
-                <div className="text-[9px] font-semibold uppercase tracking-[0.5px] text-gray-400">Batas Bayar</div>
-                <div className="font-heading text-base font-bold text-primary-dark">{formatCountdown(secondsLeft)}</div>
+              <button
+                type="button"
+                onClick={() => setBankId(null)}
+                className="shrink-0 rounded-full border border-gray-200 px-3 py-1 text-[11px] font-semibold text-gray-500 transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                Ganti
+              </button>
+            </div>
+
+            {/* Total pembayaran — kartu gradient dengan hitung mundur */}
+            <div className="mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-primary-dark p-5 text-center text-white">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.6px] text-white/55">Total Pembayaran</div>
+              <div className="mt-1 font-heading text-[2rem] font-extrabold leading-none text-gold">{formatRp(effectiveNominal)}</div>
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-white/75 ring-1 ring-white/10">
+                <ClockIcon width={12} height={12} />
+                Batas bayar {formatCountdown(secondsLeft)}
               </div>
+              <p className="mt-2.5 text-[10px] text-white/45">Bayar tepat nominal ini — kelebihan tidak dikembalikan</p>
             </div>
 
-            <div className="mb-5 flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-3 text-xs font-semibold text-primary-dark">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />
-              Sudah transfer? Upload bukti pembayaran di bawah untuk mengonfirmasi donasi Anda.
-            </div>
-
-            <div className="mb-5 rounded-xl bg-primary/5 py-6 text-center">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">Total Pembayaran</div>
-              <div className="font-heading text-3xl font-extrabold text-primary-dark">{formatRp(effectiveNominal)}</div>
-              <div className="mt-1 text-xs text-gray-400">Bayar tepat nominal ini — kelebihan tidak dikembalikan</div>
-            </div>
-
-            <div className="mb-5 rounded-xl border border-gray-200 p-4">
-              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">Nomor Rekening</div>
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-                <div className="flex min-w-0 items-center gap-3">
-                  <BankBadge bank={bank} size="sm" />
-                  <div className="min-w-0">
-                    <div className="break-all font-heading text-lg font-bold tracking-wide text-navy-dark">{bank.noRek}</div>
-                    <div className="text-xs text-gray-400">{bank.name}</div>
-                  </div>
-                </div>
+            {/* Nomor rekening — angka besar + tombol salin menonjol */}
+            <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-4">
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.6px] text-gray-400">
+                Nomor Rekening {bank.name}
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="break-all font-heading text-xl font-extrabold tracking-[0.06em] text-navy-dark">
+                  {bank.noRek}
+                </span>
                 <button
                   type="button"
                   onClick={copyNoRek}
-                  className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-dark transition-colors hover:bg-primary/20"
+                  className={`flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-colors ${
+                    copied ? 'bg-green-100 text-green-700' : 'bg-primary text-white hover:bg-primary-dark'
+                  }`}
                 >
                   {copied ? (
                     <>
-                      <CheckIcon width={12} height={12} />
-                      Disalin
+                      <CheckIcon width={13} height={13} />
+                      Tersalin
                     </>
                   ) : (
-                    'Salin'
+                    <>
+                      <CopyIcon />
+                      Salin
+                    </>
                   )}
                 </button>
               </div>
-              <p className="mt-3 text-xs text-gray-400">a.n. {bank.owner || 'LAZIS PT PLN Batam'}</p>
             </div>
 
-            <div className="mb-5 overflow-hidden rounded-xl bg-gray-50">
-              <div className="bg-primary/5 px-4 py-3 text-xs font-bold uppercase tracking-[0.5px] text-primary-dark">
-                Cara Pembayaran ATM / Mobile Banking
-              </div>
-              <div className="flex flex-col gap-3 px-4 py-4">
+            <div className="mb-4 flex items-start gap-2 rounded-xl bg-primary/[0.07] px-3.5 py-3 text-[11px] font-medium leading-snug text-primary-dark">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+              Sudah transfer? Klik &ldquo;Konfirmasi Pembayaran&rdquo; di bawah untuk menyelesaikan donasi Anda.
+            </div>
+
+            {/* Cara transfer */}
+            <div className="mb-5 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
+              <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.5px] text-gray-500">Cara Transfer</div>
+              <ol className="flex flex-col gap-2.5">
                 {[
                   'Pilih menu Transfer, lalu pilih Rekening Bank',
                   `Masukkan nomor rekening: ${bank.noRek}`,
                   `Masukkan nominal: ${formatRp(effectiveNominal)}`,
                   'Konfirmasi dan selesaikan transaksi',
                 ].map((text, i) => (
-                  <div key={text} className="flex items-start gap-3 text-sm text-gray-600">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary-dark">
+                  <li key={text} className="flex items-start gap-2.5 text-[12px] leading-snug text-gray-600">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary-dark ring-1 ring-primary/20">
                       {i + 1}
                     </span>
                     {text}
-                  </div>
+                  </li>
                 ))}
-              </div>
-            </div>
-
-            {/* Upload bukti transfer — karena penyalurannya masih transfer
-                manual, konfirmasinya juga dilakukan manual lewat bukti
-                pembayaran ini, bukan deteksi otomatis. */}
-            <div className="mb-5">
-              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.5px] text-gray-400">
-                Bukti Transfer
-              </div>
-              <label
-                htmlFor="bukti-transfer-input"
-                className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors ${
-                  buktiPreview
-                    ? 'border-primary/40 bg-primary/5'
-                    : 'border-gray-200 hover:border-primary/40 hover:bg-primary/5'
-                }`}
-              >
-                {buktiPreview ? (
-                  <>
-                    <img src={buktiPreview} alt="Pratinjau bukti transfer" className="h-24 w-24 rounded-lg object-cover" />
-                    <span className="text-xs font-semibold text-primary-dark">{buktiFile?.name}</span>
-                    <span className="text-[11px] text-gray-400">Klik untuk ganti file</span>
-                  </>
-                ) : (
-                  <>
-                    <UploadIcon className="text-primary" />
-                    <span className="text-xs font-semibold text-navy">Upload bukti transfer</span>
-                    <span className="text-[11px] text-gray-400">Screenshot atau foto struk (JPG/PNG, maks 5MB)</span>
-                  </>
-                )}
-              </label>
-              <input
-                id="bukti-transfer-input"
-                type="file"
-                accept="image/*"
-                onChange={handleBuktiChange}
-                className="hidden"
-              />
-              {buktiError && <p className="mt-2 text-xs font-semibold text-coral">{buktiError}</p>}
+              </ol>
             </div>
 
             {submitError && (
@@ -669,48 +612,30 @@ export default function DonationModal({
             )}
             <button
               type="button"
-              disabled={!buktiFile || submitting}
+              disabled={submitting}
               onClick={handleConfirm}
-              className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
             >
               {submitting ? 'Mengirim…' : 'Konfirmasi Pembayaran'}
               {!submitting && <ArrowIcon />}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setBankId(null)}
-              className="flex w-full items-center justify-center gap-1.5 text-center text-xs font-semibold text-gray-400 transition-colors hover:text-primary"
-            >
-              <ArrowIcon className="rotate-180" />
-              Ganti Bank
             </button>
           </div>
         )}
 
         {step === 4 && (
-          <div className="pr-8">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gold/15">
-              <ClockIcon className="text-gold-dark" />
+          <div>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-gold/25 to-primary/15 text-gold-dark ring-1 ring-gold/30">
+              <CheckIcon width={28} height={28} />
             </div>
             <h3 className="mb-1 text-center font-heading text-2xl font-extrabold text-primary-dark">
-              Bukti Pembayaran Terkirim!
+              Konfirmasi Terkirim!
             </h3>
             <p className="mb-1 text-center text-sm text-gray-500">
               Tim kami akan memverifikasi pembayaran Anda dalam 1x24 jam.
             </p>
             <p className="mb-6 text-center text-xs font-semibold text-primary-dark">via {bank?.name}</p>
 
-            <div className="mb-6 flex flex-col gap-3 rounded-xl bg-primary/5 p-5 text-sm">
-              {buktiPreview && (
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-gray-500">Bukti Transfer</span>
-                  <div className="flex items-center gap-2">
-                    <img src={buktiPreview} alt="Bukti transfer" className="h-8 w-8 rounded-md object-cover" />
-                    <strong className="max-w-[140px] truncate text-navy-dark">{buktiFile?.name}</strong>
-                  </div>
-                </div>
-              )}
+            <div className="mb-6 flex flex-col gap-3 rounded-2xl bg-gray-50 p-5 text-sm ring-1 ring-black/[0.04]">
               <div className="flex items-start justify-between gap-4">
                 <span className="shrink-0 text-gray-500">Program</span>
                 <strong className="text-right text-navy-dark">{jenis?.programLabel || jenis?.label}</strong>

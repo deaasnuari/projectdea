@@ -11,6 +11,7 @@ function toApi(row) {
     desc: row.desc || '',
     date: row.date || '',
     duration: row.duration || '',
+    active: row.active !== false,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }
@@ -57,7 +58,7 @@ async function update(id, d) {
   const { rows } = await query(
     `update doc_videos set
        title = $2, video_url = $3, image = $4, badge = $5,
-       "desc" = $6, "date" = $7, duration = $8, updated_at = now()
+       "desc" = $6, "date" = $7, duration = $8, active = $9, updated_at = now()
      where id = $1
      returning *`,
     [
@@ -69,6 +70,7 @@ async function update(id, d) {
       v(d.desc, cur.desc),
       v(d.date, cur.date),
       v(d.duration, cur.duration),
+      typeof d.active === 'boolean' ? d.active : cur.active,
     ],
   )
   return toApi(rows[0])

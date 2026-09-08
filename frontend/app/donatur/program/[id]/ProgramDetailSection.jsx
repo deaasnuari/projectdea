@@ -15,7 +15,7 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
 
   return (
     <>
-      <PageHeroBackground className="pb-24 pt-32">
+      <PageHeroBackground className="pb-16 pt-24 sm:pb-24">
         <div className="container">
           <div className="mx-auto max-w-[820px]">
             <Link

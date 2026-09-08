@@ -56,13 +56,19 @@ export default function DonorStatsSection() {
         </h2>
         <p className="mx-auto mb-4 max-w-xl text-center text-xs text-white/60">{content.description}</p>
 
-        <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 max-[600px]:gap-x-6">
+        {/* Grid dengan kolom lebar sama supaya angka tetap sejajar di atas
+            labelnya, berapa pun panjang teks label (label panjang seperti
+            "Donatur Orang Tua Asuh" tidak lagi menggeser angka). 2 kolom di
+            HP, 4 kolom mulai tablet. */}
+        <div className="mx-auto grid max-w-xs grid-cols-2 gap-x-4 gap-y-5 sm:max-w-2xl sm:grid-cols-4">
           {content.stats.map((stat, i) => (
-            <div key={stat.label || i} className="min-w-[80px] text-center">
-              <span className="block font-heading text-lg font-extrabold text-gold max-[600px]:text-base">
+            <div key={stat.label || i} className="flex flex-col items-center text-center">
+              <span className="block font-heading text-lg font-extrabold text-gold">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
               </span>
-              <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-white/70">{stat.label}</span>
+              <span className="mt-0.5 block text-[9px] font-semibold uppercase leading-tight tracking-[0.08em] text-white/70">
+                {stat.label}
+              </span>
             </div>
           ))}
         </div>

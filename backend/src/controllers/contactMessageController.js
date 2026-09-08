@@ -31,6 +31,15 @@ async function list(req, res, next) {
   }
 }
 
+// GET /api/contact-messages/stats  (admin) — dipakai badge sidebar & polling
+async function stats(_req, res, next) {
+  try {
+    res.json(await ContactMessage.stats())
+  } catch (err) {
+    next(err)
+  }
+}
+
 // PATCH /api/contact-messages/:id  (admin) — ubah status
 async function updateStatus(req, res, next) {
   try {
@@ -53,4 +62,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, list, updateStatus, remove }
+module.exports = { create, list, stats, updateStatus, remove }

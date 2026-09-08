@@ -162,13 +162,20 @@ export default function TentangSection() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-[0.8fr_1.2fr] gap-4 max-[900px]:grid-cols-1">
-            <div className="card flex flex-col justify-center bg-gradient-to-br from-navy to-primary-dark p-5">
+          <div className="grid grid-cols-[0.8fr_1.2fr] items-stretch gap-4 max-[900px]:grid-cols-1">
+            <div className="card relative flex flex-col justify-center overflow-hidden bg-gradient-to-br from-navy to-primary-dark p-6 shadow-[0_20px_44px_-22px_rgba(6,30,40,0.55)]">
+              {/* tanda kutip besar samar sebagai ornamen */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-2 -top-6 select-none font-heading text-[7rem] leading-none text-white/[0.06]"
+              >
+                &rdquo;
+              </span>
               <EditableRichText
                 elementKey="tentang-kami.visimisi.visi_title"
                 section="visimisi"
                 as="h3"
-                className="mb-2 font-heading text-sm font-bold uppercase tracking-[0.5px] text-gold"
+                className="relative mb-2 font-heading text-sm font-bold uppercase tracking-[0.5px] text-gold"
                 defaultText={vm.visiTitle}
                 label="judul Visi"
               />
@@ -176,14 +183,14 @@ export default function TentangSection() {
                 elementKey="tentang-kami.visimisi.visi_text"
                 section="visimisi"
                 as="p"
-                className="text-xs leading-[1.6] text-white/85"
+                className="relative text-[13px] leading-[1.7] text-white/90"
                 defaultText={vm.visiText}
                 label="isi Visi"
                 multiline
               />
             </div>
 
-            <div className="card p-5">
+            <div className="card p-6">
               <EditableRichText
                 elementKey="tentang-kami.visimisi.misi_title"
                 section="visimisi"

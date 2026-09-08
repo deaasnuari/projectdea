@@ -70,6 +70,7 @@ async function update(req, res, next) {
     if (b.image != null) patch.image = typeof b.image === 'string' ? b.image : ''
     if (b.desc != null) patch.desc = String(b.desc).trim()
     if (b.content != null) patch.content = normalizeContent(b.content)
+    if (b.active != null) patch.active = !!b.active
 
     const post = await BlogPost.update(id, patch)
     if (!post) return res.status(404).json({ error: 'Artikel tidak ditemukan' })

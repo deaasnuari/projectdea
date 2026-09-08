@@ -21,7 +21,7 @@ export async function uploadImage(file, opts) {
 // Ubah file gambar (dari <input type="file">) jadi data URL yang sudah
 // diperkecil. Dipakai internal oleh uploadImage(), dan masih dipakai langsung
 // untuk bukti transfer donasi (dikirim publik, tidak lewat /api/uploads).
-export function fileToResizedDataUrl(file, { maxDim = 1200, quality = 0.82 } = {}) {
+export function fileToResizedDataUrl(file, { maxDim = 1100, quality = 0.76 } = {}) {
   return new Promise((resolve, reject) => {
     if (!file) {
       reject(new Error('Tidak ada file dipilih'))

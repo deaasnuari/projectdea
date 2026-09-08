@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
+import VisibilityStatus from '@/components/admin/VisibilityStatus'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { uploadImage } from '@/services/imageFile'
 import { useBlogPosts, formatBlogDate, toDateInputValue } from '@/services/blog'
@@ -19,6 +20,10 @@ export default function AdminBlogPage() {
   const [imgError, setImgError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+
+  // Sampai 3 artikel: grid biasa (3 kolom). Lebih dari itu: baris yang digeser
+  // ke samping (scroll-snap) — pola yang sama seperti Program & Dokumentasi.
+  const slideMode = posts.length > 3
 
   const openAdd = () => {
     setEditing(null)
@@ -60,6 +65,32 @@ export default function AdminBlogPage() {
       content: (post.content || []).join('\n\n'),
     })
     setModalOpen(true)
+  }
+
+  // Ubah status tampil/sembunyi artikel di halaman donatur tanpa membuka
+  // modal. Kirim ulang field yang ada + flag `active` yang baru.
+  const changeActive = async (post, active) => {
+    try {
+      await savePost({
+        id: post.id,
+        slug: post.slug,
+        title: post.title,
+        badge: post.badge,
+        date: post.date,
+        image: post.image,
+        desc: post.desc,
+        content: (post.content || []).join('\n\n'),
+        active,
+      })
+      toast(
+        active
+          ? `Artikel "${post.title}" tampil di halaman donatur.`
+          : `Artikel "${post.title}" disembunyikan dari halaman donatur.`,
+        { tone: 'success' },
+      )
+    } catch (err) {
+      toast(err.message || 'Gagal mengubah status artikel', { tone: 'error' })
+    }
   }
 
   const handleDelete = async (post) => {
@@ -125,69 +156,73 @@ export default function AdminBlogPage() {
         </p>
       )}
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[520px] text-left text-sm">
-            <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-[0.05em] text-gray-400">
-              <tr>
-                <th className="px-5 py-3">Artikel</th>
-                <th className="px-5 py-3">Badge</th>
-                <th className="px-5 py-3">Tanggal</th>
-                <th className="px-5 py-3 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {posts.map((post) => (
-                <tr key={post.id ?? post.slug}>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <img src={post.image} alt={post.title} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
-                      <span className="font-semibold text-navy">{post.title}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-dark">
-                      {post.badge}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-gray-500">{formatBlogDate(post.date)}</td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(post)}
-                        className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-dark transition-colors hover:bg-primary/20"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(post)}
-                        className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {loading && posts.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-5 py-10 text-center text-gray-400">
-                    Memuat…
-                  </td>
-                </tr>
-              )}
-              {!loading && posts.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-5 py-10 text-center text-gray-400">
-                    Belum ada artikel.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div
+        className={
+          slideMode
+            ? 'no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2'
+            : 'grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[768px]:grid-cols-1'
+        }
+      >
+        {posts.map((post) => {
+          const hidden = post.active === false
+          return (
+            <div
+              key={post.id ?? post.slug}
+              className={`card ${
+                slideMode
+                  ? 'w-[280px] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]'
+                  : ''
+              } ${hidden ? 'opacity-70' : ''}`}
+            >
+              <div className="relative flex h-32 items-center justify-center overflow-hidden bg-gray-100">
+                {post.image && (
+                  <img src={post.image} alt={post.title} className="absolute inset-0 h-full w-full object-cover" />
+                )}
+                {post.badge && (
+                  <span className="absolute left-4 top-4 z-[1] rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark backdrop-blur-sm">
+                    {post.badge}
+                  </span>
+                )}
+                {hidden && (
+                  <span className="absolute right-4 top-4 z-[1] rounded-full bg-navy px-2.5 py-1 text-[11px] font-bold text-white">
+                    Disembunyikan
+                  </span>
+                )}
+              </div>
+              <div className="p-5">
+                <p className="mb-1 text-xs text-gray-400">{formatBlogDate(post.date)}</p>
+                <h3 className="mb-1 font-heading text-base font-bold leading-snug text-navy">{post.title}</h3>
+                <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-gray-500">{post.desc}</p>
+                <VisibilityStatus
+                  active={post.active !== false}
+                  onChange={(active) => changeActive(post, active)}
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(post)}
+                    className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-dark transition-colors hover:bg-primary/20"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(post)}
+                    className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+        {loading && posts.length === 0 && (
+          <p className="col-span-full py-10 text-center text-sm text-gray-400">Memuat…</p>
+        )}
+        {!loading && posts.length === 0 && (
+          <p className="col-span-full py-10 text-center text-sm text-gray-400">Belum ada artikel.</p>
+        )}
       </div>
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Artikel' : 'Tambah Artikel'}>

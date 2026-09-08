@@ -13,6 +13,7 @@ function toApi(row) {
     image: row.image || '',
     desc: row.desc || '',
     content: Array.isArray(row.content) ? row.content : [],
+    active: row.active !== false,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }
@@ -92,6 +93,7 @@ async function update(id, d) {
        image = $6,
        "desc" = $7,
        content = $8::jsonb,
+       active = $9,
        updated_at = now()
      where id = $1
      returning *`,
@@ -104,6 +106,7 @@ async function update(id, d) {
       d.image != null ? d.image : current.image,
       d.desc != null ? d.desc : current.desc,
       JSON.stringify(Array.isArray(d.content) ? d.content : current.content),
+      typeof d.active === 'boolean' ? d.active : current.active,
     ],
   )
   return toApi(rows[0])

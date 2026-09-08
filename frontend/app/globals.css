@@ -270,8 +270,11 @@
     @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6;
   }
 
+  /* Default kicker untuk section berlatar terang — pakai teal gelap supaya
+     kontrasnya cukup (AA). Section berlatar gelap menimpanya dengan
+     `!text-gold`. */
   .section-label {
-    @apply mb-3 flex items-center gap-2.5 text-sm font-semibold uppercase text-gold;
+    @apply mb-3 flex items-center gap-2.5 text-sm font-semibold uppercase text-primary-dark;
     letter-spacing: 1.5px;
   }
 
@@ -331,11 +334,11 @@
   }
 
   .btn-coral {
-    @apply bg-coral text-white hover:-translate-y-0.5 hover:bg-coral-dark hover:shadow-[0_4px_16px_rgba(231,76,60,0.4)];
+    @apply bg-coral-dark text-white hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_4px_16px_rgba(231,76,60,0.4)];
   }
 
   .navbar-link {
-    @apply relative py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white/85 transition-colors duration-150 hover:text-white;
+    @apply relative py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/85 transition-colors duration-150 hover:text-white;
   }
 
   .navbar-link::after {
@@ -358,7 +361,7 @@
      item navigasi tetap terlihat sebagai teks biasa, tidak ada yang
      terlihat seperti tombol sementara yang lain seperti link. */
   .navbar-link-active {
-    @apply relative py-1 text-xs font-semibold uppercase tracking-[0.08em] text-gold;
+    @apply relative py-2 text-xs font-semibold uppercase tracking-[0.08em] text-gold;
   }
 
   .navbar-link-active::after {

@@ -88,9 +88,13 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
 
   // Jumlah donasi total yang terakhir dilihat — untuk mendeteksi donasi baru.
   const lastTotalRef = useRef(null)
+  // Cegah dua refresh jalan bersamaan (interval + focus + navigasi).
+  const inFlightRef = useRef(false)
 
   const refresh = useCallback(
     ({ silent = false } = {}) => {
+      if (silent && inFlightRef.current) return Promise.resolve()
+      inFlightRef.current = true
       if (!silent) setLoading(true)
       return Promise.all([listDonations(status, source, jenis), fetchStats(), fetchJenisOptions()])
         .then(([r, s, j]) => {
@@ -98,10 +102,26 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
           setStats(s)
           setJenisOptions(j)
           setError('')
-          if (typeof s?.total === 'number') lastTotalRef.current = s.total
+          if (typeof s?.total === 'number') {
+            const prev = lastTotalRef.current
+            // Toast hanya untuk penyegaran diam-diam (bukan load pertama halaman).
+            if (silent && prev != null && s.total > prev) {
+              const baru = s.total - prev
+              toast(
+                `${baru} donasi baru masuk — ${s.menunggu ?? baru} menunggu verifikasi.`,
+                { tone: 'success', duration: 6000 },
+              )
+            }
+            lastTotalRef.current = s.total
+          }
         })
-        .catch((e) => setError(e.message))
+        .then(() => true)
+        .catch((e) => {
+          setError(e.message)
+          return false
+        })
         .finally(() => {
+          inFlightRef.current = false
           if (!silent) setLoading(false)
         })
     },
@@ -109,44 +129,37 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
   )
 
   useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  // Cek berkala: kalau jumlah donasi bertambah sejak terakhir dilihat,
-  // beri tahu admin + segarkan daftar. Hanya jalan saat tab aktif.
-  useEffect(() => {
     let alive = true
-
-    const check = async () => {
-      if (document.visibilityState !== 'visible') return
-      let s
-      try {
-        s = await fetchStats()
-      } catch {
-        return
-      }
-      if (!alive || typeof s?.total !== 'number') return
-      const prev = lastTotalRef.current
-      if (prev != null && s.total > prev) {
-        const baru = s.total - prev
-        toast(
-          `${baru} donasi baru masuk — ${s.menunggu ?? baru} menunggu verifikasi.`,
-          { tone: 'success', duration: 6000 },
-        )
-        refresh({ silent: true })
-      }
-      lastTotalRef.current = s.total
-    }
-
-    const timer = setInterval(check, POLL_MS)
-    const onFocus = () => check()
-    window.addEventListener('focus', onFocus)
-    document.addEventListener('visibilitychange', onFocus)
+    let retry
+    refresh().then((ok) => {
+      // Kalau load pertama gagal (server baru nyala / sesi belum kebaca),
+      // coba lagi cepat sekali supaya daftar muncul tanpa perlu reload manual.
+      if (alive && !ok) retry = setTimeout(() => alive && refresh(), 2000)
+    })
     return () => {
       alive = false
+      clearTimeout(retry)
+    }
+  }, [refresh])
+
+  // Selalu segarkan daftar saat halaman aktif — berkala + tiap admin kembali
+  // ke tab / halaman (focus, tab kelihatan lagi, restore dari bfcache).
+  // Ini juga yang menyembuhkan kalau fetch pertama gagal sesaat, jadi admin
+  // tidak perlu hard-reload (Ctrl+Shift+R) supaya donasinya muncul.
+  useEffect(() => {
+    const sync = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+      refresh({ silent: true })
+    }
+    const timer = setInterval(sync, POLL_MS)
+    window.addEventListener('focus', sync)
+    window.addEventListener('pageshow', sync)
+    document.addEventListener('visibilitychange', sync)
+    return () => {
       clearInterval(timer)
-      window.removeEventListener('focus', onFocus)
-      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', sync)
+      window.removeEventListener('pageshow', sync)
+      document.removeEventListener('visibilitychange', sync)
     }
   }, [refresh])
 

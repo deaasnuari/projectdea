@@ -74,7 +74,7 @@ export default function ContactSection() {
 
   return (
     <>
-      <PageHeroBackground id="kontak-hero" className="pb-10 pt-32">
+      <PageHeroBackground id="kontak-hero" className="pb-10 pt-24">
         <div className="container">
           <EditableRichText
             elementKey="kontak-kami.hero.label"
