@@ -145,9 +145,22 @@ export default function AdminPesanMasukPage() {
                 <tr key={m.id} className="align-top">
                   <td className="px-4 py-3">
                     <div className="font-semibold text-navy">{m.name}</div>
-                    <a href={`mailto:${m.email}`} className="text-[11px] text-primary hover:text-primary-dark">
+                    <a href={`mailto:${m.email}`} className="block text-[11px] text-primary hover:text-primary-dark">
                       {m.email}
                     </a>
+                    {m.phone && (
+                      <a href={`tel:${m.phone}`} className="block text-[11px] text-gray-500 hover:text-primary">
+                        {m.phone}
+                      </a>
+                    )}
+                    {m.consent && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-green-50 px-1.5 py-0.5 text-[10px] font-semibold text-green-700">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="9" height="9">
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                        Setuju PDP
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">
                     <p className="max-w-[420px] whitespace-pre-wrap">{m.message}</p>
@@ -197,9 +210,22 @@ export default function AdminPesanMasukPage() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-semibold text-navy">{m.name}</p>
-                <a href={`mailto:${m.email}`} className="text-[11px] text-primary">
+                <a href={`mailto:${m.email}`} className="block text-[11px] text-primary">
                   {m.email}
                 </a>
+                {m.phone && (
+                  <a href={`tel:${m.phone}`} className="block text-[11px] text-gray-500">
+                    {m.phone}
+                  </a>
+                )}
+                {m.consent && (
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-green-50 px-1.5 py-0.5 text-[10px] font-semibold text-green-700">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="9" height="9">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    Setuju PDP
+                  </span>
+                )}
               </div>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[m.status]}`}

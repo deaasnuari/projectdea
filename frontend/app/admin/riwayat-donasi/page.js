@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatRp } from '@/services/format'
 import { useDonations } from '@/services/donations'
 import { toast, confirmDialog } from '@/components/ui/feedback'
@@ -72,7 +72,52 @@ function fmtDate(iso) {
 export default function AdminRiwayatDonasiPage() {
   const [tab, setTab] = useState('semua')
   const [sourceTab, setSourceTab] = useState('semua')
-  const { rows, stats, loading, error, changeStatus, removeDonation } = useDonations(tab, sourceTab)
+  const { rows, stats, loading, error, changeStatus, removeDonation, removeManyDonations } =
+    useDonations(tab, sourceTab)
+
+  // Pilihan baris untuk hapus massal.
+  const [selected, setSelected] = useState(() => new Set())
+  const [bulkBusy, setBulkBusy] = useState(false)
+  useEffect(() => setSelected(new Set()), [tab, sourceTab])
+  // Buang id yang tidak ada lagi di rows (mis. setelah refresh).
+  useEffect(() => {
+    setSelected((prev) => {
+      const ids = new Set(rows.map((r) => r.id))
+      const next = new Set([...prev].filter((id) => ids.has(id)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [rows])
+
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id))
+  const toggleOne = (id) =>
+    setSelected((prev) => {
+      const n = new Set(prev)
+      n.has(id) ? n.delete(id) : n.add(id)
+      return n
+    })
+  const toggleAll = () =>
+    setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))
+
+  const handleBulkDelete = async () => {
+    const ids = [...selected]
+    if (!ids.length) return
+    const ok = await confirmDialog({
+      title: `Hapus ${ids.length} donasi?`,
+      message: `${ids.length} donasi terpilih akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`,
+      confirmLabel: `Hapus ${ids.length} donasi`,
+    })
+    if (!ok) return
+    setBulkBusy(true)
+    try {
+      const res = await removeManyDonations(ids)
+      setSelected(new Set())
+      toast(`${res?.deleted ?? ids.length} donasi dihapus.`, { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal menghapus donasi terpilih', { tone: 'error' })
+    } finally {
+      setBulkBusy(false)
+    }
+  }
 
   const handleDelete = async (d) => {
     const nama = d.anonymous ? 'Anonim' : d.donor_name
@@ -265,12 +310,45 @@ export default function AdminRiwayatDonasiPage() {
         </p>
       )}
 
+      {/* Aksi massal — muncul saat ada baris terpilih */}
+      {selected.size > 0 && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-coral/30 bg-coral/5 px-4 py-2.5">
+          <span className="text-sm font-semibold text-navy">{selected.size} donasi dipilih</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSelected(new Set())}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-50"
+            >
+              Batal pilih
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              disabled={bulkBusy}
+              className="rounded-lg bg-coral px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+            >
+              {bulkBusy ? 'Menghapus…' : `Hapus Terpilih (${selected.size})`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Tabel — laptop & iPad landscape */}
       <div className="card hidden overflow-hidden md:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] border-collapse text-left text-[13px]">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">
+                <th className="px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    aria-label="Pilih semua"
+                    checked={allChecked}
+                    onChange={toggleAll}
+                    className="h-4 w-4 accent-primary"
+                  />
+                </th>
                 <th className="px-4 py-2.5 font-semibold">Donatur</th>
                 <th className="px-4 py-2.5 font-semibold">Sumber</th>
                 <th className="px-4 py-2.5 font-semibold">Jenis</th>
@@ -285,7 +363,21 @@ export default function AdminRiwayatDonasiPage() {
                 const src = SOURCE_META[d.source] || SOURCE_META.umum
                 const t = fmtDate(d.created_at)
                 return (
-                  <tr key={d.id} className="align-top transition-colors hover:bg-gray-50/60">
+                  <tr
+                    key={d.id}
+                    className={`align-top transition-colors hover:bg-gray-50/60 ${
+                      selected.has(d.id) ? 'bg-primary/[0.04]' : ''
+                    }`}
+                  >
+                    <td className="px-3 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`Pilih donasi ${d.anonymous ? 'Anonim' : d.donor_name}`}
+                        checked={selected.has(d.id)}
+                        onChange={() => toggleOne(d.id)}
+                        className="h-4 w-4 accent-primary"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold text-navy">{d.anonymous ? 'Anonim' : d.donor_name}</div>
                       {d.note && (
@@ -324,14 +416,14 @@ export default function AdminRiwayatDonasiPage() {
               })}
               {!loading && rows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
                     Belum ada donasi{tab !== 'semua' ? ` berstatus "${tab}"` : ''}.
                   </td>
                 </tr>
               )}
               {loading && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
                     Memuat…
                   </td>
                 </tr>
@@ -343,6 +435,17 @@ export default function AdminRiwayatDonasiPage() {
 
       {/* Kartu — HP & iPad portrait */}
       <div className="flex flex-col gap-3 md:hidden">
+        {rows.length > 0 && (
+          <label className="flex items-center gap-2 px-1 text-xs font-semibold text-gray-500">
+            <input
+              type="checkbox"
+              checked={allChecked}
+              onChange={toggleAll}
+              className="h-4 w-4 accent-primary"
+            />
+            Pilih semua ({rows.length})
+          </label>
+        )}
         {loading && (
           <div className="card p-6 text-center text-sm text-gray-400">Memuat…</div>
         )}
@@ -355,11 +458,23 @@ export default function AdminRiwayatDonasiPage() {
           const src = SOURCE_META[d.source] || SOURCE_META.umum
           const t = fmtDate(d.created_at)
           return (
-            <div key={d.id} className="card p-4">
+            <div
+              key={d.id}
+              className={`card p-4 ${selected.has(d.id) ? 'ring-1 ring-primary/40' : ''}`}
+            >
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-semibold text-navy">{d.anonymous ? 'Anonim' : d.donor_name}</p>
-                </div>
+                <label className="flex min-w-0 items-start gap-2">
+                  <input
+                    type="checkbox"
+                    aria-label={`Pilih donasi ${d.anonymous ? 'Anonim' : d.donor_name}`}
+                    checked={selected.has(d.id)}
+                    onChange={() => toggleOne(d.id)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                  />
+                  <span className="min-w-0 font-semibold text-navy">
+                    {d.anonymous ? 'Anonim' : d.donor_name}
+                  </span>
+                </label>
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[d.status]}`}
                 >

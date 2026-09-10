@@ -76,6 +76,20 @@ export async function deleteDonation(id) {
   return res.json()
 }
 
+export async function bulkDeleteDonations(ids) {
+  const res = await fetch(`${BASE}/api/donations/bulk-delete`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids }),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || `bulk-delete → ${res.status}`)
+  }
+  return res.json()
+}
+
 export const proofUrl = (id) => `${BASE}/api/donations/${id}/proof`
 
 // Hook untuk halaman admin Riwayat Donasi.
@@ -182,5 +196,25 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
     [refresh],
   )
 
-  return { rows, stats, jenisOptions, loading, error, refresh, changeStatus, removeDonation }
+  const removeManyDonations = useCallback(
+    async (ids) => {
+      const res = await bulkDeleteDonations(ids)
+      notifyProgramsChanged()
+      refresh()
+      return res
+    },
+    [refresh],
+  )
+
+  return {
+    rows,
+    stats,
+    jenisOptions,
+    loading,
+    error,
+    refresh,
+    changeStatus,
+    removeDonation,
+    removeManyDonations,
+  }
 }

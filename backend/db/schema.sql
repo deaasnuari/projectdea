@@ -249,6 +249,11 @@ create table if not exists contact_messages (
   created_at  timestamptz not null default now()
 );
 
+-- No. HP pengirim + bukti persetujuan pelindungan data pribadi (UU No. 27
+-- Tahun 2022). Aman dijalankan berulang untuk DB lama.
+alter table contact_messages add column if not exists phone text not null default '';
+alter table contact_messages add column if not exists consent_pdp boolean not null default false;
+
 create index if not exists contact_messages_created_idx on contact_messages (created_at desc);
 
 -- Akun admin panel. Login mengecek tabel ini dulu; kalau username tidak ada
@@ -290,4 +295,57 @@ create table if not exists text_elements (
   updated_at      timestamptz not null default now()
 );
 
+-- Geser posisi elemen teks (px, boleh negatif) — admin bisa menata letak
+-- teks dengan drag di halaman "Konten Kami Peduli". Aman untuk DB lama.
+alter table text_elements add column if not exists offset_x text;
+alter table text_elements add column if not exists offset_y text;
+-- Panjang / lebar maksimum blok teks (mis. "520px", "60%").
+alter table text_elements add column if not exists box_width text;
+
 create index if not exists text_elements_page_idx on text_elements (page);
+
+-- =====================================================================
+-- Manajemen Menu / Navbar Dinamis + halaman bertemplate (CMS sederhana).
+-- Navbar frontend membaca tabel `menus`; admin bisa tambah/edit/urutkan/
+-- sembunyikan/hapus menu & submenu tanpa ubah kode.
+--   template_type: system  → link ke halaman existing (system_path), tak bisa dihapus
+--                  text     → halaman teks biasa (rich text)
+--                  blog     → halaman artikel tunggal   (Fase 2)
+--                  program  → halaman program            (Fase 2)
+-- =====================================================================
+create table if not exists menus (
+  id            bigserial primary key,
+  name          text not null,
+  slug          text not null unique,
+  template_type text not null default 'text',
+  system_path   text,
+  parent_id     bigint references menus(id) on delete set null,
+  sort_order    integer not null default 0,
+  is_visible    boolean not null default true,
+  open_new_tab  boolean not null default false,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists menus_sort_idx on menus (parent_id, sort_order);
+
+-- Konten halaman per menu (template text/blog/program). `data` jsonb menyimpan
+-- field khusus tiap template supaya fleksibel tanpa migrasi tiap nambah field.
+create table if not exists menu_pages (
+  menu_id     bigint primary key references menus(id) on delete cascade,
+  title       text not null default '',
+  hero_image  text,
+  body_html   text not null default '',
+  data        jsonb not null default '{}'::jsonb,
+  status      text not null default 'draft',
+  updated_at  timestamptz not null default now()
+);
+
+-- Seed 5 menu "system" = navbar existing. Aman dijalankan berulang —
+-- baris yang sudah ada tidak disentuh (on conflict do nothing).
+insert into menus (name, slug, template_type, system_path, sort_order) values
+  ('Kami Peduli',    'kami-peduli',    'system', '/donatur#programs',      1),
+  ('Blog',           'blog',           'system', '/donatur/blog',          2),
+  ('Tentang Kami',   'tentang-kami',   'system', '/donatur/tentang-kami',  3),
+  ('Daftar Program', 'daftar-program', 'system', '/donatur/program',       4),
+  ('Kontak Kami',    'kontak-kami',    'system', '/donatur/kontak-kami',   5)
+on conflict (slug) do nothing;

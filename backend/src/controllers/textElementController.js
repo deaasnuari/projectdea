@@ -40,6 +40,9 @@ async function update(req, res, next) {
       textAlign: b.textAlign,
       lineHeight: b.lineHeight,
       letterSpacing: b.letterSpacing,
+      offsetX: b.offsetX,
+      offsetY: b.offsetY,
+      boxWidth: b.boxWidth,
     })
     res.json(saved)
   } catch (err) {

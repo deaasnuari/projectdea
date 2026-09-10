@@ -16,6 +16,7 @@ const aboutPageRoutes = require('./aboutPage.routes')
 const contactPageRoutes = require('./contactPage.routes')
 const contactMessageRoutes = require('./contactMessages.routes')
 const textElementRoutes = require('./textElements.routes')
+const menuRoutes = require('./menus.routes')
 
 const router = Router()
 
@@ -37,5 +38,6 @@ router.use('/about', aboutPageRoutes)
 router.use('/contact', contactPageRoutes)
 router.use('/contact-messages', contactMessageRoutes)
 router.use('/text-elements', textElementRoutes)
+router.use('/menus', menuRoutes)
 
 module.exports = router

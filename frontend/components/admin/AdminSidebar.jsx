@@ -52,6 +52,16 @@ const NAV_SECTIONS = [
     label: 'Konten',
     items: [
       {
+        href: '/admin/manajemen-menu',
+        label: 'Manajemen Menu',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+            <path d="M4 6h16M4 12h16M4 18h10" />
+            <circle cx="19" cy="18" r="2" />
+          </svg>
+        ),
+      },
+      {
         href: '/admin/konten-kami-peduli',
         label: 'Konten Kami Peduli',
         icon: (

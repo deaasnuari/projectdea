@@ -12,6 +12,9 @@ const STYLE_COLUMNS = {
   textAlign: 'text_align',
   lineHeight: 'line_height',
   letterSpacing: 'letter_spacing',
+  offsetX: 'offset_x',
+  offsetY: 'offset_y',
+  boxWidth: 'box_width',
 }
 
 function toApi(row) {

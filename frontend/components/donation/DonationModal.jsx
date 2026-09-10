@@ -206,8 +206,28 @@ export default function DonationModal({
   initialJenisId = null,
   scope = 'tentang',
   sourceLabel = null,
+  // Override opsional — dipakai halaman Program bikinan Manajemen Menu yang
+  // punya daftar rekening & jenis sendiri (data.banks). Kalau tidak diisi,
+  // modal pakai rekening/jenis global dari useDonationMethods(scope).
+  banksOverride = null,
+  jenisOverride = null,
 }) {
-  const { jenisList, banks } = useDonationMethods(scope)
+  const methods = useDonationMethods(scope)
+  const jenisList =
+    Array.isArray(jenisOverride) && jenisOverride.length ? jenisOverride : methods.jenisList
+  const banks =
+    Array.isArray(banksOverride) && banksOverride.length
+      ? banksOverride.map((b, i) => ({
+          id: `ov-${i}`,
+          name: b.name || `Bank ${i + 1}`,
+          short:
+            b.short ||
+            (b.name || '?').replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase(),
+          noRek: b.noRek || '',
+          owner: b.owner || '',
+          badgeClass: b.badgeClass || 'bg-navy',
+        }))
+      : methods.banks
 
   const [step, setStep] = useState(1)
   const [jenisId, setJenisId] = useState(initialJenisId)
@@ -654,9 +674,9 @@ export default function DonationModal({
               </div>
               <div className="flex items-start justify-between gap-4">
                 <span className="shrink-0 text-gray-500">Status</span>
-                <strong className="inline-flex items-center gap-1.5 text-gold-dark">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-                  Menunggu Verifikasi
+                <strong className="inline-flex items-center gap-1.5 text-green-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-600" />
+                  Terkirim
                 </strong>
               </div>
             </div>

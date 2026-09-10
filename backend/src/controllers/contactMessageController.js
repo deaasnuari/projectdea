@@ -6,13 +6,18 @@ async function create(req, res, next) {
     const b = req.body || {}
     const name = String(b.name || '').trim()
     const email = String(b.email || '').trim()
+    const phone = String(b.phone || '').trim()
     const message = String(b.message || '').trim()
-    if (!name || !email || !message) {
-      return res.status(400).json({ error: 'Nama, email, dan pesan wajib diisi' })
+    if (!name || !email || !phone || !message) {
+      return res.status(400).json({ error: 'Nama, email, no. HP, dan pesan wajib diisi' })
     }
     if (message.length > 5000) return res.status(400).json({ error: 'Pesan terlalu panjang' })
+    // Wajib menyetujui pelindungan data pribadi (UU No. 27 Tahun 2022) dulu.
+    if (b.consent !== true) {
+      return res.status(400).json({ error: 'Persetujuan pelindungan data pribadi wajib diberikan' })
+    }
 
-    const row = await ContactMessage.create({ name, email, message })
+    const row = await ContactMessage.create({ name, email, phone, message, consent: true })
     res.status(201).json({ id: row.id, created_at: row.created_at })
   } catch (err) {
     next(err)

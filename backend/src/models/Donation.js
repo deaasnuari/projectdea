@@ -149,6 +149,17 @@ async function remove(id) {
   return true
 }
 
+// Hapus banyak donasi sekaligus (dipilih dari daftar). Tetap lewat remove()
+// per-id supaya kontribusi program yang sudah terverifikasi ikut dikembalikan.
+async function removeMany(ids = []) {
+  const clean = [...new Set(ids.map((n) => Number(n)).filter(Number.isFinite))]
+  let deleted = 0
+  for (const id of clean) {
+    if (await remove(id)) deleted += 1
+  }
+  return deleted
+}
+
 async function stats() {
   const { rows } = await query(`
     select
@@ -173,4 +184,4 @@ async function stats() {
   return rows[0]
 }
 
-module.exports = { STATUSES, SOURCES, create, list, jenisOptions, findProof, updateStatus, remove, stats }
+module.exports = { STATUSES, SOURCES, create, list, jenisOptions, findProof, updateStatus, remove, removeMany, stats }

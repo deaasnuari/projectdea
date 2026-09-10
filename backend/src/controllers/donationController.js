@@ -103,4 +103,16 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, list, stats, jenisOptions, proof, updateStatus, remove }
+// POST /api/donations/bulk-delete  (admin)  body: { ids: [1,2,3] }
+async function removeBulk(req, res, next) {
+  try {
+    const ids = Array.isArray(req.body?.ids) ? req.body.ids : []
+    if (ids.length === 0) return res.status(400).json({ error: 'Tidak ada donasi yang dipilih' })
+    const deleted = await Donation.removeMany(ids)
+    res.json({ ok: true, deleted })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, list, stats, jenisOptions, proof, updateStatus, remove, removeBulk }

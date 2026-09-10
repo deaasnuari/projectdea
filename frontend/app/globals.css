@@ -410,6 +410,30 @@
     background: theme('colors.primary.dark');
   }
 
+  /* Gagang ubah lebar kotak teks — nempel di tepi kanan elemen yang diedit,
+     muncul jelas saat elemen di-hover. */
+  .inline-edit-resize {
+    position: absolute;
+    right: -7px;
+    top: 50%;
+    width: 12px;
+    height: 30px;
+    transform: translateY(-50%);
+    border-radius: 6px;
+    background: theme('colors.primary.DEFAULT');
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(6, 30, 40, 0.4);
+    cursor: ew-resize;
+    opacity: 0.35;
+    transition: opacity 150ms ease;
+    touch-action: none;
+    z-index: 5;
+  }
+  .inline-editable:hover .inline-edit-resize,
+  .inline-edit-resize:hover {
+    opacity: 1;
+  }
+
   .inline-edit-box {
     display: inline-flex;
     flex-direction: column;
@@ -580,4 +604,104 @@
     background: theme('colors.navy.DEFAULT');
     box-shadow: 0 10px 28px rgba(6, 30, 40, 0.4);
   }
+}
+
+/* ============================================================
+   Isi halaman bertemplate (output rich text TipTap) — dipakai
+   di editor admin & di halaman publik /donatur/[slug].
+   ============================================================ */
+.rich-content {
+  color: theme('colors.gray.700');
+  line-height: 1.8;
+  font-size: 1rem;
+}
+.rich-content > * + * {
+  margin-top: 1rem;
+}
+.rich-content h2 {
+  @apply font-heading text-2xl font-bold text-navy;
+  margin-top: 1.75rem;
+}
+.rich-content h3 {
+  @apply font-heading text-xl font-bold text-navy;
+  margin-top: 1.5rem;
+}
+.rich-content h4 {
+  @apply font-heading text-lg font-bold text-navy;
+  margin-top: 1.25rem;
+}
+.rich-content p {
+  margin-top: 0.9rem;
+}
+.rich-content a {
+  color: theme('colors.primary.DEFAULT');
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rich-content a:hover {
+  color: theme('colors.primary.dark');
+}
+.rich-content ul,
+.rich-content ol {
+  padding-left: 1.5rem;
+  margin-top: 0.9rem;
+}
+.rich-content ul {
+  list-style: disc;
+}
+.rich-content ol {
+  list-style: decimal;
+}
+.rich-content li {
+  margin-top: 0.35rem;
+}
+.rich-content li > ul,
+.rich-content li > ol {
+  margin-top: 0.35rem;
+}
+.rich-content blockquote {
+  border-left: 3px solid theme('colors.gold.DEFAULT');
+  padding-left: 1rem;
+  color: theme('colors.gray.500');
+  font-style: italic;
+}
+.rich-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1.25rem 0;
+}
+.rich-content hr {
+  border: 0;
+  border-top: 1px solid theme('colors.gray.200');
+  margin: 1.75rem 0;
+}
+.rich-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.925rem;
+}
+.rich-content th,
+.rich-content td {
+  border: 1px solid theme('colors.gray.200');
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.rich-content th {
+  background: theme('colors.gray.50');
+  font-weight: 700;
+  color: theme('colors.navy.DEFAULT');
+}
+.rich-content:focus {
+  outline: none;
+}
+/* placeholder editor kosong */
+.rich-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: theme('colors.gray.400');
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

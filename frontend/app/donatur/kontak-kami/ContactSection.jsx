@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableText from '@/components/inline-edit/EditableText'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
@@ -8,6 +8,9 @@ import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKontakContent, kontakHref } from './kontakData'
 import { sendContactMessage } from '@/services/contactMessages'
+
+// Tautan resmi UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (BPK).
+const PDP_URL = 'https://peraturan.bpk.go.id/Details/229798/uu-no-27-tahun-2022'
 
 const ICONS = {
   alamat: (
@@ -40,8 +43,145 @@ const ICONS = {
 const inputClass =
   'w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 outline-none transition-colors focus:border-primary focus:bg-white'
 
+function ShieldIcon({ className = '', size = 20 }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  )
+}
+
+// Pop-up persetujuan pelindungan data pribadi — tampil saat pengunjung
+// hendak menulis pesan. Isi pesan baru bisa ditulis setelah menekan "Setuju".
+function ConsentModal({ open, onClose, onAgree }) {
+  const [checked, setChecked] = useState(false)
+  useEffect(() => {
+    if (!open) setChecked(false)
+  }, [open])
+  if (!open) return null
+  return (
+    <div
+      className="fixed inset-0 z-[2000] flex items-end justify-center bg-navy-dark/70 p-3 backdrop-blur-sm sm:items-center sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="no-scrollbar max-h-[90vh] w-full max-w-[440px] animate-fade-in-up overflow-y-auto rounded-2xl bg-white p-6 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)]"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pdp-title"
+      >
+        <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary-dark">
+          <ShieldIcon size={22} />
+        </span>
+        <h3 id="pdp-title" className="font-heading text-lg font-bold text-navy">
+          Pelindungan Data Pribadi
+        </h3>
+        <p className="mt-1.5 text-[13px] leading-[1.7] text-gray-600">
+          Sebelum mengirim pesan, kami perlu persetujuanmu. Data yang kamu isi
+          (<b>nama</b>, <b>email</b>, <b>no. HP</b>, dan <b>isi pesan</b>) kami kumpulkan
+          <b> hanya</b> untuk menindaklanjuti pesan ini, disimpan selama diperlukan,
+          lalu dihapus.
+        </p>
+
+        {/* Penjelasan singkat isi UU No. 27 Tahun 2022 */}
+        <div className="mt-3 rounded-xl bg-gray-50 p-3.5">
+          <p className="text-[12px] font-bold text-navy">
+            Apa itu UU No. 27 Tahun 2022?
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-gray-600">
+            Undang-Undang Pelindungan Data Pribadi (UU PDP). Isinya mewajibkan
+            setiap pihak yang mengumpulkan data pribadi — termasuk kami — untuk
+            memprosesnya secara <b>sah, seperlunya, transparan, dan aman</b>,
+            wajib menjaga kerahasiaannya, dan wajib memberi tahu bila terjadi
+            kebocoran data.
+          </p>
+          <p className="mt-2 text-[12px] font-semibold text-navy">
+            Sebagai pemilik data, kamu berhak:
+          </p>
+          <ul className="mt-1 flex flex-col gap-1.5 text-[12px] leading-snug text-gray-600">
+            {[
+              'Mengetahui tujuan & cara datamu digunakan.',
+              'Meminta akses dan salinan datamu.',
+              'Memperbaiki data yang keliru atau tidak lengkap.',
+              'Meminta penghapusan data dan menarik persetujuan kapan saja.',
+              'Menuntut ganti rugi bila datamu disalahgunakan.',
+            ].map((t) => (
+              <li key={t} className="flex items-start gap-2">
+                <ShieldIcon size={13} className="mt-0.5 shrink-0 text-primary" />
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="mt-3 text-[12px] leading-relaxed text-gray-500">
+          Teks lengkap:{' '}
+          <a
+            href={PDP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary underline underline-offset-2 hover:text-primary-dark"
+          >
+            UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi
+          </a>
+          .
+        </p>
+
+        <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-[12px] leading-snug text-gray-700">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => setChecked(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+          />
+          <span>
+            Saya telah membaca dan <b>menyetujui</b> pengumpulan &amp; pemrosesan
+            data pribadi saya sesuai UU No. 27 Tahun 2022.
+          </span>
+        </label>
+
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex flex-1 items-center justify-center rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-500 transition-all hover:border-gray-300 hover:bg-gray-50"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            disabled={!checked}
+            onClick={() => {
+              onAgree()
+              setChecked(false)
+            }}
+            className="flex flex-[1.4] items-center justify-center gap-1.5 rounded-xl bg-primary py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+          >
+            <ShieldIcon size={15} />
+            Setuju &amp; Lanjutkan
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ContactSection() {
-  const [form, setForm] = useState({ nama: '', email: '', pesan: '' })
+  const [form, setForm] = useState({ nama: '', email: '', noHp: '', pesan: '' })
+  const [consent, setConsent] = useState(false)
+  const [consentOpen, setConsentOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
@@ -54,17 +194,31 @@ export default function ContactSection() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  const resetForm = () => {
+    setForm({ nama: '', email: '', noHp: '', pesan: '' })
+    setConsent(false)
+  }
+
   // Pesan dari pengunjung disimpan ke backend dan tampil di menu admin
-  
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (sending) return
+    if (!consent) {
+      setConsentOpen(true)
+      return
+    }
     setSending(true)
     setSendError('')
     try {
-      await sendContactMessage({ name: form.nama, email: form.email, message: form.pesan })
+      await sendContactMessage({
+        name: form.nama,
+        email: form.email,
+        phone: form.noHp,
+        message: form.pesan,
+        consent: true,
+      })
       setSent(true)
-      setForm({ nama: '', email: '', pesan: '' })
+      resetForm()
     } catch (err) {
       setSendError(err.message || 'Gagal mengirim pesan. Coba lagi.')
     } finally {
@@ -203,86 +357,156 @@ export default function ContactSection() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
-              <div>
-                <label htmlFor="nama" className="mb-1 block text-xs font-semibold text-gray-500">
-                  Nama Lengkap
-                </label>
-                <input
-                  id="nama"
-                  name="nama"
-                  type="text"
-                  required
-                  placeholder="Masukkan nama kamu"
-                  value={form.nama}
-                  onChange={handleChange}
-                  className={inputClass}
-                />
-              </div>
+                <div>
+                  <label htmlFor="nama" className="mb-1 block text-xs font-semibold text-gray-500">
+                    Nama Lengkap
+                  </label>
+                  <input
+                    id="nama"
+                    name="nama"
+                    type="text"
+                    required
+                    placeholder="Masukkan nama kamu"
+                    value={form.nama}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
 
-              <div>
-                <label htmlFor="email" className="mb-1 block text-xs font-semibold text-gray-500">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="nama@email.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  className={inputClass}
-                />
-              </div>
+                <div>
+                  <label htmlFor="email" className="mb-1 block text-xs font-semibold text-gray-500">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="nama@email.com"
+                    value={form.email}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
 
-              <div>
-                <label htmlFor="pesan" className="mb-1 block text-xs font-semibold text-gray-500">
-                  Pesan
-                </label>
-                <textarea
-                  id="pesan"
-                  name="pesan"
-                  required
-                  rows={2}
-                  placeholder="Tulis pesan atau pertanyaan kamu di sini"
-                  value={form.pesan}
-                  onChange={handleChange}
-                  className={`${inputClass} resize-none`}
-                />
-              </div>
+                <div>
+                  <label htmlFor="noHp" className="mb-1 block text-xs font-semibold text-gray-500">
+                    No. HP
+                  </label>
+                  <input
+                    id="noHp"
+                    name="noHp"
+                    type="tel"
+                    required
+                    inputMode="tel"
+                    pattern="[0-9+\-\s]{8,20}"
+                    placeholder="08xxxxxxxxxx"
+                    value={form.noHp}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
 
-              {sendError && <p className="text-xs font-semibold text-coral">{sendError}</p>}
+                {/* Isi pesan — terkunci sampai pengunjung menyetujui
+                    pelindungan data pribadi lewat pop-up. */}
+                <div>
+                  <label htmlFor="pesan" className="mb-1 block text-xs font-semibold text-gray-500">
+                    Pesan
+                  </label>
 
-              <button
-                type="submit"
-                disabled={sending}
-                className="btn btn-primary w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {sending ? (
-                  'Mengirim…'
-                ) : (
-                  <>
-                    <EditableRichText
-                      elementKey="kontak-kami.form.button_label"
-                      section="form"
-                      defaultText={content.form.buttonLabel}
-                      label="teks tombol kirim"
+                  {consent ? (
+                    <p className="mb-1.5 flex items-center gap-1.5 rounded-lg bg-green-50 px-2.5 py-1.5 text-[11px] font-semibold text-green-700">
+                      <ShieldIcon size={13} />
+                      Persetujuan pelindungan data diberikan — datamu aman sesuai UU No. 27/2022.
+                    </p>
+                  ) : (
+                    <p className="mb-1.5 flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-700">
+                      <ShieldIcon size={13} />
+                      Setujui pelindungan data pribadi dulu untuk menulis pesan.
+                    </p>
+                  )}
+
+                  <div className="relative">
+                    <textarea
+                      id="pesan"
+                      name="pesan"
+                      required
+                      rows={3}
+                      disabled={!consent}
+                      placeholder={
+                        consent
+                          ? 'Tulis pesan atau pertanyaan kamu di sini'
+                          : 'Klik di sini untuk menyetujui pelindungan data…'
+                      }
+                      value={form.pesan}
+                      onChange={handleChange}
+                      className={`${inputClass} resize-none disabled:cursor-pointer disabled:bg-gray-100 disabled:text-gray-400`}
                     />
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                      <path
-                        fillRule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
+                    {!consent && (
+                      <button
+                        type="button"
+                        aria-label="Buka persetujuan pelindungan data pribadi"
+                        onClick={() => setConsentOpen(true)}
+                        className="absolute inset-0 h-full w-full rounded-lg"
                       />
-                    </svg>
-                  </>
-                )}
-              </button>
-            </form>
+                    )}
+                  </div>
+                </div>
+
+                {sendError && <p className="text-xs font-semibold text-coral">{sendError}</p>}
+
+                <button
+                  type="submit"
+                  disabled={sending || !consent}
+                  className="btn btn-primary w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {sending ? (
+                    'Mengirim…'
+                  ) : (
+                    <>
+                      <EditableRichText
+                        elementKey="kontak-kami.form.button_label"
+                        section="form"
+                        defaultText={content.form.buttonLabel}
+                        label="teks tombol kirim"
+                      />
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                        <path
+                          fillRule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
+
+                <p className="mt-0.5 text-center text-[10px] leading-relaxed text-gray-400">
+                  Dengan mengirim, kamu menyetujui pemrosesan data sesuai{' '}
+                  <a
+                    href={PDP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-gray-500 underline underline-offset-2 hover:text-primary"
+                  >
+                    UU No. 27 Tahun 2022
+                  </a>
+                  .
+                </p>
+              </form>
             )}
           </div>
         </div>
       </section>
+
+      <ConsentModal
+        open={consentOpen}
+        onClose={() => setConsentOpen(false)}
+        onAgree={() => {
+          setConsent(true)
+          setConsentOpen(false)
+        }}
+      />
     </>
   )
 }

@@ -16,9 +16,9 @@ export default function AdminKontenKamiPeduliPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
         <h1 className="font-heading text-xl font-bold text-navy">Konten &quot;Kami Peduli&quot;</h1>
         <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
-          Edit konten langsung pada pratinjau di bawah — klik ✏️ untuk mengubah teks &amp; tampilannya
-          (font, ukuran, warna, dll). Perubahan tersimpan otomatis ke database. Video & galeri diatur di
-          menu Dokumentasi.
+          Edit konten langsung pada pratinjau di bawah — <b>klik</b> ✏️ untuk mengubah teks &amp;
+          tampilannya (font, ukuran, warna, dll), atau <b>tarik/geser</b> teksnya untuk menata letak.
+          Perubahan tersimpan otomatis ke database. Video &amp; galeri diatur di menu Dokumentasi.
         </p>
       </div>
 

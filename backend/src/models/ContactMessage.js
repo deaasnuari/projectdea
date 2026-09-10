@@ -8,7 +8,9 @@ function toApi(row) {
     id: row.id,
     name: row.name || '',
     email: row.email || '',
+    phone: row.phone || '',
     message: row.message || '',
+    consent: row.consent_pdp === true,
     status: row.status,
     created_at: row.created_at,
   }
@@ -16,10 +18,16 @@ function toApi(row) {
 
 async function create(d) {
   const { rows } = await query(
-    `insert into contact_messages (name, email, message)
-     values ($1, $2, $3)
+    `insert into contact_messages (name, email, phone, message, consent_pdp)
+     values ($1, $2, $3, $4, $5)
      returning *`,
-    [String(d.name || '').trim(), String(d.email || '').trim(), String(d.message || '').trim()],
+    [
+      String(d.name || '').trim(),
+      String(d.email || '').trim(),
+      String(d.phone || '').trim(),
+      String(d.message || '').trim(),
+      d.consent === true,
+    ],
   )
   return toApi(rows[0])
 }
