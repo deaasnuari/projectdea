@@ -3,12 +3,15 @@
 import { useState } from 'react'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import DonationModal from '@/components/donation/DonationModal'
+import { normalizeHeroSize } from '@/services/heroSize'
 
 // Template "Program" — halaman program/kegiatan. Mengikuti gaya kartu/detail
 // program yang sudah dipakai di situs (ProgramDetailSection sebagai acuan).
 export default function ProgramTemplateView({ menu, page, isPreview }) {
   const d = page?.data || {}
   const title = page?.title?.trim() || menu?.name || ''
+  const heroSize = normalizeHeroSize(d.heroSize)
+  const resized = heroSize < 100
   const gallery = Array.isArray(d.gallery) ? d.gallery : []
   const banks = (Array.isArray(d.banks) ? d.banks : []).filter(
     (b) => (b.name || '').trim() || (b.noRek || '').trim(),
@@ -31,9 +34,18 @@ export default function ProgramTemplateView({ menu, page, isPreview }) {
               </span>
             )}
             <article className="overflow-hidden rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_24px_60px_-24px_rgba(6,30,40,0.4)]">
-              <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-primary/5">
+              <div
+                className={`relative flex items-center justify-center overflow-hidden bg-primary/5 ${
+                  page?.heroImage ? (resized ? 'py-8' : '') : 'aspect-[16/9]'
+                }`}
+              >
                 {page?.heroImage ? (
-                  <img src={page.heroImage} alt={title} className="absolute inset-0 h-full w-full object-cover" />
+                  <img
+                    src={page.heroImage}
+                    alt={title}
+                    style={{ width: `${heroSize}%` }}
+                    className={`block h-auto ${resized ? 'rounded-lg' : ''}`}
+                  />
                 ) : (
                   <span className="text-6xl">🤝</span>
                 )}

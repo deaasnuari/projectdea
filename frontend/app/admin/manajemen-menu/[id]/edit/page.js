@@ -9,6 +9,8 @@ import { uploadImage } from '@/services/imageFile'
 import { fetchMenu, saveMenuPage } from '@/services/menus'
 import { fetchBankAccounts } from '@/services/bankAccounts'
 import { toast } from '@/components/ui/feedback'
+import ResizableImage from '@/components/admin/ResizableImage'
+import { normalizeHeroSize } from '@/services/heroSize'
 
 const TEMPLATE_LABEL = { text: 'Teks Biasa', blog: 'Blog', program: 'Program' }
 
@@ -49,6 +51,7 @@ export default function EditMenuContentPage() {
   }, [id])
 
   const setD = (patch) => setData((d) => ({ ...d, ...patch }))
+  const heroSize = normalizeHeroSize(data.heroSize)
 
   const persist = async (status) => {
     if (busy) return
@@ -172,9 +175,13 @@ export default function EditMenuContentPage() {
           <input type="file" accept="image/*" onChange={onHeroFile} className={fileInputClass} />
           {imgBusy && <p className="mt-1 text-xs text-primary">Mengunggah…</p>}
           {heroImage && (
-            <div className="mt-2 flex items-center gap-3">
-              <img src={heroImage} alt="" className="h-20 w-32 rounded-lg border border-gray-100 object-cover" />
-              <button type="button" onClick={() => setHeroImage('')} className="text-xs font-semibold text-coral hover:text-coral-dark">
+            <div className="mt-3 flex flex-col gap-2">
+              <ResizableImage src={heroImage} size={heroSize} onChange={(v) => setD({ heroSize: v })} />
+              <button
+                type="button"
+                onClick={() => setHeroImage('')}
+                className="self-start text-xs font-semibold text-coral hover:text-coral-dark"
+              >
                 Hapus gambar
               </button>
             </div>

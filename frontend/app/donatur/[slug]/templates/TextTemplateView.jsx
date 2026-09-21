@@ -1,6 +1,7 @@
 'use client'
 
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
+import { normalizeHeroSize } from '@/services/heroSize'
 
 // Template "Teks Biasa" — judul + gambar utama (opsional) + isi rich text.
 export default function TextTemplateView({ menu, page, isPreview }) {
@@ -28,7 +29,8 @@ export default function TextTemplateView({ menu, page, isPreview }) {
               <img
                 src={page.heroImage}
                 alt={title}
-                className="mb-6 aspect-[16/9] w-full rounded-xl object-cover"
+                style={{ width: `${normalizeHeroSize(page.data?.heroSize)}%` }}
+                className="mx-auto mb-6 block h-auto rounded-xl"
               />
             ) : null}
             {page?.bodyHtml ? (

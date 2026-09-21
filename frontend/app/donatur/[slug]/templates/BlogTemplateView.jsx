@@ -3,12 +3,15 @@
 import { useEffect } from 'react'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import { formatDateID } from '@/services/dateText'
+import { normalizeHeroSize } from '@/services/heroSize'
 
 // Template "Blog" — halaman artikel tunggal (judul, thumbnail, kategori,
 // penulis, tanggal, isi rich text, SEO).
 export default function BlogTemplateView({ menu, page, isPreview }) {
   const d = page?.data || {}
   const title = page?.title?.trim() || menu?.name || ''
+  const heroSize = normalizeHeroSize(d.heroSize)
+  const resized = heroSize < 100
 
   useEffect(() => {
     if (d.seoTitle) {
@@ -49,8 +52,13 @@ export default function BlogTemplateView({ menu, page, isPreview }) {
           )}
           <article className="overflow-hidden rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-lg rounded-br-lg bg-white shadow-[0_24px_60px_-24px_rgba(6,30,40,0.4)]">
             {page?.heroImage && (
-              <div className="aspect-[16/9] overflow-hidden">
-                <img src={page.heroImage} alt={title} className="h-full w-full object-cover" />
+              <div className={resized ? 'flex justify-center px-6 pt-8 sm:px-12' : ''}>
+                <img
+                  src={page.heroImage}
+                  alt={title}
+                  style={{ width: `${heroSize}%` }}
+                  className={`block h-auto ${resized ? 'rounded-lg' : ''}`}
+                />
               </div>
             )}
             <div className="px-6 py-10 sm:px-12 sm:py-14">
