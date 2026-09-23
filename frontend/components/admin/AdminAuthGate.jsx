@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { checkAdminSession, isAdminLoggedIn } from '@/services/adminAuth'
 import { toast } from '@/components/ui/feedback'
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
 // Menahan akses ke /admin/* kalau belum login. Cek ke backend (/api/auth/me).
 // Kalau belum login → diberi notifikasi "login dulu" lalu dilempar ke /login.
 export default function AdminAuthGate({ children }) {
@@ -13,21 +15,32 @@ export default function AdminAuthGate({ children }) {
 
   useEffect(() => {
     let alive = true
+    const hadHint = isAdminLoggedIn()
 
     // Petunjuk sinkron: kalau sebelumnya sudah login, tampilkan langsung
     // supaya tidak berkedip saat pindah antar halaman /admin.
-    if (isAdminLoggedIn()) setStatus('allowed')
+    if (hadHint) setStatus('allowed')
 
-    checkAdminSession().then((ok) => {
-      if (!alive) return
-      if (ok) {
-        setStatus('allowed')
-      } else {
-        setStatus('denied')
-        toast('Kamu harus login dulu untuk membuka halaman admin.', { tone: 'info' })
-        router.replace('/login')
+    ;(async () => {
+      // Kalau baru saja login (ada hint) tapi cek pertama gagal, itu bisa
+      // cuma hiccup jaringan sesaat — coba ulang dulu sebelum benar-benar
+      // menolak & melempar balik ke /login.
+      const attempts = hadHint ? 3 : 1
+      for (let i = 0; i < attempts; i += 1) {
+        if (!alive) return
+        const ok = await checkAdminSession()
+        if (ok) {
+          if (alive) setStatus('allowed')
+          return
+        }
+        if (i < attempts - 1) await sleep(400)
       }
-    })
+
+      if (!alive) return
+      setStatus('denied')
+      toast('Kamu harus login dulu untuk membuka halaman admin.', { tone: 'info' })
+      router.replace('/login')
+    })()
 
     return () => {
       alive = false
