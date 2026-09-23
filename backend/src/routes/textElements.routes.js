@@ -4,8 +4,9 @@ const requireAdmin = require('../middleware/requireAdmin')
 
 const router = Router()
 
-router.get('/', textElementController.list) // publik
-router.get('/:elementKey', textElementController.getOne) // publik
+router.get('/', textElementController.list) // publik (admin login → lihat draft sendiri)
+router.get('/:elementKey', textElementController.getOne) // publik (idem)
+router.post('/publish', requireAdmin, textElementController.publish)
 router.put('/:elementKey', requireAdmin, textElementController.update)
 router.delete('/:elementKey', requireAdmin, textElementController.remove)
 

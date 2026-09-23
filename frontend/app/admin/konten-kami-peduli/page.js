@@ -18,7 +18,9 @@ export default function AdminKontenKamiPeduliPage() {
         <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
           Edit konten langsung pada pratinjau di bawah — <b>klik</b> ✏️ untuk mengubah teks &amp;
           tampilannya (font, ukuran, warna, dll), atau <b>tarik/geser</b> teksnya untuk menata letak.
-          Perubahan tersimpan otomatis ke database. Video &amp; galeri diatur di menu Dokumentasi.
+          Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf (belum tampil ke publik), lalu klik{' '}
+          <b>Selesai Edit</b> untuk menerbitkannya ke halaman donatur. Video &amp; galeri diatur di
+          menu Dokumentasi.
         </p>
       </div>
 
@@ -28,7 +30,7 @@ export default function AdminKontenKamiPeduliPage() {
           dirapatkan (override lewat arbitrary variant, tanpa mengubah
           tampilan publik). */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#top]:!min-h-0 [&_#top_.container]:!pt-10 [&_#top_.container]:!pb-4">
-        <InlineEditProvider defaultEditing>
+        <InlineEditProvider>
           <TextElementsProvider page="kami-peduli">
             <HeroSection />
             <ProgramKamiSection />

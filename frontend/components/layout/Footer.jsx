@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="max-[768px]:col-span-full">
             <div className="mb-1.5">
               <img
-                src="/images/logo lazis pln.png"
+                src="/images/logo-lazis-pln-putih.png"
                 alt="Lazis PLN Batam"
                 width="1080"
                 height="387"

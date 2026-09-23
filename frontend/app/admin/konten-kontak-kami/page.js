@@ -18,14 +18,15 @@ export default function AdminKontenKontakKamiPage() {
         <h1 className="font-heading text-2xl font-bold text-navy">Konten "Kontak Kami"</h1>
         <p className="mt-1 max-w-2xl text-sm text-gray-500">
           Edit konten langsung pada pratinjau di bawah. Klik ✏️ untuk mengubah teks, dan Tambah/Hapus
-          untuk mengelola daftar info kontak.
+          untuk mengelola daftar info kontak. Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf
+          (belum tampil ke publik), lalu klik <b>Selesai Edit</b> untuk menerbitkannya.
         </p>
       </div>
 
       {/* Jarak atas hero dirapatkan untuk pratinjau admin (tanpa mengubah
           tampilan publik). */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#kontak-hero]:!pt-10 [&_#kontak-hero]:!pb-6">
-        <InlineEditProvider defaultEditing>
+        <InlineEditProvider>
           <TextElementsProvider page="kontak-kami">
             <ContactSection />
           </TextElementsProvider>

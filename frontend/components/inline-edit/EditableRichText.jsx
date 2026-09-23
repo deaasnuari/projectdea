@@ -113,18 +113,19 @@ export default function EditableRichText({
 
   const [active, setActive] = useState(false)
   const [draft, setDraft] = useState(EMPTY_DRAFT)
-  const [busy, setBusy] = useState(false)
   const [anchor, setAnchor] = useState(null)
   const anchorRef = useRef(null)
   const panelRef = useRef(null)
 
   // Geser posisi teks (drag). `dragDelta` = pergeseran sementara selama tarik;
-  // setelah dilepas, ditambahkan ke offset tersimpan lalu di-save.
+  // setelah dilepas, ditahan lewat `ctx.stage()` (belum masuk DB — baru
+  // dikirim saat admin klik "Simpan Semua" di bar bawah halaman).
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 })
   const dragRef = useRef(null) // { startX, startY, baseX, baseY } saat sedang menyeret
   const movedRef = useRef(false) // true kalau tarikan terakhir benar-benar menggeser (bukan klik)
 
-  // Ubah lebar kotak teks lewat tarik gagang di tepi kanan.
+  // Ubah lebar kotak teks lewat tarik gagang di tepi kanan. Sama seperti
+  // posisi — hasil tarikan cuma ditahan lewat ctx.stage(), bukan langsung disimpan.
   const [resizeW, setResizeW] = useState(null) // lebar sementara (px) selama menarik gagang
   const resizeRef = useRef(null) // { startX, baseW }
 
@@ -156,7 +157,8 @@ export default function EditableRichText({
   // posisi ditambah `dragDelta` selama menyeret.
   const baseX = num(active ? draft.offsetX : row?.offsetX)
   const baseY = num(active ? draft.offsetY : row?.offsetY)
-  // Lebar efektif: saat menarik gagang → resizeW; selain itu → draft/DB.
+  // Lebar efektif: saat menarik gagang → resizeW; selain itu → draft/DB
+  // (row sudah termasuk perubahan yang ditahan lewat ctx.stage()).
   const boxWidth = resizeW != null ? `${resizeW}px` : (active ? draft.boxWidth : row?.boxWidth) || ''
   useLayoutEffect(() => {
     const el = anchorRef.current
@@ -223,12 +225,8 @@ export default function EditableRichText({
       patch({ boxWidth: `${w}px` })
       return
     }
-    try {
-      await ctx.save(elementKey, { page: ctx.page, section, boxWidth: `${w}px` })
-      toast('Lebar teks disimpan.', { tone: 'success' })
-    } catch (err) {
-      toast(err.message || 'Gagal menyimpan lebar', { tone: 'error' })
-    }
+    // Tahan perubahan — baru dikirim ke database lewat bar "Simpan Semua".
+    ctx.stage(elementKey, { page: ctx.page, section, boxWidth: `${w}px` })
   }
 
   // --- Drag untuk memindahkan teks (hanya mode edit, panel tertutup) ---
@@ -264,17 +262,13 @@ export default function EditableRichText({
     const nx = Math.round(d.baseX + (e.clientX - d.startX))
     const ny = Math.round(d.baseY + (e.clientY - d.startY))
     setDragDelta({ x: 0, y: 0 })
-    try {
-      await ctx.save(elementKey, {
-        page: ctx.page,
-        section,
-        offsetX: nx ? String(nx) : '',
-        offsetY: ny ? String(ny) : '',
-      })
-      toast('Posisi teks disimpan.', { tone: 'success' })
-    } catch (err) {
-      toast(err.message || 'Gagal menyimpan posisi', { tone: 'error' })
-    }
+    // Tahan perubahan — baru dikirim ke database lewat bar "Simpan Semua".
+    ctx.stage(elementKey, {
+      page: ctx.page,
+      section,
+      offsetX: nx ? String(nx) : '',
+      offsetY: ny ? String(ny) : '',
+    })
     // Klik yang menyusul setelah pointerup jangan sampai membuka editor.
     setTimeout(() => {
       movedRef.current = false
@@ -298,46 +292,32 @@ export default function EditableRichText({
 
   const patch = (p) => setDraft((d) => ({ ...d, ...p }))
 
-  const submit = async () => {
-    setBusy(true)
-    try {
-      await ctx.save(elementKey, {
-        page: ctx.page,
-        section,
-        content: draft.content,
-        fontFamily: draft.fontFamily,
-        fontSize: draft.fontSize,
-        fontWeight: draft.fontWeight,
-        fontStyle: draft.fontStyle,
-        textDecoration: draft.textDecoration,
-        textColor: draft.textColor,
-        textAlign: draft.textAlign,
-        lineHeight: draft.lineHeight,
-        letterSpacing: draft.letterSpacing,
-        offsetX: draft.offsetX,
-        offsetY: draft.offsetY,
-        boxWidth: draft.boxWidth,
-      })
-      setActive(false)
-      toast('Teks diperbarui.', { tone: 'success' })
-    } catch (err) {
-      toast(err.message || 'Gagal menyimpan teks', { tone: 'error' })
-    } finally {
-      setBusy(false)
-    }
+  const submit = () => {
+    ctx.stage(elementKey, {
+      page: ctx.page,
+      section,
+      content: draft.content,
+      fontFamily: draft.fontFamily,
+      fontSize: draft.fontSize,
+      fontWeight: draft.fontWeight,
+      fontStyle: draft.fontStyle,
+      textDecoration: draft.textDecoration,
+      textColor: draft.textColor,
+      textAlign: draft.textAlign,
+      lineHeight: draft.lineHeight,
+      letterSpacing: draft.letterSpacing,
+      offsetX: draft.offsetX,
+      offsetY: draft.offsetY,
+      boxWidth: draft.boxWidth,
+    })
+    setActive(false)
+    toast('Perubahan ditahan — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
   }
 
-  const doReset = async () => {
-    setBusy(true)
-    try {
-      await ctx.reset(elementKey)
-      setActive(false)
-      toast('Teks dikembalikan ke tampilan bawaan.', { tone: 'success' })
-    } catch (err) {
-      toast(err.message || 'Gagal mereset', { tone: 'error' })
-    } finally {
-      setBusy(false)
-    }
+  const doReset = () => {
+    ctx.stageReset(elementKey)
+    setActive(false)
+    toast('Reset ditahan — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
   }
 
   useEffect(() => {
@@ -622,8 +602,9 @@ export default function EditableRichText({
               <button
                 type="button"
                 onClick={doReset}
-                disabled={busy || !row}
+                disabled={!row}
                 className="rounded px-2 py-1.5 text-[11px] font-bold text-gray-500 hover:bg-gray-200 disabled:opacity-40"
+                title='Ditahan sampai klik "Simpan Semua"'
               >
                 Reset ke bawaan
               </button>
@@ -638,10 +619,10 @@ export default function EditableRichText({
                 <button
                   type="button"
                   onClick={submit}
-                  disabled={busy}
-                  className="btn btn-primary px-4 py-1.5 text-xs disabled:opacity-60"
+                  className="btn btn-primary px-4 py-1.5 text-xs"
+                  title='Ditahan sampai klik "Simpan Semua"'
                 >
-                  {busy ? 'Menyimpan…' : 'Simpan'}
+                  Terapkan
                 </button>
               </div>
             </div>

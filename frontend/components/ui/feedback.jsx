@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 let seq = 0
 const toastListeners = new Set()
 const confirmListeners = new Set()
+const alertListeners = new Set()
 
 /** Munculkan notifikasi singkat. tone: 'success' | 'error' | 'info' */
 export function toast(message, opts = {}) {
@@ -38,6 +39,24 @@ export function confirmDialog(opts = {}) {
       resolve,
     }
     confirmListeners.forEach((fn) => fn(req))
+  })
+}
+
+/** Notifikasi penting sebagai popup di tengah layar (bukan pojok) — dipakai
+ * untuk pesan yang tidak boleh terlewat, mis. "tersimpan, klik Selesai Edit".
+ * tone: 'success' | 'error' | 'info'. Mengembalikan Promise<void>, selesai
+ * begitu ditutup. */
+export function alertModal(message, opts = {}) {
+  return new Promise((resolve) => {
+    const req = {
+      id: ++seq,
+      title: opts.title || '',
+      message,
+      closeLabel: opts.closeLabel || 'Oke',
+      tone: opts.tone || 'info', // 'success' | 'error' | 'info'
+      resolve,
+    }
+    alertListeners.forEach((fn) => fn(req))
   })
 }
 
@@ -74,6 +93,7 @@ function ToastIcon({ tone }) {
 export default function FeedbackHost() {
   const [toasts, setToasts] = useState([])
   const [dialog, setDialog] = useState(null)
+  const [alert, setAlert] = useState(null)
 
   useEffect(() => {
     const onToast = (item) => {
@@ -85,17 +105,25 @@ export default function FeedbackHost() {
       }
     }
     const onConfirm = (req) => setDialog(req)
+    const onAlert = (req) => setAlert(req)
     toastListeners.add(onToast)
     confirmListeners.add(onConfirm)
+    alertListeners.add(onAlert)
     return () => {
       toastListeners.delete(onToast)
       confirmListeners.delete(onConfirm)
+      alertListeners.delete(onAlert)
     }
   }, [])
 
   const closeDialog = (result) => {
     if (dialog) dialog.resolve(result)
     setDialog(null)
+  }
+
+  const closeAlert = () => {
+    if (alert) alert.resolve()
+    setAlert(null)
   }
 
   useEffect(() => {
@@ -108,6 +136,16 @@ export default function FeedbackHost() {
     return () => document.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialog])
+
+  useEffect(() => {
+    if (!alert) return
+    const onKey = (e) => {
+      if (e.key === 'Escape' || e.key === 'Enter') closeAlert()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alert])
 
   const dismiss = (id) => setToasts((cur) => cur.filter((t) => t.id !== id))
 
@@ -194,6 +232,48 @@ export default function FeedbackHost() {
                 {dialog.confirmLabel}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup notifikasi penting di tengah layar — dipakai untuk pesan yang
+          tidak boleh terlewat, jadi bukan toast pojok yang gampang lewat. */}
+      {alert && (
+        <div
+          className="fixed inset-0 z-[3200] flex items-center justify-center bg-navy-dark/70 p-4 backdrop-blur-sm"
+          onClick={closeAlert}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            className="w-full max-w-[360px] overflow-hidden rounded-tr-[1.75rem] rounded-bl-[1.75rem] rounded-tl-lg rounded-br-lg bg-white p-6 text-center shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span
+              className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${
+                alert.tone === 'success'
+                  ? 'bg-green-500/10 text-green-600'
+                  : alert.tone === 'error'
+                    ? 'bg-coral/10 text-coral'
+                    : 'bg-primary/10 text-primary'
+              }`}
+            >
+              <ToastIcon tone={alert.tone} />
+            </span>
+
+            {alert.title && (
+              <h3 className="mt-3 font-heading text-base font-bold text-navy">{alert.title}</h3>
+            )}
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">{alert.message}</p>
+
+            <button
+              type="button"
+              autoFocus
+              onClick={closeAlert}
+              className="btn btn-primary mt-5 w-full justify-center py-2.5 text-sm"
+            >
+              {alert.closeLabel}
+            </button>
           </div>
         </div>
       )}

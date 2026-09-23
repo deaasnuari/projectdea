@@ -567,8 +567,11 @@
     bottom: 20px;
     z-index: 900;
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     align-items: center;
     gap: 10px;
+    max-width: calc(100vw - 40px);
   }
   .inline-edit-toolbar-hint {
     max-width: 220px;
@@ -581,6 +584,22 @@
     font-weight: 600;
     line-height: 1.4;
     box-shadow: 0 8px 24px rgba(6, 30, 40, 0.3);
+  }
+  /* Varian saat ada perubahan belum disimpan — warna beda supaya jadi
+     perhatian utama, bukan sekadar status "mode edit" biasa. */
+  .inline-edit-toolbar-hint-warn {
+    background: theme('colors.coral.DEFAULT');
+  }
+  /* Tombol Simpan/Buang Semua di dalam toolbar ini — sedikit lebih besar
+     dari varian pill kecil di panel edit teks, biar seimbang di sebelah
+     tombol Edit Konten/Selesai Edit. */
+  .inline-edit-toolbar .inline-edit-btn {
+    padding: 9px 16px;
+    font-size: 12.5px;
+    border-radius: 9999px;
+  }
+  .inline-edit-toolbar .inline-edit-btn-cancel {
+    box-shadow: 0 8px 20px rgba(6, 30, 40, 0.18);
   }
   .inline-edit-toolbar-btn {
     display: inline-flex;
@@ -603,6 +622,16 @@
   .inline-edit-toolbar-btn.is-on {
     background: theme('colors.navy.DEFAULT');
     box-shadow: 0 10px 28px rgba(6, 30, 40, 0.4);
+  }
+  /* Selama masih ada perubahan tertahan, tombol ini tidak menutup mode
+     edit (lihat onToggleEditing) — dibuat terlihat "terkunci" biar jelas. */
+  .inline-edit-toolbar-btn.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .inline-edit-toolbar-btn.is-disabled:hover {
+    transform: none;
+    background: theme('colors.navy.DEFAULT');
   }
 }
 

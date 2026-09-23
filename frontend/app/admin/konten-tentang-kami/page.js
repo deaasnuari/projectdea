@@ -21,14 +21,16 @@ export default function AdminKontenTentangKamiPage() {
         <h1 className="font-heading text-xl font-bold text-navy">Konten &quot;Tentang Kami&quot;</h1>
         <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
           Edit konten langsung pada pratinjau di bawah — klik ✏️ untuk mengubah teks, Tambah/Hapus untuk
-          mengelola item. Perubahan tersimpan otomatis ke database. Daftar anggota tim diatur di menu Tim.
+          mengelola item. Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf (belum tampil ke
+          publik), lalu klik <b>Selesai Edit</b> untuk menerbitkannya. Daftar anggota tim diatur di
+          menu Tim.
         </p>
       </div>
 
       {/* Pratinjau halaman dibingkai dalam kartu. Jarak atas hero dirapatkan
           untuk pratinjau admin (tanpa mengubah tampilan publik). */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#tentang-hero]:!pt-10 [&_#tentang-hero]:!pb-6">
-        <InlineEditProvider defaultEditing>
+        <InlineEditProvider>
           <TextElementsProvider page="tentang-kami">
             <TentangSection />
             <SejarahSection />

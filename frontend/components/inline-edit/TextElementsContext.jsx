@@ -2,32 +2,52 @@
 
 import { createContext, useContext, useMemo } from 'react'
 import { useTextElements } from '@/services/textElements'
+import EditToolbar from './EditToolbar'
 
 // Menyediakan isi + styling semua elemen teks sebuah halaman ke seluruh
 // <EditableRichText> di bawahnya. Satu fetch per halaman, bukan per elemen.
+//
+// Perubahan TIDAK langsung dikirim ke server: komponen editor memanggil
+// `stage()`/`stageReset()` untuk menahannya, lalu <EditToolbar> (dirender di
+// sini juga, supaya cuma ada SATU bar mengambang) mengirim semuanya
+// sekaligus lewat `saveAll()` saat admin klik "Simpan Semua".
 const TextElementsContext = createContext({
   page: '',
   get: () => null,
-  save: async () => {},
-  reset: async () => {},
+  stage: () => {},
+  stageReset: () => {},
+  saveAll: async () => ({ okCount: 0, failedCount: 0 }),
+  discardAll: () => {},
+  publish: async () => ({ publishedCount: 0 }),
+  pendingCount: 0,
   loading: false,
 })
 
 export function TextElementsProvider({ page, children }) {
-  const { map, loading, save, reset } = useTextElements(page)
+  const { loading, get, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
+    useTextElements(page)
 
   const value = useMemo(
     () => ({
       page,
       loading,
-      get: (elementKey) => map.get(elementKey) || null,
-      save,
-      reset,
+      get,
+      stage,
+      stageReset,
+      saveAll,
+      discardAll,
+      publish,
+      pendingCount,
     }),
-    [page, loading, map, save, reset],
+    [page, loading, get, stage, stageReset, saveAll, discardAll, publish, pendingCount],
   )
 
-  return <TextElementsContext.Provider value={value}>{children}</TextElementsContext.Provider>
+  return (
+    <TextElementsContext.Provider value={value}>
+      {children}
+      <EditToolbar />
+    </TextElementsContext.Provider>
+  )
 }
 
 export function useTextElementsContext() {

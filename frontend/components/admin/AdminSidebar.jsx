@@ -252,7 +252,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
             className={`flex items-center ${rail ? '' : 'min-w-0 flex-1 gap-2.5'}`}
           >
             <img
-              src="/images/logo lazis pln.png"
+              src="/images/logo-lazis-pln-putih.png"
               alt="Lazis PLN Batam"
               className={`shrink-0 ${
                 rail ? 'h-7 w-10 object-contain' : 'h-7 w-auto'

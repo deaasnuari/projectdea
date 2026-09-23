@@ -302,6 +302,15 @@ alter table text_elements add column if not exists offset_y text;
 -- Panjang / lebar maksimum blok teks (mis. "520px", "60%").
 alter table text_elements add column if not exists box_width text;
 
+-- Draf: admin klik "Simpan Semua" menulis ke sini dulu (BUKAN kolom di
+-- atas), supaya halaman publik/donatur belum melihat perubahannya. Kolom
+-- di atas cuma berubah saat admin klik "Selesai Edit" (endpoint publish),
+-- yang menyalin isi draft ke situ lalu mengosongkan draft ini lagi.
+-- `draft` = object berisi field yang diubah saja (content/style/offset/dst),
+-- `draft_reset` = true kalau draf-nya adalah "kembalikan ke bawaan".
+alter table text_elements add column if not exists draft jsonb;
+alter table text_elements add column if not exists draft_reset boolean not null default false;
+
 create index if not exists text_elements_page_idx on text_elements (page);
 
 -- =====================================================================

@@ -88,9 +88,12 @@ export default function EditableImageElement({
     if (!file) return
     setBusy(true)
     try {
+      // File-nya sendiri harus diunggah dulu supaya ada URL untuk pratinjau —
+      // tapi menghubungkan URL itu ke elemen ini (kolom `content`) ditahan
+      // lewat ctx.stage(), baru masuk DB saat klik "Simpan Semua".
       const url = await uploadImage(file)
-      await ctx.save(elementKey, { page: ctx.page, section, content: url })
-      toast('Gambar diperbarui.', { tone: 'success' })
+      ctx.stage(elementKey, { page: ctx.page, section, content: url })
+      toast('Gambar diganti — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
     } catch (err) {
       toast(err.message || 'Gagal mengganti gambar', { tone: 'error' })
     } finally {
@@ -98,18 +101,11 @@ export default function EditableImageElement({
     }
   }
 
-  const resetImg = async (e) => {
+  const resetImg = (e) => {
     e?.preventDefault?.()
     e?.stopPropagation?.()
-    setBusy(true)
-    try {
-      await ctx.reset(elementKey)
-      toast('Gambar dikembalikan ke bawaan.', { tone: 'success' })
-    } catch (err) {
-      toast(err.message || 'Gagal mereset', { tone: 'error' })
-    } finally {
-      setBusy(false)
-    }
+    ctx.stageReset(elementKey)
+    toast('Reset ditahan — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
   }
 
   return (
