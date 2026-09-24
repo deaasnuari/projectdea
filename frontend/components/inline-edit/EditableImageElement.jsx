@@ -65,7 +65,10 @@ export default function EditableImageElement({
   const img = (
     <img
       ref={imgRef}
-      src={src}
+      // Selama isi DB belum ada, jangan unduh gambar bawaan dulu — nanti
+      // malah tampil sekilas lalu diganti gambar editan.
+      src={ctx.ready ? src : undefined}
+      data-te-fade={ctx.ready ? 'in' : 'out'}
       alt={alt}
       className={className}
       decoding="async"

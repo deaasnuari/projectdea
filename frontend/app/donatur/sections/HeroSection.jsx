@@ -51,7 +51,7 @@ export default function HeroSection() {
   const featureById = (id) => features.find((f) => f.id === id) || {}
 
   return (
-    <section id="top" className="relative flex min-h-screen items-end overflow-hidden pb-6 max-[1024px]:min-h-0 max-[1024px]:pb-10 max-[600px]:pb-8">
+    <section id="top" className="relative overflow-hidden pb-10 max-[600px]:pb-8">
       {/* Latar belakang */}
       <div className="absolute inset-0 z-0">
         <EditableImageElement
@@ -82,7 +82,7 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      <div className="container relative z-[1] pt-24 max-[1024px]:pt-32 max-[600px]:pt-[86px]">
+      <div className="container relative z-[1] pt-32 max-[600px]:pt-[86px]">
         {/* Konten */}
         <div className="max-w-[650px] animate-fade-in-up">
           <EditableRichText

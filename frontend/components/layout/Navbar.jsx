@@ -23,7 +23,30 @@ const Caret = () => (
   </svg>
 )
 
+const MenuIcon = ({ open }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="20" height="20" aria-hidden="true">
+    {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+  </svg>
+)
+
 const pathOf = (href) => (href || '').split('#')[0]
+
+// Satu baris menu di panel HP (menu utama / submenu yang menjorok).
+function MobileLink({ item, active, onPick, sub = false }) {
+  return (
+    <Link
+      href={item.href}
+      {...(item.openNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      onClick={onPick}
+      className={`flex items-center justify-between rounded-xl transition-colors ${
+        sub ? 'ml-4 px-4 py-2.5 text-[13px] font-medium' : 'px-4 py-3 text-sm font-semibold'
+      } ${active ? 'bg-white/10 text-gold' : 'text-white/85 hover:bg-white/[0.06] active:bg-white/10'}`}
+    >
+      {item.name}
+      {active && <span className="h-1.5 w-1.5 rounded-full bg-gold" />}
+    </Link>
+  )
+}
 
 //ini fungsi untuk menampilkan navbar di halaman donatur — sumber menu diambil
 // dari database (Manajemen Menu), bukan hardcode lagi.
@@ -32,7 +55,8 @@ export default function Navbar({ solid = false }) {
   const { menus } = usePublicMenus()
   const [isScrolled, setIsScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
-  const [openId, setOpenId] = useState(null) // dropdown yang sedang dibuka (HP/klik)
+  const [openId, setOpenId] = useState(null) // dropdown yang sedang dibuka (klik caret)
+  const [mobileOpen, setMobileOpen] = useState(false) // panel menu HP (tombol ☰)
   const lastScrollY = useRef(0)
 
   useEffect(() => {
@@ -47,10 +71,30 @@ export default function Navbar({ solid = false }) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Tutup dropdown saat pindah halaman.
-  useEffect(() => setOpenId(null), [pathname])
+  // Tutup dropdown & panel menu HP saat pindah halaman.
+  useEffect(() => {
+    setOpenId(null)
+    setMobileOpen(false)
+  }, [pathname])
 
-  const showSolid = isScrolled || solid
+  // Panel menu HP: tutup dengan tombol Esc, dan otomatis tertutup kalau layar
+  // dilebarkan melewati breakpoint sm (menu lengkap tampil lagi di navbar).
+  useEffect(() => {
+    if (!mobileOpen) return
+    const onKey = (e) => e.key === 'Escape' && setMobileOpen(false)
+    const mq = window.matchMedia('(min-width: 640px)')
+    const onMq = () => mq.matches && setMobileOpen(false)
+    window.addEventListener('keydown', onKey)
+    mq.addEventListener('change', onMq)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      mq.removeEventListener('change', onMq)
+    }
+  }, [mobileOpen])
+
+  const showSolid = isScrolled || solid || mobileOpen
+  // Selama panel menu HP terbuka, navbar jangan ikut tersembunyi saat scroll.
+  const isHidden = hidden && !mobileOpen
   const isActive = (href) => {
     const p = pathOf(href)
     return p && p !== '/donatur' && p !== '/' && pathname === p
@@ -70,12 +114,12 @@ export default function Navbar({ solid = false }) {
             ? 'border-white/10 bg-navy-dark/90 shadow-[0_12px_32px_rgba(0,0,0,0.35)] backdrop-blur-md'
             : 'border-white/15 bg-navy-dark/25 shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-sm'
         } ${
-          hidden
+          isHidden
             ? '-translate-y-[calc(100%+2rem)] opacity-0 pointer-events-none'
             : 'translate-y-0 opacity-100'
         }`}
       >
-        {/* Logo situs — di HP dikecilkan supaya menu tetap muat sebaris */}
+        {/* Logo situs */}
         <Link
           href="/"
           className="flex shrink-0 items-center transition-transform duration-300 hover:scale-[1.03]"
@@ -86,16 +130,28 @@ export default function Navbar({ solid = false }) {
             width="1080"
             height="387"
             decoding="async"
-            className="h-3.5 w-auto sm:h-6 md:h-8"
+            className="h-6 w-auto md:h-8"
           />
         </Link>
 
-        {/* Menu navigasi — sumbernya dinamis (Manajemen Menu), jumlahnya bisa
-            berubah-ubah. Di HP: baris rapat yang bisa digeser ke samping.
-            Mulai sm: mengalir normal & rata kanan (logo di kiri) supaya tidak
-            pernah bertabrakan dengan logo berapa pun banyak menunya. */}
+        {/* Tombol ☰ — hanya di HP (< sm). Menu lengkapnya ada di panel
+            yang turun dari kapsul ini (lihat di bawah). */}
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav-panel"
+          className="ml-auto flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 active:bg-white/25 sm:hidden"
+        >
+          <MenuIcon open={mobileOpen} />
+        </button>
+
+        {/* Menu navigasi (tablet & desktop) — sumbernya dinamis (Manajemen
+            Menu), jumlahnya bisa berubah-ubah. Mengalir normal & rata tengah
+            supaya tidak pernah bertabrakan dengan logo berapa pun menunya. */}
         <nav
-          className="no-scrollbar flex min-w-0 flex-1 items-center justify-between gap-2 overflow-x-auto whitespace-nowrap pl-2 [&_.nav-top]:text-[8px] [&_.nav-top]:normal-case [&_.nav-top]:tracking-normal min-[400px]:gap-2.5 min-[400px]:[&_.nav-top]:text-[9px] sm:justify-center sm:gap-4 sm:overflow-visible sm:pl-0 sm:[&_.nav-top]:text-[10px] min-[900px]:gap-6 min-[900px]:[&_.nav-top]:text-xs min-[900px]:[&_.nav-top]:uppercase min-[900px]:[&_.nav-top]:tracking-[0.06em]"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-4 whitespace-nowrap [&_.nav-top]:text-[10px] [&_.nav-top]:normal-case [&_.nav-top]:tracking-normal sm:flex min-[900px]:gap-6 min-[900px]:[&_.nav-top]:text-xs min-[900px]:[&_.nav-top]:uppercase min-[900px]:[&_.nav-top]:tracking-[0.06em]"
         >
           {menus.map((item) => {
             const active = isActive(item.href)
@@ -131,8 +187,8 @@ export default function Navbar({ solid = false }) {
                   <Caret />
                 </button>
 
-                {/* Panel dropdown — hanya layar sm ke atas (HP pakai inline).
-                    Muncul saat hover (CSS) atau saat caret diklik (state). */}
+                {/* Panel dropdown — muncul saat hover (CSS) atau saat caret
+                    diklik (state). */}
                 <div
                   className={`absolute left-1/2 top-[calc(100%+10px)] z-[1002] min-w-[180px] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-white/10 bg-navy-dark/95 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-md hidden sm:group-hover/nav:flex ${
                     open ? 'sm:flex' : ''
@@ -154,24 +210,38 @@ export default function Navbar({ solid = false }) {
                   ))}
                 </div>
 
-                {/* HP/tablet kecil: submenu ditampilkan inline (nav bisa digeser),
-                    supaya tidak terpotong oleh overflow scroller. */}
-                {kids.map((k) => (
-                  <Link
-                    key={`inline-${k.id}`}
-                    href={k.href}
-                    {...(k.openNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    className={`nav-top relative ml-2 sm:hidden ${
-                      isActive(k.href) ? 'navbar-link-active' : 'navbar-link'
-                    }`}
-                  >
-                    <span className="mr-1 text-white/30">·</span>
-                    {k.name}
-                  </Link>
-                ))}
               </div>
             )
           })}
+        </nav>
+      </div>
+
+      {/* Panel menu HP — turun tepat di bawah kapsul navbar, gaya kaca navy
+          yang sama. Tap di luar panel (lapisan transparan) = tutup. */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-[999] bg-navy-dark/30 sm:hidden"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <div
+        id="mobile-nav-panel"
+        className={`relative z-[1001] mx-auto mt-2 max-w-[1080px] origin-top overflow-hidden rounded-2xl border border-white/10 bg-navy-dark/95 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 sm:hidden ${
+          mobileOpen
+            ? 'translate-y-0 scale-100 opacity-100'
+            : 'pointer-events-none invisible -translate-y-2 scale-[0.98] opacity-0'
+        }`}
+      >
+        <nav className="flex max-h-[calc(100dvh-7rem)] flex-col overflow-y-auto">
+          {menus.map((item) => (
+            <div key={item.id}>
+              <MobileLink item={item} active={isActive(item.href)} onPick={() => setMobileOpen(false)} />
+              {(item.children || []).map((k) => (
+                <MobileLink key={k.id} item={k} active={isActive(k.href)} onPick={() => setMobileOpen(false)} sub />
+              ))}
+            </div>
+          ))}
         </nav>
       </div>
     </header>

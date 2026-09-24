@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loginAdmin, DEMO_ADMIN_CREDENTIALS } from '@/services/adminAuth'
 import { changePassword } from '@/services/adminAccounts'
@@ -41,6 +41,13 @@ const labelText = 'mb-1 block text-[11px] font-semibold uppercase tracking-[0.07
 export default function LoginForm() {
   const router = useRouter()
   const [mode, setMode] = useState('login') // 'login' | 'reset'
+
+  // Sebelum JavaScript halaman selesai dimuat (hydration), onSubmit belum
+  // terpasang — kalau tombol diklik/Enter ditekan saat itu, browser melakukan
+  // submit form biasa yang cuma me-reload /login (terlihat "balik ke login").
+  // Jadi tombol submit dinonaktifkan sampai halaman siap.
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -203,7 +210,7 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          disabled={rsBusy}
+          disabled={!hydrated || rsBusy}
           className="btn btn-primary mt-1 w-full justify-center py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
         >
           {rsBusy ? 'Menyimpan…' : 'Simpan Password Baru'}
@@ -275,10 +282,10 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={!hydrated || loading}
         className="btn btn-primary w-full justify-center py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? 'Memproses…' : 'Masuk'}
+        {!hydrated ? 'Memuat…' : loading ? 'Memproses…' : 'Masuk'}
       </button>
 
       <p className="text-center text-[10px] text-gray-400">

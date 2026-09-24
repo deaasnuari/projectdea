@@ -21,16 +21,19 @@ const TextElementsContext = createContext({
   publish: async () => ({ publishedCount: 0 }),
   pendingCount: 0,
   loading: false,
+  // Default true: elemen di luar provider tidak perlu menunggu apa pun.
+  ready: true,
 })
 
 export function TextElementsProvider({ page, children }) {
-  const { loading, get, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
+  const { loading, ready, get, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
     useTextElements(page)
 
   const value = useMemo(
     () => ({
       page,
       loading,
+      ready,
       get,
       stage,
       stageReset,
@@ -39,7 +42,7 @@ export function TextElementsProvider({ page, children }) {
       publish,
       pendingCount,
     }),
-    [page, loading, get, stage, stageReset, saveAll, discardAll, publish, pendingCount],
+    [page, loading, ready, get, stage, stageReset, saveAll, discardAll, publish, pendingCount],
   )
 
   return (

@@ -140,6 +140,11 @@ function broadcast() {
 export function useTextElements(page) {
   const [map, setMap] = useState(() => new Map())
   const [loading, setLoading] = useState(true)
+  // `ready` = fetch PERTAMA sudah selesai (sukses/gagal). Beda dengan
+  // `loading` yang ikut true lagi tiap refresh (mis. saat tab difokuskan) —
+  // dipakai untuk menyembunyikan elemen sampai isi dari DB sudah ada, supaya
+  // pengunjung tidak melihat teks bawaan lalu "meloncat" ke versi editan.
+  const [ready, setReady] = useState(false)
   const [pendingPatches, setPendingPatches] = useState(() => new Map()) // elementKey -> payload belum dikirim
   const [pendingResets, setPendingResets] = useState(() => new Set()) // elementKey yang ditahan untuk direset
 
@@ -154,17 +159,24 @@ export function useTextElements(page) {
       .catch(() => {
         /* offline → biarkan komponen pakai bawaan */
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        setLoading(false)
+        setReady(true)
+      })
   }, [page])
 
   useEffect(() => {
     refresh()
+    // Pengaman: kalau backend lambat/tidak menjawab, jangan biarkan konten
+    // tersembunyi terlalu lama — tampilkan versi bawaan.
+    const fallback = setTimeout(() => setReady(true), 2500)
     const onChanged = () => refresh()
     const onStorage = (e) => e.key === CHANGE_KEY && refresh()
     window.addEventListener(CHANGE_EVENT, onChanged)
     window.addEventListener('storage', onStorage)
     window.addEventListener('focus', onChanged)
     return () => {
+      clearTimeout(fallback)
       window.removeEventListener(CHANGE_EVENT, onChanged)
       window.removeEventListener('storage', onStorage)
       window.removeEventListener('focus', onChanged)
@@ -290,6 +302,7 @@ export function useTextElements(page) {
   return {
     map,
     loading,
+    ready,
     refresh,
     get,
     stage,

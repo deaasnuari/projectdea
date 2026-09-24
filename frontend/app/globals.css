@@ -734,3 +734,13 @@
   height: 0;
   pointer-events: none;
 }
+
+/* Elemen yang isinya bisa diedit admin (EditableRichText/EditableImageElement)
+   disembunyikan sampai isi dari DB termuat, lalu muncul halus — supaya
+   pengunjung tidak melihat teks/gambar bawaan sekilas sebelum diganti. */
+[data-te-fade] {
+  transition: opacity 0.35s ease;
+}
+[data-te-fade='out'] {
+  opacity: 0;
+}

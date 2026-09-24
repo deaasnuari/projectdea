@@ -352,7 +352,7 @@ export default function EditableRichText({
   // --- Pengunjung / mode edit mati: render biasa; style diterapkan lewat ref ---
   if (!editing) {
     return (
-      <As ref={anchorRef} className={className} style={style}>
+      <As ref={anchorRef} className={className} style={style} data-te-fade={ctx.ready ? 'in' : 'out'}>
         {content}
       </As>
     )
