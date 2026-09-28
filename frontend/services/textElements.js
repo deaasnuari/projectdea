@@ -201,15 +201,20 @@ export function useTextElements(page) {
   }, [])
 
   // Tahan permintaan "kembalikan ke bawaan" — dieksekusi saat Simpan Semua.
-  const stageReset = useCallback((elementKey) => {
-    setPendingResets((prev) => new Set(prev).add(elementKey))
-    setPendingPatches((prev) => {
-      if (!prev.has(elementKey)) return prev
-      const m = new Map(prev)
-      m.delete(elementKey)
-      return m
-    })
-  }, [])
+  // Elemen yang belum pernah tersimpan di DB (mis. teks tambahan yang baru
+  // dibuat lalu langsung dihapus) cukup dibuang dari tahanan saja.
+  const stageReset = useCallback(
+    (elementKey) => {
+      if (map.has(elementKey)) setPendingResets((prev) => new Set(prev).add(elementKey))
+      setPendingPatches((prev) => {
+        if (!prev.has(elementKey)) return prev
+        const m = new Map(prev)
+        m.delete(elementKey)
+        return m
+      })
+    },
+    [map],
+  )
 
   // Versi gabungan: tersimpan di DB + tahanan yang belum dikirim.
   const get = useCallback(
@@ -221,6 +226,23 @@ export function useTextElements(page) {
       return { ...base, ...patch }
     },
     [map, pendingPatches, pendingResets],
+  )
+
+  // Semua elementKey berawalan `prefix` yang (versi gabungannya) masih punya
+  // isi — dipakai untuk teks tambahan buatan admin (lihat CustomTexts.jsx).
+  // Urut sesuai key (key berisi cap waktu → urutan dibuat).
+  const keysWithPrefix = useCallback(
+    (prefix) => {
+      const keys = new Set([...map.keys(), ...pendingPatches.keys()])
+      return Array.from(keys)
+        .filter((k) => k.startsWith(prefix))
+        .filter((k) => {
+          const r = get(k)
+          return r && r.content != null && String(r.content).trim() !== ''
+        })
+        .sort()
+    },
+    [map, pendingPatches, get],
   )
 
   const pendingCount = pendingPatches.size + pendingResets.size
@@ -305,6 +327,7 @@ export function useTextElements(page) {
     ready,
     refresh,
     get,
+    keysWithPrefix,
     stage,
     stageReset,
     saveAll,

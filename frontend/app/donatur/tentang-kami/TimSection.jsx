@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useTentangContent } from './tentangData'
 import { useTeam } from './useTeam'
@@ -60,12 +61,14 @@ export default function TimSection() {
             label="paragraf Tim"
             multiline
           />
+          <CustomTexts section="tim" className="mx-auto mt-3 max-w-[480px]" />
 
           {/* Anggota tim dikelola di halaman admin "Tim" (menu sidebar). */}
           {isAdmin && (
             <div className="mt-3">
               <Link
                 href="/admin/tim"
+                target="_top"
                 className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/50 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-primary hover:bg-primary/5"
               >
                 <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13" aria-hidden="true">

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 
 export default function GabungMisiSection() {
   return (
@@ -47,6 +48,7 @@ export default function GabungMisiSection() {
           label="paragraf ajakan"
           multiline
         />
+        <CustomTexts section="gabung" tone="dark" className="mx-auto mb-4 max-w-[440px]" />
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link href="/donatur#zakat-calculator" className="btn btn-gold px-5 py-2 text-xs">
             <EditableRichText

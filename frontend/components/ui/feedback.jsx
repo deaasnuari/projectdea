@@ -14,8 +14,23 @@ const toastListeners = new Set()
 const confirmListeners = new Set()
 const alertListeners = new Set()
 
+// Di dalam iframe pratinjau admin (/admin-pratinjau, satu origin) notifikasi
+// diteruskan ke halaman induk: iframe-nya setinggi isi halaman, jadi popup
+// `fixed` di dalamnya bisa muncul jauh di luar layar. Halaman induk
+// mendaftarkan fungsinya di window.__lazisFeedback (lihat FeedbackHost).
+function parentHost() {
+  if (typeof window === 'undefined' || window.parent === window) return null
+  try {
+    return window.parent.__lazisFeedback || null
+  } catch {
+    return null
+  }
+}
+
 /** Munculkan notifikasi singkat. tone: 'success' | 'error' | 'info' */
 export function toast(message, opts = {}) {
+  const host = parentHost()
+  if (host) return host.toast(message, opts)
   const item = {
     id: ++seq,
     message,
@@ -28,6 +43,8 @@ export function toast(message, opts = {}) {
 
 /** Dialog konfirmasi. Mengembalikan Promise<boolean>. */
 export function confirmDialog(opts = {}) {
+  const host = parentHost()
+  if (host) return host.confirmDialog(opts)
   return new Promise((resolve) => {
     const req = {
       id: ++seq,
@@ -47,6 +64,8 @@ export function confirmDialog(opts = {}) {
  * tone: 'success' | 'error' | 'info'. Mengembalikan Promise<void>, selesai
  * begitu ditutup. */
 export function alertModal(message, opts = {}) {
+  const host = parentHost()
+  if (host) return host.alertModal(message, opts)
   return new Promise((resolve) => {
     const req = {
       id: ++seq,
@@ -109,10 +128,13 @@ export default function FeedbackHost() {
     toastListeners.add(onToast)
     confirmListeners.add(onConfirm)
     alertListeners.add(onAlert)
+    // Supaya iframe pratinjau admin bisa menampilkan notifikasinya di sini.
+    window.__lazisFeedback = { toast, confirmDialog, alertModal }
     return () => {
       toastListeners.delete(onToast)
       confirmListeners.delete(onConfirm)
       alertListeners.delete(onAlert)
+      delete window.__lazisFeedback
     }
   }, [])
 

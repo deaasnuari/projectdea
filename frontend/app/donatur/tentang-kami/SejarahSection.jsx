@@ -1,6 +1,7 @@
 'use client'
 
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
@@ -44,6 +45,7 @@ export default function SejarahSection() {
                 label="kata yang ditonjolkan"
               />
             </h2>
+            <CustomTexts section="sejarah" className="mt-2" />
           </div>
           {isAdmin && (
             <AddItemButton

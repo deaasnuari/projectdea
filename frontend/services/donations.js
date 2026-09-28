@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { notifyProgramsChanged } from '@/services/programs'
 import { toast } from '@/components/ui/feedback'
 
@@ -33,8 +33,9 @@ export async function createDonation(payload) {
   return res.json()
 }
 
-async function listDonations(status, source, jenis) {
+async function listDonations(status, source, jenis, trash) {
   const p = new URLSearchParams()
+  if (trash) p.set('trash', '1')
   if (status && status !== 'semua') p.set('status', status)
   if (source && source !== 'semua') p.set('source', source)
   if (jenis && jenis !== 'semua') p.set('jenis', jenis)
@@ -76,24 +77,31 @@ export async function deleteDonation(id) {
   return res.json()
 }
 
-export async function bulkDeleteDonations(ids) {
-  const res = await fetch(`${BASE}/api/donations/bulk-delete`, {
+// Aksi Sampah. `bulk-delete` = pindahkan ke Sampah, `bulk-restore` =
+// pulihkan, `bulk-purge` = hapus permanen (hanya isi Sampah).
+async function postDonations(path, body) {
+  const res = await fetch(`${BASE}/api/donations/${path}`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ids }),
+    body: JSON.stringify(body || {}),
   })
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    throw new Error(body.error || `bulk-delete → ${res.status}`)
+    const b = await res.json().catch(() => ({}))
+    throw new Error(b.error || `${path} → ${res.status}`)
   }
   return res.json()
 }
 
+export const bulkDeleteDonations = (ids) => postDonations('bulk-delete', { ids })
+export const bulkRestoreDonations = (ids) => postDonations('bulk-restore', { ids })
+export const bulkPurgeDonations = (ids) => postDonations('bulk-purge', { ids })
+export const emptyDonationTrash = () => postDonations('trash/empty')
+
 export const proofUrl = (id) => `${BASE}/api/donations/${id}/proof`
 
-// Hook untuk halaman admin Riwayat Donasi.
-export function useDonations(status = 'semua', source = 'semua', jenis = 'semua') {
+// Hook untuk halaman admin Riwayat Donasi. `trash` = tampilkan isi Sampah.
+export function useDonations(status = 'semua', source = 'semua', jenis = 'semua', trash = false) {
   const [rows, setRows] = useState([])
   const [stats, setStats] = useState(null)
   const [jenisOptions, setJenisOptions] = useState([])
@@ -110,7 +118,7 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
       if (silent && inFlightRef.current) return Promise.resolve()
       inFlightRef.current = true
       if (!silent) setLoading(true)
-      return Promise.all([listDonations(status, source, jenis), fetchStats(), fetchJenisOptions()])
+      return Promise.all([listDonations(status, source, jenis, trash), fetchStats(), fetchJenisOptions()])
         .then(([r, s, j]) => {
           setRows(r)
           setStats(s)
@@ -139,7 +147,7 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
           if (!silent) setLoading(false)
         })
     },
-    [status, source, jenis],
+    [status, source, jenis, trash],
   )
 
   useEffect(() => {
@@ -187,24 +195,24 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
     [refresh],
   )
 
-  const removeDonation = useCallback(
-    async (id) => {
-      await deleteDonation(id)
-      notifyProgramsChanged() // hapus donasi terverifikasi mengembalikan collected program
-      refresh()
-    },
+  // Pindah ke Sampah / pulihkan mengubah collected program (donasi program
+  // terverifikasi dicabut saat di Sampah, dikembalikan saat dipulihkan).
+  const withRefresh = useCallback(
+    (fn) =>
+      async (...args) => {
+        const res = await fn(...args)
+        notifyProgramsChanged()
+        refresh()
+        return res
+      },
     [refresh],
   )
 
-  const removeManyDonations = useCallback(
-    async (ids) => {
-      const res = await bulkDeleteDonations(ids)
-      notifyProgramsChanged()
-      refresh()
-      return res
-    },
-    [refresh],
-  )
+  const removeDonation = useMemo(() => withRefresh(deleteDonation), [withRefresh])
+  const removeManyDonations = useMemo(() => withRefresh(bulkDeleteDonations), [withRefresh])
+  const restoreDonations = useMemo(() => withRefresh(bulkRestoreDonations), [withRefresh])
+  const purgeDonations = useMemo(() => withRefresh(bulkPurgeDonations), [withRefresh])
+  const emptyTrash = useMemo(() => withRefresh(emptyDonationTrash), [withRefresh])
 
   return {
     rows,
@@ -216,5 +224,8 @@ export function useDonations(status = 'semua', source = 'semua', jenis = 'semua'
     changeStatus,
     removeDonation,
     removeManyDonations,
+    restoreDonations,
+    purgeDonations,
+    emptyTrash,
   }
 }

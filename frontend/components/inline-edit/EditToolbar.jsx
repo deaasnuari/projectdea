@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useEditMode } from './EditModeContext'
 import { useTextElementsContext } from './TextElementsContext'
 import { toast, alertModal } from '@/components/ui/feedback'
@@ -9,11 +9,47 @@ import { toast, alertModal } from '@/components/ui/feedback'
 // status ("mode edit" atau "N perubahan belum disimpan"), tombol Buang
 // Semua / Simpan Semua kalau ada perubahan tertahan, dan tombol
 // aktif/nonaktifkan mode edit. Hanya tampil untuk admin.
+//
+// Kalau dimuat di dalam iframe pratinjau admin (DevicePreviewFrame), bar ini
+// TIDAK dirender di sini — status & perintahnya dijembatani lewat
+// postMessage ke halaman induk, yang menampilkan tombol yang sama di bar
+// atas (sebelah pilihan Desktop/Tablet/HP) supaya tidak perlu scroll.
+export const EDIT_BRIDGE_STATE = 'lazis-edit:state'
+export const EDIT_BRIDGE_CMD = 'lazis-edit:cmd'
+
 export default function EditToolbar() {
   const { isAdmin, editing, setEditing } = useEditMode()
   const { pendingCount, saveAll, discardAll, publish } = useTextElementsContext()
   const [busy, setBusy] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [embedded, setEmbedded] = useState(false)
+  const handlersRef = useRef({})
+
+  useEffect(() => {
+    setEmbedded(window.parent !== window)
+  }, [])
+
+  // Kirim status terbaru ke halaman induk.
+  const postState = () => {
+    if (!embedded) return
+    window.parent.postMessage(
+      { type: EDIT_BRIDGE_STATE, isAdmin, editing, pendingCount, busy, publishing },
+      window.location.origin,
+    )
+  }
+  useEffect(postState, [embedded, isAdmin, editing, pendingCount, busy, publishing]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Terima perintah tombol dari halaman induk.
+  useEffect(() => {
+    if (!embedded) return
+    const onMessage = (e) => {
+      if (e.origin !== window.location.origin || e.source !== window.parent) return
+      if (e.data?.type !== EDIT_BRIDGE_CMD) return
+      handlersRef.current[e.data.action]?.()
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [embedded])
 
   if (!isAdmin) return null
 
@@ -73,6 +109,9 @@ export default function EditToolbar() {
       setPublishing(false)
     }
   }
+
+  handlersRef.current = { save: onSave, discard: onDiscard, toggle: onToggleEditing, ping: postState }
+  if (embedded) return null
 
   return (
     <div className="inline-edit-toolbar">

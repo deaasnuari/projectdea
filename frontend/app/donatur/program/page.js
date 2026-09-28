@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import ProgramListSection from './ProgramListSection'
 
 export const metadata = {
@@ -10,7 +11,9 @@ export default function ProgramPage() {
   return (
     <>
       <Navbar />
-      <ProgramListSection />
+      <TextElementsProvider page="program">
+        <ProgramListSection />
+      </TextElementsProvider>
       <Footer />
     </>
   )

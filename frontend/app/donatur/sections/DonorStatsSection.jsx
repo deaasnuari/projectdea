@@ -32,7 +32,7 @@ export default function DonorStatsSection() {
   }, [content])
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-navy to-navy-dark py-5">
+    <section className="relative overflow-hidden bg-gradient-to-br from-navy to-navy-dark py-3">
       {/* Pola bintang delapan sudut yang samar, senada dengan section hero,
           supaya area navy solid ini tetap terasa satu keluarga dengan
           background hero, bukan potongan warna yang berdiri sendiri. */}
@@ -51,22 +51,22 @@ export default function DonorStatsSection() {
       </svg>
 
       <div className="container relative z-[1]">
-        <h2 className="mb-3 text-center font-heading text-sm font-bold text-white max-[600px]:text-xs">
+        <h2 className="mb-0.5 text-center font-heading text-xs font-bold text-white">
           {content.title}
         </h2>
-        <p className="mx-auto mb-4 max-w-xl text-center text-xs text-white/60">{content.description}</p>
+        <p className="mx-auto mb-2.5 max-w-xl text-center text-[11px] text-white/60">{content.description}</p>
 
         {/* Grid dengan kolom lebar sama supaya angka tetap sejajar di atas
             labelnya, berapa pun panjang teks label (label panjang seperti
             "Donatur Orang Tua Asuh" tidak lagi menggeser angka). 2 kolom di
             HP, 4 kolom mulai tablet. */}
-        <div className="mx-auto grid max-w-xs grid-cols-2 gap-x-4 gap-y-5 sm:max-w-2xl sm:grid-cols-4">
+        <div className="mx-auto grid max-w-xs grid-cols-2 gap-x-4 gap-y-2.5 sm:max-w-2xl sm:grid-cols-4">
           {content.stats.map((stat, i) => (
             <div key={stat.label || i} className="flex flex-col items-center text-center">
-              <span className="block font-heading text-lg font-extrabold text-gold">
+              <span className="block font-heading text-base font-extrabold leading-tight text-gold">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
               </span>
-              <span className="mt-0.5 block text-[9px] font-semibold uppercase leading-tight tracking-[0.08em] text-white/70">
+              <span className="block text-[9px] font-semibold uppercase leading-tight tracking-[0.06em] text-white/70">
                 {stat.label}
               </span>
             </div>

@@ -17,9 +17,22 @@ function ActiveTag() {
   )
 }
 
-const Caret = () => (
-  <svg viewBox="0 0 20 20" fill="currentColor" width="9" height="9" className="ml-0.5 inline-block">
-    <path d="M5.5 7.5L10 12l4.5-4.5z" />
+// Panah dropdown — chevron garis (bukan segitiga kecil) supaya jelas
+// terlihat & gampang diklik; berputar ke atas saat dropdown terbuka.
+const Caret = ({ open = false }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    width="14"
+    height="14"
+    aria-hidden="true"
+    className={`inline-block transition-transform duration-200 group-hover/nav:rotate-180 ${open ? 'rotate-180' : ''}`}
+  >
+    <path d="M6 9l6 6 6-6" />
   </svg>
 )
 
@@ -182,9 +195,9 @@ export default function Navbar({ solid = false }) {
                   aria-label={`Buka submenu ${item.name}`}
                   aria-expanded={open}
                   onClick={() => setOpenId((id) => (id === item.id ? null : item.id))}
-                  className="nav-top ml-0.5 text-white/70 hover:text-white"
+                  className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                 >
-                  <Caret />
+                  <Caret open={open} />
                 </button>
 
                 {/* Panel dropdown — muncul saat hover (CSS) atau saat caret

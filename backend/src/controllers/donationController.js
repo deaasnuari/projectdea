@@ -42,6 +42,7 @@ async function list(req, res, next) {
         status: req.query.status,
         source: req.query.source,
         jenis: req.query.jenis,
+        trash: req.query.trash === '1',
       }),
     })
   } catch (err) {
@@ -92,7 +93,7 @@ async function updateStatus(req, res, next) {
   }
 }
 
-// DELETE /api/donations/:id  (admin)
+// DELETE /api/donations/:id  (admin) — pindahkan ke Sampah
 async function remove(req, res, next) {
   try {
     const ok = await Donation.remove(req.params.id)
@@ -103,16 +104,45 @@ async function remove(req, res, next) {
   }
 }
 
-// POST /api/donations/bulk-delete  (admin)  body: { ids: [1,2,3] }
-async function removeBulk(req, res, next) {
+// Aksi massal Sampah: body { ids: [1,2,3] }
+//   POST /api/donations/bulk-delete   → pindahkan ke Sampah
+//   POST /api/donations/bulk-restore  → pulihkan dari Sampah
+//   POST /api/donations/bulk-purge    → hapus permanen (hanya isi Sampah)
+function bulk(fnName) {
+  return async (req, res, next) => {
+    try {
+      const ids = Array.isArray(req.body?.ids) ? req.body.ids : []
+      if (ids.length === 0) return res.status(400).json({ error: 'Tidak ada donasi yang dipilih' })
+      const count = await Donation[fnName](ids)
+      res.json({ ok: true, count, deleted: count })
+    } catch (err) {
+      next(err)
+    }
+  }
+}
+const removeBulk = bulk('removeMany')
+const restoreBulk = bulk('restoreMany')
+const purgeBulk = bulk('purgeMany')
+
+// POST /api/donations/trash/empty  (admin) — kosongkan Sampah
+async function emptyTrash(_req, res, next) {
   try {
-    const ids = Array.isArray(req.body?.ids) ? req.body.ids : []
-    if (ids.length === 0) return res.status(400).json({ error: 'Tidak ada donasi yang dipilih' })
-    const deleted = await Donation.removeMany(ids)
-    res.json({ ok: true, deleted })
+    res.json({ ok: true, count: await Donation.emptyTrash() })
   } catch (err) {
     next(err)
   }
 }
 
-module.exports = { create, list, stats, jenisOptions, proof, updateStatus, remove, removeBulk }
+module.exports = {
+  create,
+  list,
+  stats,
+  jenisOptions,
+  proof,
+  updateStatus,
+  remove,
+  removeBulk,
+  restoreBulk,
+  purgeBulk,
+  emptyTrash,
+}

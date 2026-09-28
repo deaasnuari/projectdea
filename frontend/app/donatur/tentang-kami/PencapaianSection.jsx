@@ -1,6 +1,7 @@
 'use client'
 
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useTentangContent } from './tentangData'
 
 export default function PencapaianSection() {
@@ -72,6 +73,7 @@ export default function PencapaianSection() {
           label="paragraf pencapaian"
           multiline
         />
+        <CustomTexts section="pencapaian" tone="dark" className="mx-auto mt-3 w-full max-w-[560px]" />
       </div>
     </section>
   )

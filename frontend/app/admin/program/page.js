@@ -10,6 +10,7 @@ import { PROGRAM_THEMES, themeKeyOf } from '@/app/donatur/program/programData'
 import { useDonationMethods, DEFAULT_JENIS_DONASI } from '@/components/donation/donationMethodsData'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
 import { toast, confirmDialog } from '@/components/ui/feedback'
+import DevicePreviewFrame from '@/components/inline-edit/DevicePreviewFrame'
 
 //ini halaman admin CRUD "Daftar Program" — tersimpan di tabel `programs` di
 // backend. Jenis donasi & rekening dikelola di panel bawah halaman ini.
@@ -190,6 +191,17 @@ export default function AdminProgramPage() {
           Tambah Program
         </button>
       </div>
+
+      {/* Teks header halaman donatur — edit langsung di pratinjau (klik ✏️),
+          Simpan Semua → draf, Selesai Edit → terbit. */}
+      <section className="mb-8">
+        <h2 className="mb-1 text-sm font-bold text-navy">Teks Header Halaman Daftar Program</h2>
+        <p className="mb-3 text-[13px] text-gray-500">
+          Klik <b>Edit Konten</b>, lalu klik ✏️ pada teks untuk mengubahnya. Klik <b>Simpan Semua</b> untuk
+          menyimpan sebagai draf, lalu <b>Selesai Edit</b> untuk menerbitkannya.
+        </p>
+        <DevicePreviewFrame page="program" />
+      </section>
 
       {error && (
         <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">

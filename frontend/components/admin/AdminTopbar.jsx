@@ -9,6 +9,7 @@ import AdminProfileMenu from '@/components/admin/AdminProfileMenu'
 // "/admin" dicek paling akhir dengan pencocokan persis.
 const PAGE_TITLES = [
   ['/admin/riwayat-donasi', 'Riwayat Donasi'],
+  ['/admin/sampah-donasi', 'Sampah Donasi'],
   ['/admin/pesan-masuk', 'Pesan Masuk'],
   ['/admin/konten-kami-peduli', 'Konten Kami Peduli'],
   ['/admin/konten-tentang-kami', 'Konten Tentang Kami'],

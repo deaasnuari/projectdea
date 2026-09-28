@@ -1,11 +1,4 @@
-import TentangSection from '@/app/donatur/tentang-kami/TentangSection'
-import SejarahSection from '@/app/donatur/tentang-kami/SejarahSection'
-import PencapaianSection from '@/app/donatur/tentang-kami/PencapaianSection'
-import NilaiSection from '@/app/donatur/tentang-kami/NilaiSection'
-import TimSection from '@/app/donatur/tentang-kami/TimSection'
-import GabungMisiSection from '@/app/donatur/tentang-kami/GabungMisiSection'
-import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
-import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
+import DevicePreviewFrame from '@/components/inline-edit/DevicePreviewFrame'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
 
 export const metadata = {
@@ -24,23 +17,14 @@ export default function AdminKontenTentangKamiPage() {
           mengelola item. Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf (belum tampil ke
           publik), lalu klik <b>Selesai Edit</b> untuk menerbitkannya. Daftar anggota tim diatur di
           menu Tim.
+          Tampilan tablet &amp; HP menyesuaikan otomatis.
         </p>
       </div>
 
-      {/* Pratinjau halaman dibingkai dalam kartu. Jarak atas hero dirapatkan
-          untuk pratinjau admin (tanpa mengubah tampilan publik). */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#tentang-hero]:!pt-10 [&_#tentang-hero]:!pb-6">
-        <InlineEditProvider>
-          <TextElementsProvider page="tentang-kami">
-            <TentangSection />
-            <SejarahSection />
-            <PencapaianSection />
-            <NilaiSection />
-            <TimSection />
-            <GabungMisiSection />
-          </TextElementsProvider>
-        </InlineEditProvider>
-      </div>
+      {/* Pratinjau per perangkat (Desktop / Tablet / HP) — isinya dimuat di
+          iframe dari /admin-pratinjau/tentang-kami supaya tata letak responsif tiap
+          perangkat benar-benar aktif saat diedit. */}
+      <DevicePreviewFrame page="tentang-kami" />
 
       {/* Metode donasi untuk tombol "Donasi via Transfer" di halaman ini —
           terpisah dari metode donasi kartu program, jadi rekeningnya bisa

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableText from '@/components/inline-edit/EditableText'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKontakContent, kontakHref } from './kontakData'
@@ -264,6 +265,7 @@ export default function ContactSection() {
             label="paragraf pengantar"
             multiline
           />
+          <CustomTexts section="hero" tone="dark" className="mt-4 max-w-[560px]" />
         </div>
       </PageHeroBackground>
 
@@ -335,6 +337,7 @@ export default function ContactSection() {
               label="keterangan formulir"
               multiline
             />
+            <CustomTexts section="form" className="mb-3" />
 
             {sent ? (
               <div className="rounded-xl bg-primary/5 p-5 text-center">

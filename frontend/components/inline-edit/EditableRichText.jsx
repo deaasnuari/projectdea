@@ -6,6 +6,7 @@ import { useEditMode } from './EditModeContext'
 import { useTextElementsContext } from './TextElementsContext'
 import { toast } from '@/components/ui/feedback'
 import { FONT_FAMILY_OPTIONS, FONT_WEIGHT_OPTIONS, TEXT_ALIGN_OPTIONS } from '@/services/textElements'
+import { useDevice } from './responsive'
 
 // Peta field DB (camelCase) → properti CSS. Diterapkan lewat
 // element.style.setProperty(..., 'important') supaya menang atas kelas
@@ -22,14 +23,66 @@ const CSS_MAP = {
   letterSpacing: 'letter-spacing',
 }
 
-function applyImportant(el, src) {
+// Ukuran font px yang besar (judul) dibuat responsif: penuh di layar ≥1280px,
+// mengecil mengikuti lebar layar di tablet/HP (minimal 60%). Font kecil
+// (≤20px, teks isi) dibiarkan apa adanya supaya tetap terbaca.
+function responsiveFontSize(v) {
+  const m = /^(\d+(?:\.\d+)?)px$/.exec(String(v).trim())
+  if (!m) return v
+  const px = parseFloat(m[1])
+  if (px <= 20) return v
+  const min = Math.max(16, Math.round(px * 0.6))
+  return `clamp(${min}px, ${+(px / 12.8).toFixed(3)}vw, ${px}px)`
+}
+
+// Nilai CSS efektif: satu pengaturan untuk semua perangkat. Ukuran font besar
+// diskalakan otomatis mengikuti lebar layar (lihat responsiveFontSize).
+function effectiveCss(src) {
+  const out = {}
+  for (const field of Object.keys(CSS_MAP)) {
+    const v = src && src[field]
+    if (v) out[field] = field === 'fontSize' ? responsiveFontSize(v) : v
+  }
+  return out
+}
+
+function applyImportant(el, css) {
   if (!el) return
   for (const [field, cssProp] of Object.entries(CSS_MAP)) {
-    const v = src && src[field]
+    const v = css[field]
     if (v) el.style.setProperty(cssProp, v, 'important')
     else el.style.removeProperty(cssProp)
   }
 }
+
+// Kotak acuan ukuran responsif: `.container` terdekat (lebar konten section,
+// sama di pratinjau admin & halaman publik), kalau tak ada → section/parent.
+function refBoxOf(el) {
+  const box = el?.closest('.container') || el?.closest('section') || el?.parentElement
+  if (!box) return null
+  const r = box.getBoundingClientRect()
+  const cs = getComputedStyle(box)
+  const left = r.left + (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0)
+  const right = r.right - (parseFloat(cs.paddingRight) || 0) - (parseFloat(cs.borderRightWidth) || 0)
+  return { el: box, left, right, width: Math.max(0, right - left) }
+}
+
+// Lebar kotak & posisi X disimpan sebagai persen lebar kotak acuan ("12.5%")
+// supaya ikut mengecil/membesar di tablet/laptop. Nilai lama berformat px
+// ("240px" / "240") tetap didukung.
+function toPx(v, refW) {
+  if (v == null || v === '') return 0
+  const s = String(v).trim()
+  const n = parseFloat(s)
+  if (!Number.isFinite(n)) return 0
+  return s.endsWith('%') ? (n / 100) * (refW || 0) : n
+}
+const toPct = (px, refW) => (refW ? `${+((px / refW) * 100).toFixed(2)}%` : `${Math.round(px)}px`)
+const isPct = (v) => String(v || '').trim().endsWith('%')
+
+// Lebar area konten `.container` di layar desktop (max-w 1200px − padding).
+// Acuan untuk membawa susunan desktop ke layar yang lebih kecil.
+const DESKTOP_REF_W = 1152
 
 const PencilIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true">
@@ -55,21 +108,9 @@ const EMPTY_DRAFT = {
 }
 
 function rowToDraft(row, fallbackText) {
-  return {
-    content: row?.content ?? fallbackText ?? '',
-    fontFamily: row?.fontFamily || '',
-    fontSize: row?.fontSize || '',
-    fontWeight: row?.fontWeight || '',
-    fontStyle: row?.fontStyle || '',
-    textDecoration: row?.textDecoration || '',
-    textColor: row?.textColor || '',
-    textAlign: row?.textAlign || '',
-    lineHeight: row?.lineHeight || '',
-    letterSpacing: row?.letterSpacing || '',
-    offsetX: row?.offsetX || '',
-    offsetY: row?.offsetY || '',
-    boxWidth: row?.boxWidth || '',
-  }
+  const d = { ...EMPTY_DRAFT, content: row?.content ?? fallbackText ?? '' }
+  for (const f of Object.keys(EMPTY_DRAFT)) if (f !== 'content') d[f] = row?.[f] || ''
+  return d
 }
 
 const num = (v) => {
@@ -106,6 +147,8 @@ export default function EditableRichText({
   style,
   label = 'teks ini',
   multiline = false,
+  // Teks tambahan buatan admin: tombol "Reset ke bawaan" jadi "Hapus teks".
+  removable = false,
 }) {
   const { editing } = useEditMode()
   const ctx = useTextElementsContext()
@@ -121,6 +164,17 @@ export default function EditableRichText({
   // setelah dilepas, ditahan lewat `ctx.stage()` (belum masuk DB — baru
   // dikirim saat admin klik "Simpan Semua" di bar bawah halaman).
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 })
+  // Responsif otomatis — admin cukup menata sekali (di layar desktop), lalu
+  // susunannya ikut terbawa ke tablet & HP:
+  //   - Ukuran font besar mengecil otomatis (responsiveFontSize).
+  //   - Kotak yang dilebarkan tetap selebar di desktop; kalau layarnya tidak
+  //     cukup, dipersempit pas selebar area konten (tetap di barisnya sendiri
+  //     seperti di desktop, tidak keluar layar).
+  //   - Geseran posisi diperkecil sebanding lebar layar, dan selalu dijaga
+  //     di dalam area konten.
+  // Tarik-geser & ubah lebar hanya di pratinjau Desktop.
+  const device = useDevice()
+  const canArrange = device === 'desktop'
   const dragRef = useRef(null) // { startX, startY, baseX, baseY } saat sedang menyeret
   const movedRef = useRef(false) // true kalau tarikan terakhir benar-benar menggeser (bukan klik)
 
@@ -132,39 +186,60 @@ export default function EditableRichText({
   const content = row?.content ?? defaultText
 
   // Sumber style efektif: saat editor terbuka → draft (live preview), selain
-  // itu → nilai tersimpan dari DB.
+  // itu → nilai tersimpan dari DB (row sudah termasuk tahanan ctx.stage()).
   const styleSrc = active ? draft : row || {}
+  const cssKey = JSON.stringify(effectiveCss(styleSrc))
 
   // Terapkan style ke node dengan !important, baik untuk pengunjung maupun
   // saat mode edit. removeProperty saat kosong → balik ke bawaan Tailwind.
   useLayoutEffect(() => {
-    applyImportant(anchorRef.current, styleSrc)
-  }, [
-    styleSrc.fontFamily,
-    styleSrc.fontSize,
-    styleSrc.fontWeight,
-    styleSrc.fontStyle,
-    styleSrc.textDecoration,
-    styleSrc.textColor,
-    styleSrc.textAlign,
-    styleSrc.lineHeight,
-    styleSrc.letterSpacing,
-    editing,
-  ])
+    applyImportant(anchorRef.current, JSON.parse(cssKey))
+  }, [cssKey, editing])
 
-  // Geser posisi (position:relative + left/top, px) & atur panjang/lebar teks
-  // (max-width). Sumber = draft saat editor terbuka, kalau tidak → nilai DB;
-  // posisi ditambah `dragDelta` selama menyeret.
-  const baseX = num(active ? draft.offsetX : row?.offsetX)
-  const baseY = num(active ? draft.offsetY : row?.offsetY)
-  // Lebar efektif: saat menarik gagang → resizeW; selain itu → draft/DB
-  // (row sudah termasuk perubahan yang ditahan lewat ctx.stage()).
-  const boxWidth = resizeW != null ? `${resizeW}px` : (active ? draft.boxWidth : row?.boxWidth) || ''
+  // Geser posisi (position:relative + left/top) & atur lebar kotak teks, sesuai
+  // aturan perangkat di atas. Posisi ditambah `dragDelta` selama menyeret.
+  // X & lebar berupa persen lebar `.container` (lihat toPx) → dihitung ulang
+  // tiap kali ukuran layar berubah.
+  const rawX = styleSrc.offsetX || ''
+  const baseY = num(styleSrc.offsetY)
+  const rawW = styleSrc.boxWidth || ''
+
+  // Picu hitung ulang layout saat lebar kotak acuan berubah (resize/rotasi).
+  const [layoutTick, setLayoutTick] = useState(0)
+  useEffect(() => {
+    const ref = refBoxOf(anchorRef.current)
+    if (!ref || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => setLayoutTick((t) => t + 1))
+    ro.observe(ref.el)
+    return () => ro.disconnect()
+  }, [editing])
+
   useLayoutEffect(() => {
     const el = anchorRef.current
     if (!el) return
-    const x = baseX + dragDelta.x
-    const y = baseY + dragDelta.y
+    const ref = refBoxOf(el)
+    const refW = ref?.width || 0
+    // Layar lebih kecil dari desktop → geseran px diperkecil sebanding (geseran
+    // persen sudah otomatis ikut lebar area konten), lebar kotak memakai
+    // ukuran desktopnya lalu dibatasi area konten di bawah.
+    const small = device !== 'desktop'
+    const ratio = small && refW ? Math.min(1, refW / DESKTOP_REF_W) : 1
+    let x = (isPct(rawX) ? toPx(rawX, refW) : toPx(rawX, refW) * ratio) + dragDelta.x
+    const y = Math.round(baseY * ratio) + dragDelta.y
+    let w = resizeW != null ? resizeW : toPx(rawW, small ? DESKTOP_REF_W : refW)
+
+    // Posisi kiri "asli" elemen (tanpa geseran left yang sedang terpasang).
+    const appliedLeft = parseFloat(el.style.getPropertyValue('left')) || 0
+    const naturalLeft = el.getBoundingClientRect().left - appliedLeft
+    if (ref && refW) {
+      // Jaga teks tetap di dalam area konten: tidak keluar tepi kiri/kanan.
+      const minX = ref.left - naturalLeft
+      const maxX = Math.max(minX, ref.right - naturalLeft - 60)
+      x = Math.min(Math.max(x, minX), maxX)
+      if (w) w = Math.max(60, Math.min(w, ref.right - (naturalLeft + x)))
+    }
+    x = Math.round(x)
+
     // Mode edit selalu relative supaya gagang resize bisa ditempel.
     if (x || y || editing) {
       el.style.setProperty('position', 'relative', 'important')
@@ -175,12 +250,12 @@ export default function EditableRichText({
       el.style.removeProperty('left')
       el.style.removeProperty('top')
     }
-    if (boxWidth) {
+    if (w) {
       // Pakai `width` (bukan max-width) supaya kotak bisa dilebarkan melebihi
       // panjang teksnya. `max-width:none` + `white-space` mengalahkan kelas
       // Tailwind seperti `max-w-[520px]` dan wrapping bawaan.
       el.style.setProperty('display', 'inline-block', 'important')
-      el.style.setProperty('width', boxWidth, 'important')
+      el.style.setProperty('width', `${Math.round(w)}px`, 'important')
       el.style.setProperty('max-width', 'none', 'important')
       el.style.setProperty('white-space', 'normal', 'important')
     } else {
@@ -189,14 +264,16 @@ export default function EditableRichText({
       el.style.removeProperty('max-width')
       el.style.removeProperty('white-space')
     }
-  }, [baseX, baseY, dragDelta.x, dragDelta.y, boxWidth, editing])
+  }, [rawX, baseY, rawW, resizeW, dragDelta.x, dragDelta.y, editing, layoutTick, device])
+
+  const refWidth = () => refBoxOf(anchorRef.current)?.width || 0
 
   // --- Resize: tarik gagang di tepi kanan untuk melebar/menyempitkan kotak ---
   const onResizePointerDown = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    const cur = parseFloat(active ? draft.boxWidth : row?.boxWidth)
-    const baseW = Number.isFinite(cur) ? cur : Math.round(anchorRef.current?.getBoundingClientRect().width || 240)
+    // Mulai dari lebar yang benar-benar tampil (sudah dibatasi tepi kanan).
+    const baseW = Math.round(anchorRef.current?.getBoundingClientRect().width || 240)
     resizeRef.current = { startX: e.clientX, baseW }
     setResizeW(baseW)
     try {
@@ -219,23 +296,30 @@ export default function EditableRichText({
       /* abaikan */
     }
     if (!r) return
-    const w = Math.max(60, Math.round(r.baseW + (e.clientX - r.startX)))
+    // Lebar yang tampil sudah dibatasi tepi kanan area konten → simpan itu,
+    // dalam persen lebar `.container` supaya responsif di layar lain.
+    const shown = anchorRef.current?.getBoundingClientRect().width
+    const w = Math.max(60, Math.round(shown || r.baseW + (e.clientX - r.startX)))
+    const boxWidth = toPct(w, refWidth())
     setResizeW(null)
     if (active) {
-      patch({ boxWidth: `${w}px` })
+      patch({ boxWidth })
       return
     }
     // Tahan perubahan — baru dikirim ke database lewat bar "Simpan Semua".
-    ctx.stage(elementKey, { page: ctx.page, section, boxWidth: `${w}px` })
+    ctx.stage(elementKey, { page: ctx.page, section, boxWidth })
   }
 
   // --- Drag untuk memindahkan teks (hanya mode edit, panel tertutup) ---
   const onDragPointerDown = (e) => {
-    if (!editing || active || e.button !== 0) return
+    if (!editing || active || !canArrange || e.button !== 0) return
     if (e.target.closest?.('.inline-edit-pencil')) return
     e.preventDefault()
     e.stopPropagation()
-    dragRef.current = { startX: e.clientX, startY: e.clientY, baseX, baseY }
+    // Basis X = geseran yang benar-benar terpasang (sudah dikonversi dari %
+    // & dibatasi tepi), supaya tarikan mulai tepat dari posisi yang terlihat.
+    const appliedX = parseFloat(anchorRef.current?.style.getPropertyValue('left')) || 0
+    dragRef.current = { startX: e.clientX, startY: e.clientY, baseX: appliedX, baseY }
     movedRef.current = false
     try {
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -259,14 +343,16 @@ export default function EditableRichText({
       /* abaikan */
     }
     if (!d || !movedRef.current) return
-    const nx = Math.round(d.baseX + (e.clientX - d.startX))
+    // X yang tersimpan = geseran yang tampil (sudah dibatasi tepi area konten).
+    const shownX = parseFloat(anchorRef.current?.style.getPropertyValue('left'))
+    const nx = Math.round(Number.isFinite(shownX) ? shownX : d.baseX + (e.clientX - d.startX))
     const ny = Math.round(d.baseY + (e.clientY - d.startY))
     setDragDelta({ x: 0, y: 0 })
     // Tahan perubahan — baru dikirim ke database lewat bar "Simpan Semua".
     ctx.stage(elementKey, {
       page: ctx.page,
       section,
-      offsetX: nx ? String(nx) : '',
+      offsetX: nx ? toPct(nx, refWidth()) : '',
       offsetY: ny ? String(ny) : '',
     })
     // Klik yang menyusul setelah pointerup jangan sampai membuka editor.
@@ -282,7 +368,12 @@ export default function EditableRichText({
     }
     e?.preventDefault?.()
     e?.stopPropagation?.()
-    setDraft(rowToDraft(row, defaultText))
+    // Nilai lama berformat px dikonversi ke % supaya ikut responsif setelah diterapkan.
+    const d = rowToDraft(row, defaultText)
+    const refW = refWidth()
+    if (d.offsetX && !isPct(d.offsetX)) d.offsetX = toPct(toPx(d.offsetX, refW), refW)
+    if (d.boxWidth && !isPct(d.boxWidth)) d.boxWidth = toPct(toPx(d.boxWidth, refW), refW)
+    setDraft(d)
     const r = anchorRef.current?.getBoundingClientRect()
     if (r) setAnchor({ top: r.bottom, left: r.left, width: r.width })
     setActive(true)
@@ -293,23 +384,7 @@ export default function EditableRichText({
   const patch = (p) => setDraft((d) => ({ ...d, ...p }))
 
   const submit = () => {
-    ctx.stage(elementKey, {
-      page: ctx.page,
-      section,
-      content: draft.content,
-      fontFamily: draft.fontFamily,
-      fontSize: draft.fontSize,
-      fontWeight: draft.fontWeight,
-      fontStyle: draft.fontStyle,
-      textDecoration: draft.textDecoration,
-      textColor: draft.textColor,
-      textAlign: draft.textAlign,
-      lineHeight: draft.lineHeight,
-      letterSpacing: draft.letterSpacing,
-      offsetX: draft.offsetX,
-      offsetY: draft.offsetY,
-      boxWidth: draft.boxWidth,
-    })
+    ctx.stage(elementKey, { page: ctx.page, section, ...draft })
     setActive(false)
     toast('Perubahan ditahan — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
   }
@@ -317,7 +392,12 @@ export default function EditableRichText({
   const doReset = () => {
     ctx.stageReset(elementKey)
     setActive(false)
-    toast('Reset ditahan — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
+    toast(
+      removable
+        ? 'Teks dihapus — klik "Simpan Semua" untuk menyimpan.'
+        : 'Reset ditahan — klik "Simpan Semua" untuk menyimpan.',
+      { tone: 'info' },
+    )
   }
 
   useEffect(() => {
@@ -365,12 +445,14 @@ export default function EditableRichText({
       <As
         ref={anchorRef}
         className={`${className} inline-editable`}
-        style={active ? style : { ...style, cursor: 'move', touchAction: 'none' }}
+        style={active || !canArrange ? style : { ...style, cursor: 'move', touchAction: 'none' }}
         onClick={openEditor}
         onPointerDown={onDragPointerDown}
         onPointerMove={onDragPointerMove}
         onPointerUp={onDragPointerUp}
-        title={active ? `Edit ${label}` : `Klik untuk edit · tarik untuk memindahkan`}
+        title={
+          active ? `Edit ${label}` : canArrange ? `Klik untuk edit · tarik untuk memindahkan` : `Klik untuk edit`
+        }
       >
         {active ? draft.content || ' ' : content}
         <span
@@ -385,15 +467,17 @@ export default function EditableRichText({
           {PencilIcon}
         </span>
         {/* Gagang ubah lebar — tarik ke kiri/kanan untuk besar-kecilkan kotak */}
-        <span
-          aria-label={`Ubah lebar ${label}`}
-          className="inline-edit-resize"
-          title="Tarik untuk mengubah lebar kotak"
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={onResizePointerDown}
-          onPointerMove={onResizePointerMove}
-          onPointerUp={onResizePointerUp}
-        />
+        {canArrange && (
+          <span
+            aria-label={`Ubah lebar ${label}`}
+            className="inline-edit-resize"
+            title="Tarik untuk mengubah lebar kotak"
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={onResizePointerDown}
+            onPointerMove={onResizePointerMove}
+            onPointerUp={onResizePointerUp}
+          />
+        )}
       </As>
 
       {active &&
@@ -409,6 +493,13 @@ export default function EditableRichText({
             }}
             onClick={(e) => e.stopPropagation()}
           >
+            {!canArrange && (
+              <p className="border-b border-gray-100 bg-primary/5 px-2 py-1.5 text-[10px] leading-snug text-gray-500">
+                Tampilan tablet &amp; HP <b>menyesuaikan otomatis</b>. Geser posisi &amp; ubah lebar kotak
+                dilakukan di pratinjau <b>Desktop</b>.
+              </p>
+            )}
+
             {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-1.5 border-b border-gray-100 bg-gray-50 p-2">
               <select
@@ -537,18 +628,25 @@ export default function EditableRichText({
               </label>
             </div>
 
-            {/* Geser posisi (px) — atau tarik langsung teksnya di halaman */}
+            {canArrange && (
+              <>
+            {/* Geser posisi — atau tarik langsung teksnya di halaman (laptop/desktop) */}
             <div className="flex items-center gap-2 border-b border-gray-100 p-2">
               <span className="text-[10px] font-semibold uppercase text-gray-400">Posisi</span>
-              <label className="flex items-center gap-1 text-[10px] text-gray-400">
+              <label
+                className="flex items-center gap-1 text-[10px] text-gray-400"
+                title="Geser horizontal, dalam persen lebar area konten (ikut responsif)"
+              >
                 X
                 <input
                   type="number"
+                  step="0.5"
                   value={draft.offsetX === '' ? '' : parseFloat(draft.offsetX)}
-                  onChange={(e) => patch({ offsetX: e.target.value === '' ? '' : e.target.value })}
+                  onChange={(e) => patch({ offsetX: e.target.value === '' ? '' : `${e.target.value}%` })}
                   placeholder="0"
                   className="w-14 rounded border border-gray-200 px-1.5 py-1 text-[11px] text-navy"
                 />
+                %
               </label>
               <label className="flex items-center gap-1 text-[10px] text-gray-400">
                 Y
@@ -587,6 +685,9 @@ export default function EditableRichText({
               </div>
             )}
 
+              </>
+            )}
+
             {/* Isi teks */}
             <div className="p-2">
               <textarea
@@ -603,10 +704,10 @@ export default function EditableRichText({
                 type="button"
                 onClick={doReset}
                 disabled={!row}
-                className="rounded px-2 py-1.5 text-[11px] font-bold text-gray-500 hover:bg-gray-200 disabled:opacity-40"
+                className={`rounded px-2 py-1.5 text-[11px] font-bold hover:bg-gray-200 disabled:opacity-40 ${removable ? 'text-red-600' : 'text-gray-500'}`}
                 title='Ditahan sampai klik "Simpan Semua"'
               >
-                Reset ke bawaan
+                {removable ? 'Hapus teks' : 'Reset ke bawaan'}
               </button>
               <div className="flex gap-2">
                 <button

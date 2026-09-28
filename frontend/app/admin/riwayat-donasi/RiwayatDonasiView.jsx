@@ -1,0 +1,671 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { formatRp } from '@/services/format'
+import { useDonations } from '@/services/donations'
+import { toast, confirmDialog } from '@/components/ui/feedback'
+
+const TABS = [
+  { key: 'semua', label: 'Semua' },
+  { key: 'menunggu', label: 'Menunggu' },
+  { key: 'terverifikasi', label: 'Terverifikasi' },
+  { key: 'ditolak', label: 'Ditolak' },
+]
+
+const SOURCE_TABS = [
+  { key: 'semua', label: 'Semua Sumber' },
+  { key: 'program', label: 'Dari Program' },
+  { key: 'tentang', label: 'Dari Tentang Kami' },
+]
+
+const STATUS_STYLE = {
+  menunggu: 'bg-amber-100 text-amber-700',
+  terverifikasi: 'bg-green-100 text-green-700',
+  ditolak: 'bg-coral/15 text-coral',
+}
+
+const SOURCE_META = {
+  program: { label: 'Program', cls: 'bg-primary/10 text-primary-dark' },
+  tentang: { label: 'Tentang Kami', cls: 'bg-navy/10 text-navy' },
+  umum: { label: 'Umum', cls: 'bg-gray-100 text-gray-500' },
+}
+
+const STAT_ICONS = {
+  total: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <path d="M4 4h13a2 2 0 012 2v13l-2.5-1.5L14 20l-2.5-1.5L9 20l-2.5-1.5L4 20V4z" />
+      <path d="M8 8h8M8 12h8M8 16h5" />
+    </svg>
+  ),
+  menunggu: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </svg>
+  ),
+  terverifikasi: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <path d="M12 3a9 9 0 100 18 9 9 0 000-18z" />
+      <path d="M8.5 12l2.5 2.5L16 9" />
+    </svg>
+  ),
+  sampah: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+      <path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4h6v3" />
+    </svg>
+  ),
+  dana: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+      <path d="M3 7h15a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+      <path d="M3 7l3-3h10l3 3M16 13h.01" />
+    </svg>
+  ),
+}
+
+function fmtDate(iso) {
+  try {
+    const d = new Date(iso)
+    return {
+      date: d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    }
+  } catch {
+    return { date: iso, time: '' }
+  }
+}
+
+// Dipakai dua halaman: /admin/riwayat-donasi (trash=false) dan
+// /admin/sampah-donasi (trash=true, menu "Sampah" di bawah Riwayat Donasi).
+export default function RiwayatDonasiView({ trash = false }) {
+  const [tab, setTab] = useState('semua')
+  const [sourceTab, setSourceTab] = useState('semua')
+  // Sampah (seperti di email): donasi yang dihapus pindah ke sini dulu, tidak
+  // ikut dihitung, dan baru hilang kalau dihapus permanen dari sini.
+  const {
+    rows,
+    stats,
+    loading,
+    error,
+    changeStatus,
+    removeDonation,
+    removeManyDonations,
+    restoreDonations,
+    purgeDonations,
+    emptyTrash,
+  } = useDonations(trash ? 'semua' : tab, trash ? 'semua' : sourceTab, 'semua', trash)
+  const trashCount = Number(stats?.sampah) || 0
+
+  // Pilihan baris untuk hapus massal.
+  const [selected, setSelected] = useState(() => new Set())
+  const [bulkBusy, setBulkBusy] = useState(false)
+  useEffect(() => setSelected(new Set()), [tab, sourceTab])
+  // Buang id yang tidak ada lagi di rows (mis. setelah refresh).
+  useEffect(() => {
+    setSelected((prev) => {
+      const ids = new Set(rows.map((r) => r.id))
+      const next = new Set([...prev].filter((id) => ids.has(id)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [rows])
+
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id))
+  const toggleOne = (id) =>
+    setSelected((prev) => {
+      const n = new Set(prev)
+      n.has(id) ? n.delete(id) : n.add(id)
+      return n
+    })
+  const toggleAll = () =>
+    setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))
+
+  const handleBulkDelete = async () => {
+    const ids = [...selected]
+    if (!ids.length) return
+    const ok = await confirmDialog({
+      title: `Pindahkan ${ids.length} donasi ke Sampah?`,
+      message: `${ids.length} donasi terpilih dipindahkan ke Sampah dan tidak lagi dihitung. Masih bisa dipulihkan dari Sampah.`,
+      confirmLabel: `Pindahkan ke Sampah`,
+    })
+    if (!ok) return
+    setBulkBusy(true)
+    try {
+      const res = await removeManyDonations(ids)
+      setSelected(new Set())
+      toast(`${res?.count ?? ids.length} donasi dipindahkan ke Sampah.`, { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal menghapus donasi terpilih', { tone: 'error' })
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const handleDelete = async (d) => {
+    const nama = d.anonymous ? 'Anonim' : d.donor_name
+    const ok = await confirmDialog({
+      title: 'Pindahkan ke Sampah?',
+      message: `Donasi dari "${nama}" (${formatRp(Number(d.amount))}) dipindahkan ke Sampah dan tidak lagi dihitung. Masih bisa dipulihkan dari Sampah.`,
+      confirmLabel: 'Pindahkan ke Sampah',
+    })
+    if (!ok) return
+    try {
+      await removeDonation(d.id)
+      toast('Donasi dipindahkan ke Sampah.', { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal menghapus donasi', { tone: 'error' })
+    }
+  }
+
+  // --- Aksi di Sampah ---
+  const handleRestore = async (ids) => {
+    if (!ids.length) return
+    setBulkBusy(true)
+    try {
+      const res = await restoreDonations(ids)
+      setSelected(new Set())
+      toast(`${res?.count ?? ids.length} donasi dipulihkan dan dihitung lagi.`, { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal memulihkan donasi', { tone: 'error' })
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const handlePurge = async (ids) => {
+    if (!ids.length) return
+    const ok = await confirmDialog({
+      title: `Hapus permanen ${ids.length} donasi?`,
+      message: `${ids.length} donasi akan dihapus selamanya dari database. Tindakan ini tidak bisa dibatalkan.`,
+      confirmLabel: 'Hapus Permanen',
+    })
+    if (!ok) return
+    setBulkBusy(true)
+    try {
+      const res = await purgeDonations(ids)
+      setSelected(new Set())
+      toast(`${res?.count ?? ids.length} donasi dihapus permanen.`, { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal menghapus permanen', { tone: 'error' })
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const handleEmptyTrash = async () => {
+    const ok = await confirmDialog({
+      title: 'Kosongkan Sampah?',
+      message: `Semua ${trashCount} donasi di Sampah akan dihapus selamanya. Tindakan ini tidak bisa dibatalkan.`,
+      confirmLabel: 'Kosongkan Sampah',
+    })
+    if (!ok) return
+    setBulkBusy(true)
+    try {
+      const res = await emptyTrash()
+      setSelected(new Set())
+      toast(`${res?.count ?? 0} donasi dihapus permanen.`, { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal mengosongkan Sampah', { tone: 'error' })
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const STATUS_MSG = {
+    terverifikasi: 'Donasi diverifikasi.',
+    ditolak: 'Donasi ditolak.',
+    menunggu: 'Status dikembalikan ke menunggu.',
+  }
+  const applyStatus = async (id, status) => {
+    try {
+      await changeStatus(id, status)
+      toast(STATUS_MSG[status] || 'Status diperbarui.', { tone: 'success' })
+    } catch (err) {
+      toast(err.message || 'Gagal memperbarui status', { tone: 'error' })
+    }
+  }
+
+  const CARDS = [
+    { label: 'Total Donasi', value: stats?.total ?? 0, ink: 'text-navy', tint: 'bg-navy/5', icon: STAT_ICONS.total },
+    { label: 'Menunggu', value: stats?.menunggu ?? 0, ink: 'text-amber-600', tint: 'bg-amber-50', icon: STAT_ICONS.menunggu },
+    { label: 'Terverifikasi', value: stats?.terverifikasi ?? 0, ink: 'text-green-600', tint: 'bg-green-50', icon: STAT_ICONS.terverifikasi },
+    {
+      label: 'Dana Terkumpul',
+      value: formatRp(Number(stats?.total_terverifikasi ?? 0)),
+      ink: 'text-primary-dark',
+      tint: 'bg-primary/10',
+      icon: STAT_ICONS.dana,
+      sub: (
+        <span className="mt-2 flex w-full flex-col gap-1 border-t border-gray-100 pt-2 text-left text-[10px] leading-tight text-gray-400">
+          <span className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary-dark" /> Program
+            </span>
+            <b className="font-semibold text-primary-dark">{formatRp(Number(stats?.dana_program ?? 0))}</b>
+          </span>
+          <span className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-navy" /> Tentang Kami
+            </span>
+            <b className="font-semibold text-navy">{formatRp(Number(stats?.dana_tentang ?? 0))}</b>
+          </span>
+        </span>
+      ),
+    },
+  ]
+
+  // Tombol aksi dipakai di tabel (laptop) & di kartu (HP/iPad).
+  const renderActions = (d) =>
+    trash ? (
+      <>
+        <button
+          type="button"
+          onClick={() => handleRestore([d.id])}
+          disabled={bulkBusy}
+          className="rounded-lg bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary-dark transition-colors hover:bg-primary/20 disabled:opacity-60"
+        >
+          Pulihkan
+        </button>
+        <button
+          type="button"
+          onClick={() => handlePurge([d.id])}
+          disabled={bulkBusy}
+          className="rounded-lg bg-coral px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+        >
+          Hapus Permanen
+        </button>
+      </>
+    ) : (
+      <>
+        {d.status !== 'terverifikasi' && (
+          <button
+            type="button"
+            onClick={() => applyStatus(d.id, 'terverifikasi')}
+            className="rounded-lg bg-green-100 px-2.5 py-1 text-[11px] font-semibold text-green-700 transition-colors hover:bg-green-200"
+          >
+            Verifikasi
+          </button>
+        )}
+        {d.status !== 'ditolak' && (
+          <button
+            type="button"
+            onClick={() => applyStatus(d.id, 'ditolak')}
+            className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
+          >
+            Tolak
+          </button>
+        )}
+        {d.status !== 'menunggu' && (
+          <button
+            type="button"
+            onClick={() => applyStatus(d.id, 'menunggu')}
+            className="rounded-lg bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-500 transition-colors hover:bg-gray-200"
+          >
+            Batalkan
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => handleDelete(d)}
+          className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
+        >
+          Hapus
+        </button>
+      </>
+    )
+
+  // Tanggal dihapus (hanya di Sampah).
+  const deletedInfo = (d) => {
+    if (!trash || !d.deleted_at) return null
+    const t = fmtDate(d.deleted_at)
+    return (
+      <div className="mt-1 text-[11px] font-semibold text-coral">
+        Dihapus {t.date} · {t.time}
+      </div>
+    )
+  }
+
+  const menunggu = Number(stats?.menunggu) || 0
+
+  return (
+    <div>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Donasi</p>
+          <h1 className="font-heading text-xl font-bold text-navy">
+            {trash ? 'Sampah Donasi' : 'Riwayat Donasi'}
+          </h1>
+          <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
+            {trash ? (
+              <>
+                Donasi yang dihapus disimpan di sini dan <b>tidak ikut dihitung</b> di ringkasan, dana
+                terkumpul, maupun program. Pulihkan untuk menghitungnya lagi, atau hapus permanen.
+              </>
+            ) : (
+              'Donasi via transfer yang dikirim donatur — verifikasi atau tolak setelah pembayaran dicek.'
+            )}
+          </p>
+        </div>
+        {!trash && menunggu > 0 && (
+          <button
+            type="button"
+            onClick={() => setTab('menunggu')}
+            className="inline-flex animate-pulse items-center gap-2 rounded-full bg-coral px-3.5 py-2 text-xs font-bold text-white shadow-[0_6px_16px_-4px_rgba(231,76,60,0.6)] transition-transform hover:scale-[1.02]"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+            </span>
+            {menunggu} donasi menunggu verifikasi
+          </button>
+        )}
+        {trash && trashCount > 0 && (
+          <button
+            type="button"
+            onClick={handleEmptyTrash}
+            disabled={bulkBusy}
+            className="inline-flex items-center gap-1.5 rounded-full border border-coral/40 bg-white px-3.5 py-2 text-xs font-bold text-coral transition-colors hover:bg-coral/5 disabled:opacity-60"
+          >
+            {STAT_ICONS.sampah}
+            Kosongkan Sampah ({trashCount})
+          </button>
+        )}
+      </div>
+
+      {/* Ringkasan — hanya di Riwayat (isi Sampah tidak dihitung) */}
+      {!trash && (
+        <div className="mb-5 grid grid-cols-4 items-start gap-3 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
+          {CARDS.map((s) => (
+            <div key={s.label} className="card p-4">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${s.tint} ${s.ink}`}
+                >
+                  {s.icon}
+                </span>
+                <div className="min-w-0">
+                  <p className={`font-heading text-lg font-extrabold leading-tight ${s.ink}`}>{s.value}</p>
+                  <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-gray-400">
+                    {s.label}
+                  </p>
+                </div>
+              </div>
+              {s.sub}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Filter */}
+      <div className={`mb-4 flex flex-col gap-2.5 ${trash ? 'hidden' : ''}`}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">Status</span>
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTab(t.key)}
+              className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+                tab === t.key ? 'bg-navy text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">Sumber</span>
+          {SOURCE_TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setSourceTab(t.key)}
+              className={`rounded-full border px-3 py-1 text-xs font-bold transition-colors ${
+                sourceTab === t.key
+                  ? 'border-primary bg-primary/10 text-primary-dark'
+                  : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+      </div>
+
+      {error && (
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+          Gagal memuat data: {error}. Pastikan backend jalan di :3001.
+        </p>
+      )}
+
+      {/* Aksi massal — muncul saat ada baris terpilih */}
+      {selected.size > 0 && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-coral/30 bg-coral/5 px-4 py-2.5">
+          <span className="text-sm font-semibold text-navy">{selected.size} donasi dipilih</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSelected(new Set())}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-50"
+            >
+              Batal pilih
+            </button>
+            {trash ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleRestore([...selected])}
+                  disabled={bulkBusy}
+                  className="rounded-lg bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-60"
+                >
+                  Pulihkan ({selected.size})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePurge([...selected])}
+                  disabled={bulkBusy}
+                  className="rounded-lg bg-coral px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+                >
+                  Hapus Permanen ({selected.size})
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                disabled={bulkBusy}
+                className="rounded-lg bg-coral px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+              >
+                {bulkBusy ? 'Menghapus…' : `Hapus Terpilih (${selected.size})`}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tabel — laptop & iPad landscape */}
+      <div className="card hidden overflow-hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[880px] border-collapse text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">
+                <th className="px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    aria-label="Pilih semua"
+                    checked={allChecked}
+                    onChange={toggleAll}
+                    className="h-4 w-4 accent-primary"
+                  />
+                </th>
+                <th className="px-4 py-2.5 font-semibold">Donatur</th>
+                <th className="px-4 py-2.5 font-semibold">Sumber</th>
+                <th className="px-4 py-2.5 font-semibold">Jenis</th>
+                <th className="px-4 py-2.5 text-right font-semibold">Nominal</th>
+                <th className="px-4 py-2.5 font-semibold">Tanggal</th>
+                <th className="px-4 py-2.5 font-semibold">Status</th>
+                <th className="px-4 py-2.5 text-right font-semibold">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {rows.map((d) => {
+                const src = SOURCE_META[d.source] || SOURCE_META.umum
+                const t = fmtDate(d.created_at)
+                return (
+                  <tr
+                    key={d.id}
+                    className={`align-top transition-colors hover:bg-gray-50/60 ${
+                      selected.has(d.id) ? 'bg-primary/[0.04]' : ''
+                    }`}
+                  >
+                    <td className="px-3 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`Pilih donasi ${d.anonymous ? 'Anonim' : d.donor_name}`}
+                        checked={selected.has(d.id)}
+                        onChange={() => toggleOne(d.id)}
+                        className="h-4 w-4 accent-primary"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-semibold text-navy">{d.anonymous ? 'Anonim' : d.donor_name}</div>
+                      {d.note && (
+                        <div className="max-w-[200px] truncate text-[11px] italic text-gray-400">“{d.note}”</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${src.cls}`}>
+                        {src.label}
+                      </span>
+                      {d.source === 'program' && d.program && (
+                        <div className="mt-1 max-w-[180px] truncate text-[11px] text-gray-400">{d.program}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{d.jenis_label || d.jenis_id || '—'}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="font-semibold text-navy">{formatRp(Number(d.amount))}</div>
+                      <div className="text-[11px] text-gray-400">{d.bank_name || 'tanpa bank'}</div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">
+                      <div>{t.date}</div>
+                      <div className="text-[11px] text-gray-400">{t.time}</div>
+                      {deletedInfo(d)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[d.status]}`}
+                      >
+                        {d.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1.5">{renderActions(d)}</div>
+                    </td>
+                  </tr>
+                )
+              })}
+              {!loading && rows.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
+                    {trash ? 'Sampah kosong.' : `Belum ada donasi${tab !== 'semua' ? ` berstatus "${tab}"` : ''}.`}
+                  </td>
+                </tr>
+              )}
+              {loading && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
+                    Memuat…
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Kartu — HP & iPad portrait */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {rows.length > 0 && (
+          <label className="flex items-center gap-2 px-1 text-xs font-semibold text-gray-500">
+            <input
+              type="checkbox"
+              checked={allChecked}
+              onChange={toggleAll}
+              className="h-4 w-4 accent-primary"
+            />
+            Pilih semua ({rows.length})
+          </label>
+        )}
+        {loading && (
+          <div className="card p-6 text-center text-sm text-gray-400">Memuat…</div>
+        )}
+        {!loading && rows.length === 0 && (
+          <div className="card p-8 text-center text-sm text-gray-400">
+            {trash ? 'Sampah kosong.' : `Belum ada donasi${tab !== 'semua' ? ` berstatus "${tab}"` : ''}.`}
+          </div>
+        )}
+        {rows.map((d) => {
+          const src = SOURCE_META[d.source] || SOURCE_META.umum
+          const t = fmtDate(d.created_at)
+          return (
+            <div
+              key={d.id}
+              className={`card p-4 ${selected.has(d.id) ? 'ring-1 ring-primary/40' : ''}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <label className="flex min-w-0 items-start gap-2">
+                  <input
+                    type="checkbox"
+                    aria-label={`Pilih donasi ${d.anonymous ? 'Anonim' : d.donor_name}`}
+                    checked={selected.has(d.id)}
+                    onChange={() => toggleOne(d.id)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                  />
+                  <span className="min-w-0 font-semibold text-navy">
+                    {d.anonymous ? 'Anonim' : d.donor_name}
+                  </span>
+                </label>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[d.status]}`}
+                >
+                  {d.status}
+                </span>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
+                <span className={`rounded-full px-2 py-0.5 font-semibold ${src.cls}`}>{src.label}</span>
+                {d.source === 'program' && d.program && <span className="text-gray-400">· {d.program}</span>}
+              </div>
+
+              <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[12px]">
+                <div>
+                  <dt className="text-gray-400">Nominal</dt>
+                  <dd className="font-semibold text-navy">{formatRp(Number(d.amount))}</dd>
+                </div>
+                <div>
+                  <dt className="text-gray-400">Jenis</dt>
+                  <dd className="text-gray-600">{d.jenis_label || d.jenis_id || '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-gray-400">Bank</dt>
+                  <dd className="text-gray-600">{d.bank_name || 'tanpa bank'}</dd>
+                </div>
+                <div>
+                  <dt className="text-gray-400">Tanggal</dt>
+                  <dd className="text-gray-600">
+                    {t.date} · {t.time}
+                  </dd>
+                </div>
+              </dl>
+
+              {d.note && <p className="mt-2 text-[11px] italic text-gray-400">“{d.note}”</p>}
+              {deletedInfo(d)}
+
+              <div className="mt-3 flex flex-wrap gap-1.5 border-t border-gray-100 pt-3">{renderActions(d)}</div>
+            </div>
+          )
+        })}
+      </div>
+
+    </div>
+  )
+}

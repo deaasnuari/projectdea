@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
@@ -25,6 +26,7 @@ function TambahKontenButton() {
   return (
     <Link
       href="/admin/dokumentasi"
+      target="_top"
       className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-dashed border-primary/50 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-primary hover:bg-primary/5"
     >
       <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
@@ -171,6 +173,7 @@ export default function ProgramKamiSection() {
                 label="kata yang ditonjolkan"
               />
             </h2>
+            <CustomTexts section="program" className="mt-3" />
           </div>
           <div className="flex shrink-0 items-center gap-3 max-[768px]:flex-wrap">
             {isAdmin && <TambahKontenButton />}

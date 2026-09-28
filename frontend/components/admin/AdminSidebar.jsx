@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { logoutAdmin } from '@/services/adminAuth'
@@ -29,6 +29,9 @@ const NAV_SECTIONS = [
       {
         href: '/admin/riwayat-donasi',
         label: 'Riwayat Donasi',
+        // Sub-menu tipis yang muncul di bawahnya saat Riwayat Donasi dibuka.
+        // Sampah = donasi yang dihapus (tidak ikut dihitung), bisa dipulihkan.
+        sub: [{ href: '/admin/sampah-donasi', label: 'Sampah' }],
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
             <circle cx="12" cy="12" r="9" />
@@ -154,6 +157,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
   const [collapsed, setCollapsed] = useState(false)
   const [isDesktop, setIsDesktop] = useState(true)
   const [pendingDonasi, setPendingDonasi] = useState(0)
+  const [sampahDonasi, setSampahDonasi] = useState(0)
   const [pesanBaru, setPesanBaru] = useState(0)
 
   // Rail (ikon-saja) hanya berlaku di desktop. Di HP/iPad drawer selalu penuh.
@@ -184,7 +188,10 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
       if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
       try {
         const s = await fetchStats()
-        if (alive) setPendingDonasi(Number(s?.menunggu) || 0)
+        if (alive) {
+          setPendingDonasi(Number(s?.menunggu) || 0)
+          setSampahDonasi(Number(s?.sampah) || 0)
+        }
       } catch {
         /* belum login / server mati — abaikan */
       }
@@ -328,7 +335,9 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                     )
                   }
 
-                  const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
+                  const inSub = (item.sub || []).some((c) => pathname.startsWith(c.href))
+                  const active =
+                    item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href) || inSub
                   const badge =
                     item.href === '/admin/riwayat-donasi'
                       ? pendingDonasi
@@ -336,31 +345,59 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                         ? pesanBaru
                         : 0
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={onClose}
-                      aria-current={active ? 'page' : undefined}
-                      title={rail ? `${item.label}${badge ? ` (${badge} menunggu)` : ''}` : undefined}
-                      className={`relative flex items-center rounded-lg text-[13px] transition-colors ${
-                        rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
-                      } ${
-                        active
-                          ? 'bg-gold font-semibold text-navy'
-                          : 'font-medium text-white/70 hover:bg-white/[0.08] hover:text-white'
-                      }`}
-                    >
-                      {item.icon}
-                      {!rail && item.label}
-                      {badge > 0 &&
-                        (rail ? (
-                          <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-coral ring-2 ring-navy-dark" />
-                        ) : (
-                          <span className="ml-auto inline-flex min-w-[20px] items-center justify-center rounded-full bg-coral px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
-                            {badge > 99 ? '99+' : badge}
-                          </span>
-                        ))}
-                    </Link>
+                    <Fragment key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={onClose}
+                        aria-current={active && !inSub ? 'page' : undefined}
+                        title={rail ? `${item.label}${badge ? ` (${badge} menunggu)` : ''}` : undefined}
+                        className={`relative flex items-center rounded-lg text-[13px] transition-colors ${
+                          rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
+                        } ${
+                          active
+                            ? 'bg-gold font-semibold text-navy'
+                            : 'font-medium text-white/70 hover:bg-white/[0.08] hover:text-white'
+                        }`}
+                      >
+                        {item.icon}
+                        {!rail && item.label}
+                        {badge > 0 &&
+                          (rail ? (
+                            <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-coral ring-2 ring-navy-dark" />
+                          ) : (
+                            <span className="ml-auto inline-flex min-w-[20px] items-center justify-center rounded-full bg-coral px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                              {badge > 99 ? '99+' : badge}
+                            </span>
+                          ))}
+                      </Link>
+                      {/* Sub-menu tipis — hanya saat menu induknya sedang dibuka */}
+                      {item.sub && active && !rail && (
+                        <div className="ml-[22px] flex flex-col border-l border-white/15 py-0.5 pl-3">
+                          {item.sub.map((c) => {
+                            const subActive = pathname.startsWith(c.href)
+                            const count = c.href === '/admin/sampah-donasi' ? sampahDonasi : 0
+                            return (
+                              <Link
+                                key={c.href}
+                                href={c.href}
+                                onClick={onClose}
+                                aria-current={subActive ? 'page' : undefined}
+                                className={`flex items-center gap-2 rounded-md px-2 py-1 text-[12px] transition-colors ${
+                                  subActive
+                                    ? 'bg-white/10 font-semibold text-white'
+                                    : 'font-medium text-white/55 hover:bg-white/[0.06] hover:text-white'
+                                }`}
+                              >
+                                {c.label}
+                                {count > 0 && (
+                                  <span className="ml-auto text-[10px] font-semibold text-white/50">{count}</span>
+                                )}
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </Fragment>
                   )
                 })}
               </div>

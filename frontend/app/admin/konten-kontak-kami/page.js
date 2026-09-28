@@ -1,6 +1,4 @@
-import ContactSection from '@/app/donatur/kontak-kami/ContactSection'
-import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
-import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
+import DevicePreviewFrame from '@/components/inline-edit/DevicePreviewFrame'
 
 export const metadata = {
   title: 'Konten Kontak Kami — Panel Admin',
@@ -20,18 +18,14 @@ export default function AdminKontenKontakKamiPage() {
           Edit konten langsung pada pratinjau di bawah. Klik ✏️ untuk mengubah teks, dan Tambah/Hapus
           untuk mengelola daftar info kontak. Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf
           (belum tampil ke publik), lalu klik <b>Selesai Edit</b> untuk menerbitkannya.
+          Tampilan tablet &amp; HP menyesuaikan otomatis.
         </p>
       </div>
 
-      {/* Jarak atas hero dirapatkan untuk pratinjau admin (tanpa mengubah
-          tampilan publik). */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#kontak-hero]:!pt-10 [&_#kontak-hero]:!pb-6">
-        <InlineEditProvider>
-          <TextElementsProvider page="kontak-kami">
-            <ContactSection />
-          </TextElementsProvider>
-        </InlineEditProvider>
-      </div>
+      {/* Pratinjau per perangkat (Desktop / Tablet / HP) — isinya dimuat di
+          iframe dari /admin-pratinjau/kontak-kami supaya tata letak responsif tiap
+          perangkat benar-benar aktif saat diedit. */}
+      <DevicePreviewFrame page="kontak-kami" />
     </div>
   )
 }

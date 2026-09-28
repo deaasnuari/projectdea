@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
@@ -95,6 +96,7 @@ export default function KonsultasiSection() {
             label="paragraf Konsultasi"
             multiline
           />
+          <CustomTexts section="konsultasi" className="mb-8 max-w-[380px]" />
 
           <div className="max-w-[380px] border-t border-gray-200 pt-6">
             <ContactRow icon={PhoneIcon} value={phone} />

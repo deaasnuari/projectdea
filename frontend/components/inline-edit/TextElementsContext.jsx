@@ -14,6 +14,7 @@ import EditToolbar from './EditToolbar'
 const TextElementsContext = createContext({
   page: '',
   get: () => null,
+  keysWithPrefix: () => [],
   stage: () => {},
   stageReset: () => {},
   saveAll: async () => ({ okCount: 0, failedCount: 0 }),
@@ -26,7 +27,7 @@ const TextElementsContext = createContext({
 })
 
 export function TextElementsProvider({ page, children }) {
-  const { loading, ready, get, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
+  const { loading, ready, get, keysWithPrefix, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
     useTextElements(page)
 
   const value = useMemo(
@@ -35,6 +36,7 @@ export function TextElementsProvider({ page, children }) {
       loading,
       ready,
       get,
+      keysWithPrefix,
       stage,
       stageReset,
       saveAll,
@@ -42,7 +44,7 @@ export function TextElementsProvider({ page, children }) {
       publish,
       pendingCount,
     }),
-    [page, loading, ready, get, stage, stageReset, saveAll, discardAll, publish, pendingCount],
+    [page, loading, ready, get, keysWithPrefix, stage, stageReset, saveAll, discardAll, publish, pendingCount],
   )
 
   return (

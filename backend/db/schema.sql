@@ -34,6 +34,13 @@ alter table donations add column if not exists source text not null default 'umu
 -- Kolom NIK karyawan tidak dipakai lagi — dibuang. Aman dijalankan berulang.
 alter table donations drop column if exists nik;
 
+-- Sampah (seperti di email): donasi yang dihapus admin tidak langsung
+-- hilang — `deleted_at` diisi, lalu tampil di tab Sampah. Selama di Sampah
+-- donasi TIDAK ikut dihitung di statistik / dana terkumpul / program.
+-- Baru benar-benar terhapus kalau admin "Hapus Permanen" dari Sampah.
+alter table donations add column if not exists deleted_at timestamptz;
+create index if not exists donations_deleted_idx on donations (deleted_at);
+
 create index if not exists donations_status_idx on donations (status);
 create index if not exists donations_source_idx on donations (source);
 create index if not exists donations_created_idx on donations (created_at desc);

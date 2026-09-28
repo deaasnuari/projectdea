@@ -1,8 +1,4 @@
-import HeroSection from '@/app/donatur/sections/HeroSection'
-import ProgramKamiSection from '@/app/donatur/sections/ProgramKamiSection'
-import KonsultasiSection from '@/app/donatur/sections/KonsultasiSection'
-import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
-import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
+import DevicePreviewFrame from '@/components/inline-edit/DevicePreviewFrame'
 
 export const metadata = {
   title: 'Konten Kami Peduli — Panel Admin',
@@ -20,24 +16,14 @@ export default function AdminKontenKamiPeduliPage() {
           tampilannya (font, ukuran, warna, dll), atau <b>tarik/geser</b> teksnya untuk menata letak.
           Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf (belum tampil ke publik), lalu klik{' '}
           <b>Selesai Edit</b> untuk menerbitkannya ke halaman donatur. Video &amp; galeri diatur di
-          menu Dokumentasi.
+          menu Dokumentasi. Tampilan tablet &amp; HP menyesuaikan otomatis.
         </p>
       </div>
 
-      {/* Pratinjau halaman dibingkai dalam kartu. Hero aslinya setinggi 1
-          layar penuh (min-h-screen, konten di bawah) — di pratinjau admin
-          tidak perlu navbar, jadi tingginya dikecilkan & jarak atasnya
-          dirapatkan (override lewat arbitrary variant, tanpa mengubah
-          tampilan publik). */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm [&_#top]:!min-h-0 [&_#top_.container]:!pt-10 [&_#top_.container]:!pb-4">
-        <InlineEditProvider>
-          <TextElementsProvider page="kami-peduli">
-            <HeroSection />
-            <ProgramKamiSection />
-            <KonsultasiSection />
-          </TextElementsProvider>
-        </InlineEditProvider>
-      </div>
+      {/* Pratinjau per perangkat (Desktop / Tablet / HP) — isinya dimuat di
+          iframe dari /admin-pratinjau/kami-peduli supaya tata letak responsif tiap
+          perangkat benar-benar aktif saat diedit. */}
+      <DevicePreviewFrame page="kami-peduli" />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
@@ -68,6 +69,7 @@ export default function TentangSection() {
               label="paragraf pengantar"
               multiline
             />
+            <CustomTexts section="hero" tone="dark" className="mb-8 max-w-[520px]" />
 
             <div className="grid max-w-[520px] grid-cols-2 gap-4 max-[480px]:grid-cols-1">
               {content.keunggulan.map((item) => (
@@ -160,6 +162,7 @@ export default function TentangSection() {
                 label="kata yang ditonjolkan"
               />
             </h2>
+            <CustomTexts section="visimisi" className="mt-2" />
           </div>
 
           <div className="grid grid-cols-[0.8fr_1.2fr] items-stretch gap-4 max-[900px]:grid-cols-1">

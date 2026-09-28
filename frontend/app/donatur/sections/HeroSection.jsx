@@ -1,6 +1,7 @@
 'use client'
 
 import EditableRichText from '@/components/inline-edit/EditableRichText'
+import CustomTexts from '@/components/inline-edit/CustomTexts'
 import EditableImageElement from '@/components/inline-edit/EditableImageElement'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
@@ -121,6 +122,7 @@ export default function HeroSection() {
             label="deskripsi hero"
             multiline
           />
+          <CustomTexts section="hero" tone="dark" className="mb-6" />
           <div className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
             <a href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">

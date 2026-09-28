@@ -6,6 +6,8 @@ import Footer from '@/components/layout/Footer'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import { useBlogPosts } from './useBlogPosts'
 import { formatBlogDate } from '@/services/blog'
+import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
+import BlogHeroText from './BlogHeroText'
 
 export default function BlogPage() {
   const { posts: allPosts, loading } = useBlogPosts()
@@ -66,12 +68,10 @@ export default function BlogPage() {
       <Navbar />
       <PageHeroBackground className="pb-16 pt-24 sm:pb-24">
         <div className="container">
-          <p className="section-label !text-gold">Blog &amp; Kursus Kami</p>
-          <h1 className="mb-12 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
-            Edukasi Zakat
-            <br />
-            <span className="italic text-gold">untuk Karyawan PLN Batam</span>
-          </h1>
+          {/* Teks header — dikelola admin di /admin/blog */}
+          <TextElementsProvider page="blog">
+            <BlogHeroText />
+          </TextElementsProvider>
 
           {posts.length === 0 ? (
             // Diam saja selagi memuat pertama kali — tanpa spinner/skeleton,

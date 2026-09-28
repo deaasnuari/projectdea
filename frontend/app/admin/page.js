@@ -66,7 +66,10 @@ const CHEVRON = (
 export default function AdminDashboardPage() {
   const { programs: allPrograms } = usePrograms()
   const PROGRAMS = allPrograms.filter((p) => p.active !== false) // program yang ditutup tidak dihitung
-  const { rows: donations, stats, loading: donLoading } = useDonations()
+  // "Donasi Terbaru" hanya yang sudah di-ACC (terverifikasi) — yang masih
+  // menunggu / ditolak tidak ditampilkan di sini. Ringkasan (stats) tetap
+  // dari semua donasi aktif.
+  const { rows: donations, stats, loading: donLoading } = useDonations('terverifikasi')
   const totalTarget = PROGRAMS.reduce((sum, p) => sum + p.target, 0)
   const totalCollected = PROGRAMS.reduce((sum, p) => sum + p.collected, 0)
 
@@ -216,7 +219,7 @@ export default function AdminDashboardPage() {
               )
             })}
             {!donLoading && recent.length === 0 && (
-              <p className="py-5 text-center text-sm text-gray-400">Belum ada donasi masuk.</p>
+              <p className="py-5 text-center text-sm text-gray-400">Belum ada donasi terverifikasi.</p>
             )}
             {donLoading && <p className="py-5 text-center text-sm text-gray-400">Memuat…</p>}
           </div>

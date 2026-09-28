@@ -6,6 +6,7 @@ import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import { formatRp } from '@/services/format'
 import { usePrograms } from './usePrograms'
+import ProgramHeroText from './ProgramHeroText'
 
 function ArrowIcon({ className = '' }) {
   return (
@@ -30,18 +31,8 @@ export default function ProgramListSection() {
     <>
       <PageHeroBackground className="pb-16 pt-24 sm:pb-24">
         <div className="container">
-          <div className="mb-10 sm:mb-14">
-            <p className="section-label !text-gold">Daftar Program</p>
-            <h1 className="font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
-              Saluran Kebaikan
-              <br />
-              <span className="italic text-gold">dari Karyawan untuk Umat</span>
-            </h1>
-            <p className="mt-4 max-w-[520px] text-sm leading-[1.7] text-white/70">
-              Pilih program yang ingin kamu dukung. Setiap rupiah disalurkan langsung kepada
-              penerima manfaat dengan laporan yang transparan.
-            </p>
-          </div>
+          {/* Teks header — dikelola admin di /admin/program */}
+          <ProgramHeroText />
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {programs.map((p) => {

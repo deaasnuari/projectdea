@@ -10,7 +10,10 @@ router.get('/stats', requireAdmin, donationController.stats)
 router.get('/jenis-options', requireAdmin, donationController.jenisOptions)
 router.get('/:id/proof', requireAdmin, donationController.proof)
 router.patch('/:id/status', requireAdmin, donationController.updateStatus)
-router.post('/bulk-delete', requireAdmin, donationController.removeBulk)
+router.post('/bulk-delete', requireAdmin, donationController.removeBulk) // → Sampah
+router.post('/bulk-restore', requireAdmin, donationController.restoreBulk)
+router.post('/bulk-purge', requireAdmin, donationController.purgeBulk) // hapus permanen
+router.post('/trash/empty', requireAdmin, donationController.emptyTrash)
 router.delete('/:id', requireAdmin, donationController.remove)
 
 module.exports = router
