@@ -18,7 +18,9 @@ export const EDIT_BRIDGE_STATE = 'lazis-edit:state'
 export const EDIT_BRIDGE_CMD = 'lazis-edit:cmd'
 
 export default function EditToolbar() {
-  const { isAdmin, editing, setEditing } = useEditMode()
+  // `editingOn` = status mode edit sesungguhnya (tetap true walau pratinjau
+  // sedang di Tablet/HP yang hanya untuk dilihat).
+  const { isAdmin, editingOn: editing, viewOnly, setEditing } = useEditMode()
   const { pendingCount, saveAll, discardAll, publish } = useTextElementsContext()
   const [busy, setBusy] = useState(false)
   const [publishing, setPublishing] = useState(false)
@@ -33,11 +35,11 @@ export default function EditToolbar() {
   const postState = () => {
     if (!embedded) return
     window.parent.postMessage(
-      { type: EDIT_BRIDGE_STATE, isAdmin, editing, pendingCount, busy, publishing },
+      { type: EDIT_BRIDGE_STATE, isAdmin, editing, viewOnly, pendingCount, busy, publishing },
       window.location.origin,
     )
   }
-  useEffect(postState, [embedded, isAdmin, editing, pendingCount, busy, publishing]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(postState, [embedded, isAdmin, editing, viewOnly, pendingCount, busy, publishing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Terima perintah tombol dari halaman induk.
   useEffect(() => {

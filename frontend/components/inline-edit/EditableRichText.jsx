@@ -167,12 +167,9 @@ export default function EditableRichText({
   // Responsif otomatis — admin cukup menata sekali (di layar desktop), lalu
   // susunannya ikut terbawa ke tablet & HP:
   //   - Ukuran font besar mengecil otomatis (responsiveFontSize).
-  //   - Kotak yang dilebarkan tetap selebar di desktop; kalau layarnya tidak
-  //     cukup, dipersempit pas selebar area konten (tetap di barisnya sendiri
-  //     seperti di desktop, tidak keluar layar).
-  //   - Geser posisi (drag) hanya berlaku di desktop (termasuk laptop/
-  //     MacBook); di tablet & HP teks mengalir mengikuti tata letak responsif
-  //     supaya tidak saling menimpa.
+  //   - Lebar kotak & geser kiri/kanan ikut ke tablet & HP, diperkecil
+  //     sebanding lebar area konten (tetap dibatasi supaya tidak keluar layar);
+  //     geser atas/bawah dibawa sebagai urutan (useFlowOrder).
   // Tarik-geser & ubah lebar hanya di pratinjau Desktop.
   const device = useDevice()
   const canArrange = device === 'desktop'
@@ -220,13 +217,16 @@ export default function EditableRichText({
     if (!el) return
     const ref = refBoxOf(el)
     const refW = ref?.width || 0
-    // Layar lebih kecil dari desktop → lebar kotak memakai ukuran desktopnya
-    // lalu dibatasi area konten di bawah (susunan baris tetap seperti desktop).
-    // Geser posisi (px) TIDAK dibawa: tinggi & pemotongan baris teks di layar
-    // kecil berbeda, jadi geseran yang sama bisa membuat teks saling menimpa.
+    // Geser kiri/kanan & lebar hasil tata letak Desktop ikut dibawa ke Tablet/HP,
+    // diperkecil sebanding lebar area konten (keduanya berupa persen `.container`).
+    // Geser atas/bawah (px) TIDAK dibawa: teks di layar kecil lebih banyak baris,
+    // jadi geseran yang sama membuat teks saling menimpa. Urutan atas→bawahnya
+    // tetap ikut Desktop lewat useFlowOrder.
     const small = device !== 'desktop'
-    let x = small ? 0 : toPx(rawX, refW) + dragDelta.x
+    let x = toPx(rawX, refW) + dragDelta.x
     const y = small ? 0 : baseY + dragDelta.y
+    // Lebar di layar kecil = lebar aslinya di desktop, lalu dibatasi area yang
+    // tersisa (kalau diskalakan juga, teks jadi terlalu sempit & terpecah).
     let w = resizeW != null ? resizeW : toPx(rawW, small ? DESKTOP_REF_W : refW)
 
     // Posisi kiri "asli" elemen (tanpa geseran left yang sedang terpasang).
@@ -235,7 +235,11 @@ export default function EditableRichText({
     if (ref && refW) {
       // Jaga teks tetap di dalam area konten: tidak keluar tepi kiri/kanan.
       const minX = ref.left - naturalLeft
-      const maxX = Math.max(minX, ref.right - naturalLeft - 60)
+      // Desktop: boleh menjorok sampai sisa 60px. Tablet/HP: teks tidak boleh
+      // terpotong — kotak berlebar boleh menyempit (teksnya turun baris) sampai
+      // 60% area konten; teks tanpa lebar harus muat utuh.
+      const keep = small ? (w ? Math.min(w, refW * 0.6) : el.getBoundingClientRect().width) : 60
+      const maxX = Math.max(minX, ref.right - naturalLeft - keep)
       x = Math.min(Math.max(x, minX), maxX)
       if (w) w = Math.max(60, Math.min(w, ref.right - (naturalLeft + x)))
     }
@@ -429,6 +433,11 @@ export default function EditableRichText({
       window.removeEventListener('resize', onScroll)
     }
   }, [active])
+
+  // Mode edit dimatikan (mis. pratinjau pindah ke Tablet/HP) → tutup panel.
+  useEffect(() => {
+    if (!editing) setActive(false)
+  }, [editing])
 
   // --- Pengunjung / mode edit mati: render biasa; style diterapkan lewat ref ---
   if (!editing) {

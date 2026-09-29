@@ -417,6 +417,11 @@
   [data-flow-active] [data-flow-split] {
     display: contents !important;
   }
+  /* <br> pemisah baris di dalam pembungkus yang dibuka tidak boleh jadi blok
+     kosong sendiri (menambah jarak ±50px di antara teks). */
+  [data-flow-active] [data-flow-split] > br {
+    display: none;
+  }
   [data-flow-active] [data-flow-id] {
     margin-top: 0 !important;
     margin-bottom: 0 !important;

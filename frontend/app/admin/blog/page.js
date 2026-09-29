@@ -249,7 +249,7 @@ export default function AdminBlogPage() {
               className={inputClass}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 max-[480px]:grid-cols-1">
             <div>
               <label className={labelClass}>Badge / Kategori</label>
               <input

@@ -33,7 +33,8 @@ const DESKTOP_MIN = 1024
 //   Tablet : 768px
 //   HP     : 375px
 // Konten tetap SATU sumber data — perangkat hanya mengubah ukuran viewport.
-// Mode edit juga berjalan di ketiga ukuran (pensil & kontrol ikut elemen).
+// Edit hanya di Desktop; Tablet & HP khusus untuk melihat hasil responsif
+// (isi terbaru, termasuk yang belum disimpan, langsung tampil di sana).
 //
 // Tombol Edit Konten / Simpan Semua / Selesai Edit ada di bar atas ini
 // (menempel saat di-scroll) — dijembatani ke EditToolbar di dalam iframe
@@ -74,10 +75,13 @@ export default function DevicePreviewFrame({ page }) {
 
   const d = DEVICES.find((x) => x.id === device)
   // Lebar viewport sungguhan. Desktop: 1280px, atau selebar area admin kalau
-  // lebih sempit (tetap ≥1024px supaya masih tata letak desktop — sisanya
-  // bisa di-scroll ke samping). Tablet/HP: persis ukuran perangkat.
+  // lebih sempit (tetap ≥1024px supaya masih tata letak desktop).
+  // Tablet/HP: persis ukuran perangkat.
   const frameW = device === 'desktop' ? Math.max(DESKTOP_MIN, Math.min(d.width, avail || d.width)) : d.width
-  const frameLabel = `${d.label} · ${frameW} × ${d.height}`
+  // Kalau area admin lebih sempit dari viewport, iframe diperkecil (scale)
+  // supaya muat utuh tanpa perlu digeser ke samping — tata letak tetap desktop.
+  const scale = avail > 0 ? Math.min(1, avail / frameW) : 1
+  const shownW = Math.floor(frameW * scale)
 
   const editing = Boolean(edit?.editing)
   const hasPending = (edit?.pendingCount || 0) > 0
@@ -92,7 +96,7 @@ export default function DevicePreviewFrame({ page }) {
           Pratinjau
         </span>
         <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
-          {DEVICES.map((x) => (
+          {DEVICES.filter((x) => x.id === 'desktop').map((x) => (
             <button
               key={x.id}
               type="button"
@@ -118,7 +122,7 @@ export default function DevicePreviewFrame({ page }) {
               editing && (
                 <span className="text-[11px] font-semibold text-gray-500">
                   {small
-                    ? 'Mode edit — ubah teks di sini; geser posisi & lebar hanya di Desktop'
+                    ? `Pratinjau ${d.label} — hanya untuk dilihat; edit di Desktop`
                     : 'Mode edit — klik teks/gambar yang ingin diubah'}
                 </span>
               )
@@ -145,6 +149,16 @@ export default function DevicePreviewFrame({ page }) {
               </>
             )}
 
+            {small && !editing ? (
+              <button
+                type="button"
+                onClick={() => setDevice('desktop')}
+                className="rounded-full border border-gray-200 px-4 py-2 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-50"
+                title="Konten diedit di Desktop, lalu otomatis ikut di Tablet & HP"
+              >
+                Edit di Desktop
+              </button>
+            ) : (
             <button
               type="button"
               onClick={() => send('toggle')}
@@ -173,6 +187,7 @@ export default function DevicePreviewFrame({ page }) {
                 </>
               )}
             </button>
+            )}
           </div>
         )}
       </div>
@@ -184,16 +199,13 @@ export default function DevicePreviewFrame({ page }) {
 
       {/* Panggung pratinjau: latar abu-abu + bingkai perangkat selebar viewport
           sungguhan, supaya jelas perangkat mana yang sedang ditampilkan. */}
-      <div ref={wrapRef} className="w-full overflow-x-auto rounded-xl bg-gray-100 px-3 pb-4 pt-3">
-        <div className="mx-auto" style={{ width: frameW }}>
-          <div className="mb-2 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-gray-500">
-            <DeviceIcon id={device} />
-            {frameLabel}
-          </div>
+      <div ref={wrapRef} className="w-full overflow-hidden rounded-xl bg-gray-100 px-3 pb-4 pt-3">
+        <div className="mx-auto" style={{ width: shownW }}>
           <div
             className={`relative overflow-hidden border border-gray-300 bg-white shadow-[0_12px_40px_-16px_rgba(6,30,40,0.35)] ${
               device === 'desktop' ? 'rounded-lg' : 'rounded-[1.25rem]'
             }`}
+            style={{ height: Math.ceil(contentH * scale) }}
           >
             <iframe
               ref={frameRef}
@@ -202,20 +214,13 @@ export default function DevicePreviewFrame({ page }) {
               onLoad={() => send('ping')}
               scrolling="no"
               className="block border-0"
-              style={{ width: frameW, height: contentH }}
+              style={{
+                width: frameW,
+                height: contentH,
+                transform: scale < 1 ? `scale(${scale})` : undefined,
+                transformOrigin: 'top left',
+              }}
             />
-            {/* Garis "batas layar pertama" — tinggi layar perangkat; yang di
-                bawahnya baru terlihat setelah pengunjung scroll. */}
-            {contentH > d.height && (
-              <div
-                className="pointer-events-none absolute inset-x-0 border-t border-dashed border-coral/60"
-                style={{ top: d.height }}
-              >
-                <span className="absolute right-2 top-1 rounded bg-coral/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.04em] text-white">
-                  Batas layar {d.label} ({d.height}px)
-                </span>
-              </div>
-            )}
           </div>
         </div>
       </div>

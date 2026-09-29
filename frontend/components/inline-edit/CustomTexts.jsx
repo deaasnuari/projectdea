@@ -33,10 +33,9 @@ const PlusIcon = (
 // jadi ikut alur yang sama: diedit lewat ✏️, digeser/diubah lebarnya, ditahan sampai "Simpan Semua", dan baru
 // tampil ke publik setelah "Selesai Edit". Hapus = tombol "Hapus teks".
 //
-// Tombol "+" bulat kecil di MARGIN KIRI konten (di luar area teks, seperti
-// gagang tambah blok di editor dokumen) — sejajar dengan titik tempat teks
-// baru akan masuk, jadi tidak menutupi judul/tombol/kartu mana pun. Klik →
-// pilih Judul / Paragraf.
+// Tombol "+ Tambah teks" berlabel, di dalam alur konten tepat di titik tempat
+// teks baru akan masuk (hanya di mode edit — pengunjung tidak melihatnya).
+// Klik → pilih Judul / Paragraf.
 function AddTextChip({ onDark, onPick, className = '' }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -49,21 +48,23 @@ function AddTextChip({ onDark, onPick, className = '' }) {
   }, [open])
 
   return (
-    <div ref={ref} className={`absolute right-full z-20 mr-0.5 -translate-y-1/2 ${className}`}>
+    <div ref={ref} className={`relative z-20 inline-block ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label="Tambah teks di sini"
-        title="Tambah teks di sini"
-        className={`flex h-[18px] w-[18px] items-center justify-center rounded-full border border-dashed transition-opacity ${
-          open ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-        } ${onDark ? 'border-white/60 bg-navy-dark/60 text-white' : 'border-primary/60 bg-white text-primary'}`}
+        title="Tambah judul atau paragraf baru di sini"
+        className={`inline-flex items-center gap-1.5 rounded-full border-2 border-dashed px-3.5 py-1.5 text-xs font-bold transition-colors ${
+          onDark
+            ? 'border-white/70 bg-white/10 text-white hover:bg-white/20'
+            : 'border-primary/70 bg-primary/5 text-primary hover:bg-primary/10'
+        }`}
       >
         {PlusIcon}
+        Tambah teks
       </button>
       {open && (
-        <div className="absolute left-full top-1/2 z-30 ml-1.5 flex w-36 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white py-1 text-[12px] font-semibold text-navy shadow-[0_10px_28px_-8px_rgba(6,30,40,0.45)]">
+        <div className="absolute left-0 top-full z-30 mt-1.5 flex w-36 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white py-1 text-[12px] font-semibold text-navy shadow-[0_10px_28px_-8px_rgba(6,30,40,0.45)]">
           <span className="px-3 pb-1 pt-0.5 text-[10px] font-bold uppercase tracking-[0.05em] text-gray-400">
             Tambah teks
           </span>
@@ -107,18 +108,13 @@ export default function CustomTexts({ section, tone = 'light', className = '' })
     toast(`${k.label} ditambahkan — klik ✏️ untuk mengedit, lalu "Simpan Semua".`, { tone: 'info' })
   }
 
-  // Kontrol tambah = overlay (absolute), BUKAN bagian dari alur halaman —
-  // tidak mendorong tombol/kartu/judul. Layout mode edit = layout normal.
-  // Posisinya di margin kiri, sejajar titik tempat teks baru akan masuk.
-  const addControl = editing && (
-    <AddTextChip onDark={onDark} onPick={add} className={keys.length === 0 ? 'top-0' : 'top-full'} />
-  )
+  const addControl = editing && <AddTextChip onDark={onDark} onPick={add} />
 
   // Belum ada teks tambahan → di halaman publik tidak ada apa-apa; di mode
-  // edit cukup titik jangkar setinggi 0 (tanpa margin) untuk kontrol overlay.
+  // edit hanya tombol "Tambah teks".
   if (keys.length === 0) {
     return (
-      <div className="relative h-0 w-full" data-flow-id={`${prefix}custom`}>
+      <div className={`relative ${className}`} data-flow-id={`${prefix}custom`}>
         {addControl}
       </div>
     )
@@ -126,7 +122,6 @@ export default function CustomTexts({ section, tone = 'light', className = '' })
 
   return (
     <div className={`relative flex flex-col gap-3 ${className}`} data-flow-id={`${prefix}custom`}>
-      {addControl}
       {keys.map((key) => {
         const isHeading = key.endsWith('-h')
         return (
@@ -144,6 +139,7 @@ export default function CustomTexts({ section, tone = 'light', className = '' })
           />
         )
       })}
+      {addControl}
     </div>
   )
 }
