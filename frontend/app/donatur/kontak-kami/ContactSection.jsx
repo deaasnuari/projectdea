@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableText from '@/components/inline-edit/EditableText'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
+import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKontakContent, kontakHref } from './kontakData'
 import { sendContactMessage } from '@/services/contactMessages'
@@ -189,6 +190,9 @@ export default function ContactSection() {
   const { content, patchInfo, addInfo, removeInfo } = useKontakContent()
   const { isAdmin } = useEditMode()
   const h = content.hero
+  // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
+  const flowRef = useRef(null)
+  useFlowOrder(flowRef, 'hero')
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -230,7 +234,7 @@ export default function ContactSection() {
   return (
     <>
       <PageHeroBackground id="kontak-hero" className="pb-10 pt-24">
-        <div className="container">
+        <div ref={flowRef} data-flow-group className="container">
           <EditableRichText
             elementKey="kontak-kami.hero.label"
             section="hero"
@@ -239,7 +243,7 @@ export default function ContactSection() {
             defaultText={h.label}
             label="label Kontak Kami"
           />
-          <h1 className="mb-4 max-w-[640px] font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
+          <h1 data-flow-split className="mb-4 max-w-[640px] font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
             <EditableRichText
               elementKey="kontak-kami.hero.title"
               section="hero"

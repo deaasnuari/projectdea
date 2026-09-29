@@ -170,8 +170,9 @@ export default function EditableRichText({
   //   - Kotak yang dilebarkan tetap selebar di desktop; kalau layarnya tidak
   //     cukup, dipersempit pas selebar area konten (tetap di barisnya sendiri
   //     seperti di desktop, tidak keluar layar).
-  //   - Geseran posisi diperkecil sebanding lebar layar, dan selalu dijaga
-  //     di dalam area konten.
+  //   - Geser posisi (drag) hanya berlaku di desktop (termasuk laptop/
+  //     MacBook); di tablet & HP teks mengalir mengikuti tata letak responsif
+  //     supaya tidak saling menimpa.
   // Tarik-geser & ubah lebar hanya di pratinjau Desktop.
   const device = useDevice()
   const canArrange = device === 'desktop'
@@ -219,13 +220,13 @@ export default function EditableRichText({
     if (!el) return
     const ref = refBoxOf(el)
     const refW = ref?.width || 0
-    // Layar lebih kecil dari desktop → geseran px diperkecil sebanding (geseran
-    // persen sudah otomatis ikut lebar area konten), lebar kotak memakai
-    // ukuran desktopnya lalu dibatasi area konten di bawah.
+    // Layar lebih kecil dari desktop → lebar kotak memakai ukuran desktopnya
+    // lalu dibatasi area konten di bawah (susunan baris tetap seperti desktop).
+    // Geser posisi (px) TIDAK dibawa: tinggi & pemotongan baris teks di layar
+    // kecil berbeda, jadi geseran yang sama bisa membuat teks saling menimpa.
     const small = device !== 'desktop'
-    const ratio = small && refW ? Math.min(1, refW / DESKTOP_REF_W) : 1
-    let x = (isPct(rawX) ? toPx(rawX, refW) : toPx(rawX, refW) * ratio) + dragDelta.x
-    const y = Math.round(baseY * ratio) + dragDelta.y
+    let x = small ? 0 : toPx(rawX, refW) + dragDelta.x
+    const y = small ? 0 : baseY + dragDelta.y
     let w = resizeW != null ? resizeW : toPx(rawW, small ? DESKTOP_REF_W : refW)
 
     // Posisi kiri "asli" elemen (tanpa geseran left yang sedang terpasang).
@@ -432,7 +433,13 @@ export default function EditableRichText({
   // --- Pengunjung / mode edit mati: render biasa; style diterapkan lewat ref ---
   if (!editing) {
     return (
-      <As ref={anchorRef} className={className} style={style} data-te-fade={ctx.ready ? 'in' : 'out'}>
+      <As
+        ref={anchorRef}
+        className={className}
+        style={style}
+        data-te-fade={ctx.ready ? 'in' : 'out'}
+        data-flow-id={elementKey}
+      >
         {content}
       </As>
     )
@@ -444,6 +451,7 @@ export default function EditableRichText({
     <>
       <As
         ref={anchorRef}
+        data-flow-id={elementKey}
         className={`${className} inline-editable`}
         style={active || !canArrange ? style : { ...style, cursor: 'move', touchAction: 'none' }}
         onClick={openEditor}
@@ -486,6 +494,7 @@ export default function EditableRichText({
         createPortal(
           <div
             ref={panelRef}
+            data-edit-panel
             className="fixed z-[4000] w-[min(360px,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-gray-200 bg-white text-navy shadow-[0_24px_60px_-16px_rgba(6,30,40,0.5)]"
             style={{
               top: Math.min(anchor.top + 8, window.innerHeight - 340),

@@ -1,4 +1,49 @@
 const ContactMessage = require('../models/ContactMessage')
+const { sendMail } = require('../lib/mailer')
+
+const escapeHtml = (v) =>
+  String(v).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch])
+
+// Teruskan pesan formulir ke email LAZIS (MAIL_TO di .env). "Balas" di email
+// langsung ke pengirim (replyTo). Gagal kirim email tidak menggagalkan
+// formulir — pesannya tetap tersimpan di menu Pesan Masuk admin.
+function forwardToEmail({ name, email, phone, message }) {
+  const rows = [
+    ['Nama', name],
+    ['Email', email],
+    ['No. HP', phone],
+  ]
+  const html = `
+    <div style="font-family:Arial,sans-serif;font-size:14px;color:#0a2e3c">
+      <h2 style="margin:0 0 12px;color:#0a7e7e">Pesan baru dari website LAZIS PLN Batam</h2>
+      <table cellpadding="6" style="border-collapse:collapse">
+        ${rows
+          .map(
+            ([k, v]) =>
+              `<tr><td style="color:#6b7280">${k}</td><td><b>${escapeHtml(v)}</b></td></tr>`,
+          )
+          .join('')}
+      </table>
+      <p style="margin:16px 0 6px;color:#6b7280">Pesan:</p>
+      <div style="white-space:pre-wrap;background:#f3f6f7;border-radius:8px;padding:12px">${escapeHtml(message)}</div>
+      <p style="margin-top:16px;font-size:12px;color:#9ca3af">
+        Klik "Balas" untuk membalas langsung ke ${escapeHtml(email)}. Pesan ini juga tersimpan di Panel Admin → Pesan Masuk.
+      </p>
+    </div>`
+  const text = `Pesan baru dari website LAZIS PLN Batam
+
+Nama: ${name}
+Email: ${email}
+No. HP: ${phone}
+
+Pesan:
+${message}`
+  sendMail({ subject: `Pesan baru dari ${name} — Website LAZIS PLN Batam`, text, html, replyTo: email })
+    .then((r) => {
+      if (r?.skipped) console.warn('[mail] SMTP belum diatur di .env — pesan tidak dikirim ke email.')
+    })
+    .catch((err) => console.error('[mail] Gagal mengirim email pesan kontak:', err.message))
+}
 
 // POST /api/contact-messages  (publik — dari formulir Kontak Kami)
 async function create(req, res, next) {
@@ -18,6 +63,7 @@ async function create(req, res, next) {
     }
 
     const row = await ContactMessage.create({ name, email, phone, message, consent: true })
+    forwardToEmail({ name, email, phone, message }) // tidak ditunggu — balasan ke pengunjung tetap cepat
     res.status(201).json({ id: row.id, created_at: row.created_at })
   } catch (err) {
     next(err)

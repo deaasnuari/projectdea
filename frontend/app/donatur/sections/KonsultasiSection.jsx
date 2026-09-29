@@ -98,23 +98,34 @@ export default function KonsultasiSection() {
           />
           <CustomTexts section="konsultasi" className="mb-8 max-w-[380px]" />
 
-          <div className="max-w-[380px] border-t border-gray-200 pt-6">
+          <div className="relative max-w-[380px] border-t border-gray-200 pt-6">
             <ContactRow icon={PhoneIcon} value={phone} />
             <ContactRow icon={MailIcon} value={email} />
             <ContactRow icon={PinIcon} value={address} />
+            {/* Catatan khusus mode edit — overlay (absolute), tidak menambah tinggi */}
             {editing && (
-              <p className="mt-1 text-xs italic text-gray-400">
+              <p className="pointer-events-none absolute left-0 top-full mt-1 text-xs italic text-gray-400">
                 Telepon, email &amp; alamat mengikuti halaman <b>Konten Kontak Kami</b>.
               </p>
             )}
           </div>
         </div>
 
-        <div className="border-t border-gray-200">
+        <div className="relative border-t border-gray-200">
           {k.faqs.map((item, i) => {
-            const isOpen = editing || openIndex === i
+            // Mode edit tetap memakai accordion yang sama (tidak dibuka semua)
+            // supaya tata letaknya identik dengan tampilan normal. Buka/tutup
+            // lewat tombol +; klik teks pertanyaan = edit teks.
+            const isOpen = openIndex === i
             return (
-              <div key={item.id} className="border-b border-gray-200">
+              <div key={item.id} className="relative border-b border-gray-200">
+                {editing && (
+                  <DeleteItemButton
+                    className="absolute right-11 top-1 z-10 rounded-full bg-white/95 px-2 py-0.5 !text-[10px] shadow-sm"
+                    label="Hapus FAQ ini"
+                    onClick={() => removeFaq(item.id)}
+                  />
+                )}
                 <div className="flex w-full items-center justify-between gap-6 py-6 text-left font-heading text-lg font-semibold text-navy">
                   <button
                     type="button"
@@ -129,33 +140,27 @@ export default function KonsultasiSection() {
                       multiline
                     />
                   </button>
-                  {!editing && (
-                    <span
-                      onClick={() => toggle(i)}
-                      className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border transition-colors duration-300 ${
-                        isOpen ? 'border-primary bg-primary text-white' : 'border-gray-200 text-primary'
-                      }`}
+                  <span
+                    onClick={() => toggle(i)}
+                    className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border transition-colors duration-300 ${
+                      isOpen ? 'border-primary bg-primary text-white' : 'border-gray-200 text-primary'
+                    }`}
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      className={`h-3.5 w-3.5 transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
                     >
-                      <svg
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        className={`h-3.5 w-3.5 transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
-                      >
-                        <path d="M10 4v12M4 10h12" />
-                      </svg>
-                    </span>
-                  )}
+                      <path d="M10 4v12M4 10h12" />
+                    </svg>
+                  </span>
                 </div>
                 <div
-                  className={editing ? '' : 'overflow-hidden transition-[max-height] duration-300'}
-                  style={
-                    editing
-                      ? undefined
-                      : { maxHeight: isOpen ? `${(panelRefs.current[i]?.scrollHeight ?? 400) + 32}px` : '0px' }
-                  }
+                  className="overflow-hidden transition-[max-height] duration-300"
+                  style={{ maxHeight: isOpen ? `${(panelRefs.current[i]?.scrollHeight ?? 400) + 32}px` : '0px' }}
                 >
                   <div
                     ref={(el) => (panelRefs.current[i] = el)}
@@ -169,19 +174,15 @@ export default function KonsultasiSection() {
                       label="jawaban"
                       multiline
                     />
-                    {editing && (
-                      <DeleteItemButton
-                        className="mt-2 block"
-                        label="Hapus FAQ ini"
-                        onClick={() => removeFaq(item.id)}
-                      />
-                    )}
                   </div>
                 </div>
               </div>
             )
           })}
-          {editing && <AddItemButton className="mt-4" label="Tambah FAQ" onClick={addFaq} />}
+          {/* Overlay di bawah daftar FAQ — tidak menambah tinggi section */}
+          {editing && (
+            <AddItemButton className="absolute left-0 top-full z-10 mt-3" label="Tambah FAQ" onClick={addFaq} />
+          )}
         </div>
       </div>
     </section>

@@ -260,6 +260,17 @@
     background: none;
   }
 
+  /* HP/tablet kecil: Safari iPhone otomatis memperbesar (zoom) halaman saat
+     input berhuruf < 16px diketuk — halaman jadi "lompat" & harus di-zoom
+     balik. Paksa 16px khusus layar kecil. Panel editor admin dikecualikan. */
+  @media (max-width: 767px) {
+    input:not([type='checkbox']):not([type='radio']):not([data-edit-panel] *),
+    select:not([data-edit-panel] *),
+    textarea:not([data-edit-panel] *) {
+      font-size: 16px !important;
+    }
+  }
+
   button {
     cursor: pointer;
   }
@@ -392,15 +403,43 @@
     background-color: rgba(10, 126, 126, 0.07);
   }
 
+  /* "Susunan urutan ikut" (lihat useFlowOrder.js) — hanya aktif di Tablet/HP
+     kalau admin pernah menata ulang posisi di Desktop. Grup jadi kolom flex,
+     pembungkus ber-data-flow-split "dibuka" (display: contents — gaya font
+     tetap diwarisi), lalu tiap blok diurutkan lewat `order`. Jarak antar blok
+     disamakan lewat row-gap supaya rapi. */
+  [data-flow-active] {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 0.85rem;
+  }
+  [data-flow-active] [data-flow-split] {
+    display: contents !important;
+  }
+  [data-flow-active] [data-flow-id] {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Pensil = overlay di pojok kanan atas teks (position:absolute) — TIDAK
+     ikut makan tempat di baris teks, jadi tata letak mode edit identik
+     dengan tampilan normal/pratinjau. */
   .inline-edit-pencil {
+    position: absolute;
+    top: -11px;
+    right: -11px;
+    z-index: 6;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 20px;
     height: 20px;
-    margin-left: 6px;
-    vertical-align: middle;
-    flex-shrink: 0;
+    font-size: 0;
+    line-height: 0;
+    letter-spacing: 0;
+    text-indent: 0;
+    font-style: normal;
     border-radius: 9999px;
     background: theme('colors.primary.DEFAULT');
     color: #fff;

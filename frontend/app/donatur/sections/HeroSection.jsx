@@ -4,6 +4,8 @@ import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
 import EditableImageElement from '@/components/inline-edit/EditableImageElement'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
+import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
+import { useRef } from 'react'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { DEFAULT_KAMI_PEDULI_CONTENT } from './kamiPeduliData'
 
@@ -47,6 +49,9 @@ const FEATURE_META = [
 export default function HeroSection() {
   const { content } = useKamiPeduliContent()
   const { isAdmin } = useEditMode()
+  // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
+  const flowRef = useRef(null)
+  useFlowOrder(flowRef, 'hero')
   const hero = content.hero
   const features = content.features || DEFAULT_KAMI_PEDULI_CONTENT.features
   const featureById = (id) => features.find((f) => f.id === id) || {}
@@ -83,9 +88,9 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      <div className="container relative z-[1] pt-32 max-[600px]:pt-[86px]">
+      <div ref={flowRef} data-flow-group className="container relative z-[1] pt-32 max-[600px]:pt-[86px]">
         {/* Konten */}
-        <div className="max-w-[650px] animate-fade-in-up">
+        <div data-flow-split className="max-w-[650px] animate-fade-in-up">
           <EditableRichText
             elementKey="kami-peduli.hero.badge"
             section="hero"
@@ -95,7 +100,7 @@ export default function HeroSection() {
             label="teks sambutan"
             multiline
           />
-          <h1 className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[768px]:text-4xl max-[480px]:mb-2.5 max-[480px]:text-[1.6rem] max-[480px]:leading-[1.2]">
+          <h1 data-flow-split className="mb-4 font-heading text-[3rem] font-extrabold leading-[1.15] text-white max-[1023px]:text-[2.5rem] max-[768px]:text-4xl max-[480px]:mb-2.5 max-[480px]:text-[1.6rem] max-[480px]:leading-[1.2]">
             <EditableRichText
               elementKey="kami-peduli.hero.title"
               section="hero"
@@ -123,7 +128,7 @@ export default function HeroSection() {
             multiline
           />
           <CustomTexts section="hero" tone="dark" className="mb-6" />
-          <div className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
+          <div data-flow-id="kami-peduli.hero.buttons" className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
             <a href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
@@ -152,7 +157,8 @@ export default function HeroSection() {
 
         {/* Kartu-kartu fitur */}
         <div
-          className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[900px]:grid-cols-1 max-[600px]:mb-0 max-[600px]:gap-2.5"
+          data-flow-id="kami-peduli.hero.cards"
+          className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[1023px]:grid-cols-2 max-[600px]:mb-0 max-[600px]:grid-cols-1 max-[600px]:gap-2.5"
           style={{ animationDelay: '0.3s' }}
         >
           {FEATURE_META.map((meta) => {

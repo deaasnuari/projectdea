@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import EditableRichText from './EditableRichText'
 import { useEditMode } from './EditModeContext'
 import { useTextElementsContext } from './TextElementsContext'
@@ -32,6 +33,60 @@ const PlusIcon = (
 // jadi ikut alur yang sama: diedit lewat ✏️, digeser/diubah lebarnya, ditahan sampai "Simpan Semua", dan baru
 // tampil ke publik setelah "Selesai Edit". Hapus = tombol "Hapus teks".
 //
+// Tombol "+" bulat kecil di MARGIN KIRI konten (di luar area teks, seperti
+// gagang tambah blok di editor dokumen) — sejajar dengan titik tempat teks
+// baru akan masuk, jadi tidak menutupi judul/tombol/kartu mana pun. Klik →
+// pilih Judul / Paragraf.
+function AddTextChip({ onDark, onPick, className = '' }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false)
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+
+  return (
+    <div ref={ref} className={`absolute right-full z-20 mr-0.5 -translate-y-1/2 ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label="Tambah teks di sini"
+        title="Tambah teks di sini"
+        className={`flex h-[18px] w-[18px] items-center justify-center rounded-full border border-dashed transition-opacity ${
+          open ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+        } ${onDark ? 'border-white/60 bg-navy-dark/60 text-white' : 'border-primary/60 bg-white text-primary'}`}
+      >
+        {PlusIcon}
+      </button>
+      {open && (
+        <div className="absolute left-full top-1/2 z-30 ml-1.5 flex w-36 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white py-1 text-[12px] font-semibold text-navy shadow-[0_10px_28px_-8px_rgba(6,30,40,0.45)]">
+          <span className="px-3 pb-1 pt-0.5 text-[10px] font-bold uppercase tracking-[0.05em] text-gray-400">
+            Tambah teks
+          </span>
+          {Object.entries(KINDS).map(([kind, k]) => (
+            <button
+              key={kind}
+              type="button"
+              onClick={() => {
+                onPick(kind)
+                setOpen(false)
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 text-left hover:bg-primary/10"
+            >
+              {PlusIcon}
+              {k.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // `tone` = warna bawaan teks sesuai latar section ('light' / 'dark').
 export default function CustomTexts({ section, tone = 'light', className = '' }) {
   const { editing } = useEditMode()
@@ -52,8 +107,26 @@ export default function CustomTexts({ section, tone = 'light', className = '' })
     toast(`${k.label} ditambahkan — klik ✏️ untuk mengedit, lalu "Simpan Semua".`, { tone: 'info' })
   }
 
+  // Kontrol tambah = overlay (absolute), BUKAN bagian dari alur halaman —
+  // tidak mendorong tombol/kartu/judul. Layout mode edit = layout normal.
+  // Posisinya di margin kiri, sejajar titik tempat teks baru akan masuk.
+  const addControl = editing && (
+    <AddTextChip onDark={onDark} onPick={add} className={keys.length === 0 ? 'top-0' : 'top-full'} />
+  )
+
+  // Belum ada teks tambahan → di halaman publik tidak ada apa-apa; di mode
+  // edit cukup titik jangkar setinggi 0 (tanpa margin) untuk kontrol overlay.
+  if (keys.length === 0) {
+    return (
+      <div className="relative h-0 w-full" data-flow-id={`${prefix}custom`}>
+        {addControl}
+      </div>
+    )
+  }
+
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className={`relative flex flex-col gap-3 ${className}`} data-flow-id={`${prefix}custom`}>
+      {addControl}
       {keys.map((key) => {
         const isHeading = key.endsWith('-h')
         return (
@@ -71,31 +144,6 @@ export default function CustomTexts({ section, tone = 'light', className = '' })
           />
         )
       })}
-
-      {editing && (
-        <div
-          className={`flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-[11px] ${
-            onDark ? 'border-white/30 text-white/60' : 'border-primary/40 text-gray-400'
-          }`}
-        >
-          <span className="font-semibold uppercase tracking-[0.06em]">Tambah teks</span>
-          {Object.entries(KINDS).map(([kind, k]) => (
-            <button
-              key={kind}
-              type="button"
-              onClick={() => add(kind)}
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-bold transition-colors ${
-                onDark
-                  ? 'border-white/40 text-white hover:bg-white/10'
-                  : 'border-primary/50 text-primary hover:bg-primary/5'
-              }`}
-            >
-              {PlusIcon}
-              {k.label}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

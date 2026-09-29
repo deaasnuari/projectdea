@@ -7,10 +7,11 @@ import { useEffect, useState } from 'react'
 // layar desktop, lalu di tablet/HP menyesuaikan sendiri.
 //
 // Perangkat ditentukan dari lebar layar (di pratinjau admin: lebar iframe).
+// Ukuran viewport pratinjau (lebar × tinggi layar perangkat sungguhan).
 export const DEVICES = [
-  { id: 'desktop', label: 'Desktop', width: 1280 },
-  { id: 'tablet', label: 'Tablet', width: 820 },
-  { id: 'mobile', label: 'HP', width: 390 },
+  { id: 'desktop', label: 'Desktop', width: 1280, height: 720 },
+  { id: 'tablet', label: 'Tablet', width: 768, height: 1024 },
+  { id: 'mobile', label: 'HP', width: 375, height: 812 },
 ]
 
 const DESKTOP_QUERY = '(min-width: 1024px)'

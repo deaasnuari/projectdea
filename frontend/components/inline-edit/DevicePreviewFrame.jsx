@@ -20,33 +20,38 @@ const DeviceIcon = ({ id }) => {
   )
 }
 
-// Pratinjau konten per perangkat: tombol Desktop / Tablet / HP mengubah lebar
-// <iframe> berisi halaman yang bisa diedit, supaya admin bisa MELIHAT hasil
-// responsifnya. Tidak ada pengaturan terpisah per perangkat — tablet & HP
-// menyesuaikan otomatis dari yang ditata di Desktop (lihat EditableRichText).
+// Lebar viewport minimum yang masih dihitung "desktop" oleh CSS responsif
+// (lihat breakpoint di responsive.js / Tailwind).
+const DESKTOP_MIN = 1024
+
+// Pratinjau konten per perangkat. State `device` ('desktop' | 'tablet' |
+// 'mobile') menentukan LEBAR VIEWPORT iframe yang sesungguhnya — bukan
+// transform: scale() — jadi media query/Tailwind breakpoint di dalam iframe
+// benar-benar membaca lebar perangkat itu dan tata letaknya ikut berubah
+// (judul mengecil, kartu jadi 2 lalu 1 kolom, tombol bertumpuk, dst.).
+//   Desktop: 1280px (kalau area admin lebih sempit: selebar area, min 1024px)
+//   Tablet : 768px
+//   HP     : 375px
+// Konten tetap SATU sumber data — perangkat hanya mengubah ukuran viewport.
+// Mode edit juga berjalan di ketiga ukuran (pensil & kontrol ikut elemen).
 //
 // Tombol Edit Konten / Simpan Semua / Selesai Edit ada di bar atas ini
 // (menempel saat di-scroll) — dijembatani ke EditToolbar di dalam iframe
-// lewat postMessage, jadi admin tidak perlu scroll ke bawah pratinjau.
-//
-// Iframe dibuat setinggi isinya (dilaporkan FrameHeightReporter) — tidak ada
-// scroll di dalam pratinjau, cukup scroll halaman admin seperti biasa.
-//
-// Ganti perangkat TIDAK memuat ulang iframe, jadi perubahan yang belum
-// disimpan tetap aman. Kalau area lebih sempit dari lebar perangkat,
-// pratinjau diperkecil (scale) supaya tetap muat.
+// lewat postMessage. Iframe dibuat setinggi isinya (FrameHeightReporter),
+// jadi tidak ada scroll ganda. Ganti perangkat TIDAK memuat ulang iframe,
+// jadi perubahan yang belum disimpan tetap aman.
 export default function DevicePreviewFrame({ page }) {
   const [device, setDevice] = useState('desktop')
   const wrapRef = useRef(null)
   const frameRef = useRef(null)
   const [avail, setAvail] = useState(0)
-  const [contentH, setContentH] = useState(800) // tinggi isi iframe (px, sebelum scale)
+  const [contentH, setContentH] = useState(800) // tinggi isi iframe (px)
   const [edit, setEdit] = useState(null) // status dari EditToolbar di iframe
 
   useEffect(() => {
     const el = wrapRef.current
     if (!el) return
-    const measure = () => setAvail(el.clientWidth)
+    const measure = () => setAvail(el.clientWidth - 24) // dikurangi padding panggung (px-3)
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
@@ -68,11 +73,15 @@ export default function DevicePreviewFrame({ page }) {
     frameRef.current?.contentWindow?.postMessage({ type: EDIT_BRIDGE_CMD, action }, window.location.origin)
 
   const d = DEVICES.find((x) => x.id === device)
-  const width = device === 'desktop' ? Math.max(d.width, avail) : d.width
-  const scale = avail ? Math.min(1, avail / width) : 1
+  // Lebar viewport sungguhan. Desktop: 1280px, atau selebar area admin kalau
+  // lebih sempit (tetap ≥1024px supaya masih tata letak desktop — sisanya
+  // bisa di-scroll ke samping). Tablet/HP: persis ukuran perangkat.
+  const frameW = device === 'desktop' ? Math.max(DESKTOP_MIN, Math.min(d.width, avail || d.width)) : d.width
+  const frameLabel = `${d.label} · ${frameW} × ${d.height}`
 
   const editing = Boolean(edit?.editing)
   const hasPending = (edit?.pendingCount || 0) > 0
+  const small = device !== 'desktop'
 
   return (
     <div>
@@ -108,7 +117,9 @@ export default function DevicePreviewFrame({ page }) {
             ) : (
               editing && (
                 <span className="text-[11px] font-semibold text-gray-500">
-                  Mode edit — klik teks/gambar yang ingin diubah
+                  {small
+                    ? 'Mode edit — ubah teks di sini; geser posisi & lebar hanya di Desktop'
+                    : 'Mode edit — klik teks/gambar yang ingin diubah'}
                 </span>
               )
             )}
@@ -167,29 +178,45 @@ export default function DevicePreviewFrame({ page }) {
       </div>
 
       <p className="mb-3 text-xs text-gray-500">
-        Cukup edit sekali di <b>Desktop</b> — tampilan tablet &amp; HP menyesuaikan otomatis. Pilih Tablet/HP
-        hanya untuk melihat hasilnya.
+        Satu konten untuk semua perangkat — edit &amp; simpan sekali, Desktop, Tablet &amp; HP langsung
+        memakai isi yang sama dengan tata letak masing-masing.
       </p>
 
-      <div ref={wrapRef} className="w-full">
-        <div
-          className="mx-auto overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-[width] duration-300"
-          style={{ width: Math.round(width * scale), height: Math.ceil(contentH * scale) }}
-        >
-          <iframe
-            ref={frameRef}
-            src={`/admin-pratinjau/${page}`}
-            title="Pratinjau konten"
-            onLoad={() => send('ping')}
-            scrolling="no"
-            className="block border-0"
-            style={{
-              width,
-              height: contentH,
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-            }}
-          />
+      {/* Panggung pratinjau: latar abu-abu + bingkai perangkat selebar viewport
+          sungguhan, supaya jelas perangkat mana yang sedang ditampilkan. */}
+      <div ref={wrapRef} className="w-full overflow-x-auto rounded-xl bg-gray-100 px-3 pb-4 pt-3">
+        <div className="mx-auto" style={{ width: frameW }}>
+          <div className="mb-2 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-gray-500">
+            <DeviceIcon id={device} />
+            {frameLabel}
+          </div>
+          <div
+            className={`relative overflow-hidden border border-gray-300 bg-white shadow-[0_12px_40px_-16px_rgba(6,30,40,0.35)] ${
+              device === 'desktop' ? 'rounded-lg' : 'rounded-[1.25rem]'
+            }`}
+          >
+            <iframe
+              ref={frameRef}
+              src={`/admin-pratinjau/${page}`}
+              title="Pratinjau konten"
+              onLoad={() => send('ping')}
+              scrolling="no"
+              className="block border-0"
+              style={{ width: frameW, height: contentH }}
+            />
+            {/* Garis "batas layar pertama" — tinggi layar perangkat; yang di
+                bawahnya baru terlihat setelah pengunjung scroll. */}
+            {contentH > d.height && (
+              <div
+                className="pointer-events-none absolute inset-x-0 border-t border-dashed border-coral/60"
+                style={{ top: d.height }}
+              >
+                <span className="absolute right-2 top-1 rounded bg-coral/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.04em] text-white">
+                  Batas layar {d.label} ({d.height}px)
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

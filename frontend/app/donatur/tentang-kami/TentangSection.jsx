@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
+import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
 
@@ -27,13 +28,16 @@ export default function TentangSection() {
   const { isAdmin } = useEditMode()
   const h = content.hero
   const vm = content.visiMisi
+  // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
+  const flowRef = useRef(null)
+  useFlowOrder(flowRef, 'hero')
 
   return (
     <>
       <PageHeroBackground id="tentang-hero" className="pb-10 pt-24">
         <div className="container grid grid-cols-[1.1fr_0.9fr] items-start gap-12 max-[900px]:grid-cols-1">
           {/* Kiri: teks pengantar */}
-          <div>
+          <div ref={flowRef} data-flow-group>
             <EditableRichText
               elementKey="tentang-kami.hero.label"
               section="hero"
@@ -42,7 +46,7 @@ export default function TentangSection() {
               defaultText={h.label}
               label="label Tentang Kami"
             />
-            <h1 className="mb-6 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
+            <h1 data-flow-split className="mb-6 font-heading text-4xl font-semibold leading-[1.15] text-white max-[600px]:text-3xl">
               <EditableRichText
                 elementKey="tentang-kami.hero.title"
                 section="hero"
@@ -71,7 +75,7 @@ export default function TentangSection() {
             />
             <CustomTexts section="hero" tone="dark" className="mb-8 max-w-[520px]" />
 
-            <div className="grid max-w-[520px] grid-cols-2 gap-4 max-[480px]:grid-cols-1">
+            <div data-flow-id="tentang-kami.hero.keunggulan" className="grid max-w-[520px] grid-cols-2 gap-4 max-[480px]:grid-cols-1">
               {content.keunggulan.map((item) => (
                 <div
                   key={item.id}
