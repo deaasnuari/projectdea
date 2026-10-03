@@ -15,7 +15,9 @@ const inter = Inter({
 // pada kata-kata penekanan di bagian hero.
 const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
+  // Variable font: tanpa `weight` eksplisit, semua bobot 100–900 tersedia.
+  // Array weight + style sekaligus memicu error Turbopack
+  // "next/font/google queries have exactly one entry".
   style: ['normal', 'italic'],
   variable: '--font-heading',
   display: 'swap',
