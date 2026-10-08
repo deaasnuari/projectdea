@@ -2,9 +2,23 @@ const { Router } = require('express')
 const donationController = require('../controllers/donationController')
 const requireAdmin = require('../middleware/requireAdmin')
 
+const { rateLimit, formatWait } = require('../middleware/rateLimit')
+
 const router = Router()
 
-router.post('/', donationController.create) // publik — kirim donasi
+// Anti-spam donasi publik: per IP maksimal 5 / menit dan 30 / jam.
+const donasiMenit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: (s) => `Terlalu sering mengirim donasi. Coba lagi dalam ${formatWait(s)}.`,
+})
+const donasiJam = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  message: (s) => `Batas pengiriman donasi tercapai. Coba lagi dalam ${formatWait(s)}.`,
+})
+
+router.post('/', donasiJam, donasiMenit, donationController.create) // publik — kirim donasi
 router.get('/', requireAdmin, donationController.list)
 router.get('/stats', requireAdmin, donationController.stats)
 router.get('/jenis-options', requireAdmin, donationController.jenisOptions)

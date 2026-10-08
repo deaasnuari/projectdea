@@ -5,6 +5,8 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const apiRoutes = require('./src/routes')
+const { securityHeaders, originGuard } = require('./src/middleware/security')
+const { rateLimit, formatWait } = require('./src/middleware/rateLimit')
 
 const PORT = process.env.PORT || 3001
 
@@ -16,19 +18,46 @@ const EXTRA_ORIGINS = (process.env.FRONTEND_ORIGIN || 'http://localhost:3000')
   .map((s) => s.trim())
   .filter(Boolean)
 
+// Dev: terima juga IP jaringan lokal (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+// supaya bisa dites dari HP / alamat LAN.
 const isDevLocalhost = (origin) =>
-  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+  process.env.NODE_ENV !== 'production' &&
+  /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/.test(origin)
+
+const isAllowedOrigin = (origin) => EXTRA_ORIGINS.includes(origin) || isDevLocalhost(origin)
 
 function corsOrigin(origin, cb) {
   // Request tanpa Origin (curl, health check, same-origin) → izinkan.
   if (!origin) return cb(null, true)
-  if (EXTRA_ORIGINS.includes(origin) || isDevLocalhost(origin)) return cb(null, true)
-  cb(new Error(`Origin tidak diizinkan: ${origin}`))
+  if (isAllowedOrigin(origin)) return cb(null, true)
+  cb(null, false) // tanpa header CORS → browser memblokir; bukan error 500
+}
+
+// Pengaman produksi: jangan jalan dengan rahasia/kredensial bawaan.
+if (process.env.NODE_ENV === 'production') {
+  const problems = []
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+    problems.push('SESSION_SECRET wajib diisi (min. 32 karakter acak)')
+  }
+  if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'admin123') {
+    problems.push('ADMIN_PASSWORD wajib diganti (jangan "admin123")')
+  }
+  if (problems.length) {
+    console.error(`Konfigurasi tidak aman untuk produksi:\n - ${problems.join('\n - ')}`)
+    process.exit(1)
+  }
 }
 
 const app = express()
 
+// Di belakang proxy/hosting (Nginx, dsb.) set TRUST_PROXY=1 supaya req.ip =
+// IP pengunjung asli (dipakai pembatas request & kunci login).
+if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY)
+app.disable('x-powered-by')
+app.use(securityHeaders)
+
 app.use(cors({ origin: corsOrigin, credentials: true }))
+app.use(originGuard(isAllowedOrigin))
 app.use(express.json({ limit: '15mb' })) // upload gambar / bukti transfer dikirim sebagai data URL
 app.use(cookieParser())
 
@@ -49,6 +78,15 @@ app.get('/', (_req, res) => {
   })
 })
 
+// Batas umum per IP untuk seluruh API (anti-banjir request): 300 / menit.
+app.use(
+  '/api',
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 300,
+    message: (s) => `Terlalu banyak permintaan. Coba lagi dalam ${formatWait(s)}.`,
+  }),
+)
 app.use('/api', apiRoutes)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
@@ -56,7 +94,13 @@ app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
 // Error handler terakhir
 app.use((err, _req, res, _next) => {
   console.error(err)
-  res.status(500).json({ error: 'Kesalahan server', detail: err.message })
+  // JSON rusak / terlalu besar dari klien → 400/413, bukan 500.
+  if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'JSON tidak valid' })
+  if (err.type === 'entity.too.large') return res.status(413).json({ error: 'Data terlalu besar' })
+  // Detail error internal hanya ditampilkan saat pengembangan.
+  const body = { error: 'Kesalahan server' }
+  if (process.env.NODE_ENV !== 'production') body.detail = err.message
+  res.status(500).json(body)
 })
 
 app.listen(PORT, () => console.log(`API jalan di http://localhost:${PORT}`))

@@ -1,5 +1,6 @@
 const { query } = require('../config/db')
 const { hashPassword, verifyPassword } = require('../lib/password')
+const { passwordError } = require('../lib/passwordPolicy')
 
 function toApi(row) {
   if (!row) return null
@@ -40,7 +41,8 @@ async function findById(id) {
 async function create(d) {
   const username = String(d.username || '').trim()
   if (!username) throw new Error('Username wajib diisi')
-  if (String(d.password || '').length < 6) throw new Error('Password minimal 6 karakter')
+  const pwErr = passwordError(d.password)
+  if (pwErr) throw new Error(pwErr)
 
   const exists = await findByUsername(username)
   if (exists) throw new Error('Username sudah dipakai')
@@ -63,7 +65,8 @@ async function create(d) {
 // Ganti password. Buat baris baru kalau username belum ada di tabel
 // (mis. akun bawaan dari env yang baru pertama kali ganti password).
 async function setPassword(username, newPassword, extra = {}) {
-  if (String(newPassword || '').length < 6) throw new Error('Password baru minimal 6 karakter')
+  const pwErr = passwordError(newPassword)
+  if (pwErr) throw new Error(pwErr)
   const uname = String(username || '').trim()
   const row = await findByUsername(uname)
   if (row) {

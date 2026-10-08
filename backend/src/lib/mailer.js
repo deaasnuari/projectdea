@@ -31,13 +31,13 @@ function isMailConfigured() {
   return config() !== null
 }
 
-async function sendMail({ subject, text, html, replyTo }) {
+async function sendMail({ subject, text, html, replyTo, to }) {
   const c = config()
   if (!c) return { skipped: true }
   if (!transporter) {
     transporter = nodemailer.createTransport({ host: c.host, port: c.port, secure: c.secure, auth: c.auth })
   }
-  const info = await transporter.sendMail({ from: c.from, to: c.to, subject, text, html, replyTo })
+  const info = await transporter.sendMail({ from: c.from, to: to || c.to, subject, text, html, replyTo })
   return { messageId: info.messageId }
 }
 
