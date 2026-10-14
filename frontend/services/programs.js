@@ -5,7 +5,8 @@ import { PROGRAMS, expandProgram } from '@/app/donatur/program/programData'
 
 // Klien API "Daftar Program" — tabel `programs` di backend. GET publik,
 // mutasi (POST/PUT/DELETE) butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 // credentials disertakan supaya admin (punya cookie sesi) ikut menerima
 // program yang "ditutup"; pengunjung biasa tetap hanya dapat yang aktif.

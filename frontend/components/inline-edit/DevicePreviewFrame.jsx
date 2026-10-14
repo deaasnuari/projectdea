@@ -20,16 +20,12 @@ const DeviceIcon = ({ id }) => {
   )
 }
 
-// Lebar viewport minimum yang masih dihitung "desktop" oleh CSS responsif
-// (lihat breakpoint di responsive.js / Tailwind).
-const DESKTOP_MIN = 1024
-
 // Pratinjau konten per perangkat. State `device` ('desktop' | 'tablet' |
 // 'mobile') menentukan LEBAR VIEWPORT iframe yang sesungguhnya — bukan
 // transform: scale() — jadi media query/Tailwind breakpoint di dalam iframe
 // benar-benar membaca lebar perangkat itu dan tata letaknya ikut berubah
 // (judul mengecil, kartu jadi 2 lalu 1 kolom, tombol bertumpuk, dst.).
-//   Desktop: 1280px (kalau area admin lebih sempit: selebar area, min 1024px)
+//   Desktop: 1280px (kalau area admin lebih sempit: diperkecil, bukan disempitkan)
 //   Tablet : 768px
 //   HP     : 375px
 // Konten tetap SATU sumber data — perangkat hanya mengubah ukuran viewport.
@@ -77,7 +73,11 @@ export default function DevicePreviewFrame({ page }) {
   // Lebar viewport sungguhan. Desktop: 1280px, atau selebar area admin kalau
   // lebih sempit (tetap ≥1024px supaya masih tata letak desktop).
   // Tablet/HP: persis ukuran perangkat.
-  const frameW = device === 'desktop' ? Math.max(DESKTOP_MIN, Math.min(d.width, avail || d.width)) : d.width
+  // Selalu 1280px (lebar area konten 1152px = sama dengan situs di layar laptop/
+  // monitor), meski area admin lebih sempit — iframe-nya yang diperkecil (scale).
+  // Kalau lebar iframe ikut menyempit, jarak/posisi hasil geser (persen lebar
+  // konten) jadi beda dengan di situs asli.
+  const frameW = d.width
   // Kalau area admin lebih sempit dari viewport, iframe diperkecil (scale)
   // supaya muat utuh tanpa perlu digeser ke samping — tata letak tetap desktop.
   const scale = avail > 0 ? Math.min(1, avail / frameW) : 1

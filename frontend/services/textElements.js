@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from 'react'
 // Editor teks visual (ala WordPress). Tiap elemen teks ber-`elementKey` unik
 // menyimpan ISI + styling-nya di tabel `text_elements`. GET publik, PUT/DELETE
 // butuh sesi admin. Kalau elemen belum ada di DB → komponen pakai style bawaan.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 export const STYLE_FIELDS = [
   'fontFamily',

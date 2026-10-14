@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 // Klien API "Informasi Donatur" — tabel `donor_info` (satu baris) di backend.
 // GET publik, PUT butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 // Pilihan sumber angka untuk stat "auto" — nama harus sama dengan
 // METRIC_KEYS di backend (models/DonorInfo.js).

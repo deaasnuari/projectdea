@@ -2,7 +2,8 @@
 // isAdminLoggedIn() hanya "petunjuk" sinkron untuk render pertama —
 // selalu dikonfirmasi ulang dengan checkAdminSession() ke /api/auth/me.
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 const HINT_KEY = 'lazispln_admin_hint'
 
 // Hanya untuk teks bantuan di halaman login — kredensial asli ada di
@@ -18,6 +19,8 @@ function setHint(ok) {
   }
 }
 
+// Mengembalikan { ok, error }. `error` berisi pesan dari server (mis. akun
+// terkunci karena terlalu banyak percobaan) atau pesan koneksi.
 export async function loginAdmin(username, password) {
   try {
     const res = await fetch(`${BASE}/api/auth/login`, {
@@ -27,10 +30,12 @@ export async function loginAdmin(username, password) {
       body: JSON.stringify({ username, password }),
     })
     setHint(res.ok)
-    return res.ok
+    if (res.ok) return { ok: true, error: '' }
+    const data = await res.json().catch(() => ({}))
+    return { ok: false, error: data.error || `Login gagal (${res.status})` }
   } catch {
     setHint(false)
-    return false
+    return { ok: false, error: `Server tidak dapat dihubungi (${BASE}). Pastikan backend berjalan.` }
   }
 }
 
@@ -43,15 +48,23 @@ export async function logoutAdmin() {
   setHint(false)
 }
 
-export async function checkAdminSession() {
+// Mengembalikan true (login), false (belum login), atau null (gagal
+// menghubungi server / respons error) — null BUKAN berarti belum login,
+// jadi pemanggil sebaiknya mencoba ulang alih-alih langsung menolak.
+export async function checkAdminSessionState() {
   try {
     const res = await fetch(`${BASE}/api/auth/me`, { credentials: 'include', cache: 'no-store' })
+    if (!res.ok) return null
     const { admin } = await res.json()
     setHint(!!admin)
     return !!admin
   } catch {
-    return false
+    return null
   }
+}
+
+export async function checkAdminSession() {
+  return (await checkAdminSessionState()) === true
 }
 
 // Profil ringkas admin dari sesi aktif (untuk ditampilkan di panel).

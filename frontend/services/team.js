@@ -5,7 +5,8 @@ import { TEAM } from '@/app/donatur/tentang-kami/timData'
 
 // Klien API "Tim" — tabel `team_members` di backend. GET publik, mutasi
 // (POST/PUT/DELETE) butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 export async function fetchTeam() {
   const res = await fetch(`${BASE}/api/team`, { cache: 'no-store' })

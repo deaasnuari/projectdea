@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from 'react'
 // Klien API rekening bank — tabel `bank_accounts` di backend, per `scope`
 // ('tentang' | 'program'). GET publik (dipakai modal donasi), mutasi butuh
 // sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 // Tampilan awal sebelum data API tiba (offline fallback).
 const FALLBACK_BANKS = [

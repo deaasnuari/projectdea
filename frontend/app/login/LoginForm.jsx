@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loginAdmin, DEMO_ADMIN_CREDENTIALS } from '@/services/adminAuth'
-import { changePassword } from '@/services/adminAccounts'
+import { forgotPassword, resetPasswordWithCode } from '@/services/adminAccounts'
 import { toast } from '@/components/ui/feedback'
 
 const UserIcon = (
@@ -56,6 +56,8 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false)
 
   // Form "lupa password" — set password baru langsung
+  const [rsStep, setRsStep] = useState('request') // 'request' (minta kode) | 'verify' (isi kode + password baru)
+  const [rsCode, setRsCode] = useState('')
   const [rsUser, setRsUser] = useState('')
   const [rsPw, setRsPw] = useState('')
   const [rsConfirm, setRsConfirm] = useState('')
@@ -71,6 +73,8 @@ export default function LoginForm() {
     setRsUser('')
     setRsPw('')
     setRsConfirm('')
+    setRsCode('')
+    setRsStep('request')
     setMode('login')
   }
 
@@ -87,11 +91,11 @@ export default function LoginForm() {
     }
 
     setLoading(true)
-    const ok = await loginAdmin(username.trim(), password)
+    const { ok, error: failMsg } = await loginAdmin(username.trim(), password)
     setLoading(false)
 
     if (!ok) {
-      const msg = 'Username atau password salah, atau server tidak dapat dihubungi.'
+      const msg = failMsg || 'Login gagal.'
       setError(msg)
       toast(msg, { tone: 'error' })
       return
@@ -104,12 +108,33 @@ export default function LoginForm() {
   const handleReset = async (e) => {
     e.preventDefault()
     if (rsBusy) return
-    if (!rsUser.trim() || !rsPw.trim()) {
-      toast('Isi username dan password baru.', { tone: 'error' })
+
+    // Langkah 1 — minta kode ke email akun.
+    if (rsStep === 'request') {
+      if (!rsUser.trim()) {
+        toast('Isi username akun.', { tone: 'error' })
+        return
+      }
+      setRsBusy(true)
+      try {
+        await forgotPassword(rsUser.trim())
+        toast('Jika akun ditemukan, kode reset dikirim ke email akun tersebut.', { tone: 'success' })
+        setRsStep('verify')
+      } catch (err) {
+        toast(err.message || 'Gagal meminta kode reset', { tone: 'error' })
+      } finally {
+        setRsBusy(false)
+      }
       return
     }
-    if (rsPw.length < 6) {
-      toast('Password baru minimal 6 karakter.', { tone: 'error' })
+
+    // Langkah 2 — kode + password baru.
+    if (!rsCode.trim() || !rsPw.trim()) {
+      toast('Isi kode dari email dan password baru.', { tone: 'error' })
+      return
+    }
+    if (rsPw.length < 8 || !/[A-Za-z]/.test(rsPw) || !/\d/.test(rsPw)) {
+      toast('Password baru minimal 8 karakter, mengandung huruf dan angka.', { tone: 'error' })
       return
     }
     if (rsPw !== rsConfirm) {
@@ -118,12 +143,11 @@ export default function LoginForm() {
     }
     setRsBusy(true)
     try {
-      await changePassword({ username: rsUser.trim(), newPassword: rsPw })
+      await resetPasswordWithCode({ username: rsUser.trim(), code: rsCode.trim(), newPassword: rsPw })
       toast('Password berhasil diganti. Silakan masuk dengan password baru.', { tone: 'success' })
-      setRsPw('')
-      setRsConfirm('')
       setUsername(rsUser.trim())
-      setMode('login')
+      setPassword('')
+      goLogin()
     } catch (err) {
       toast(err.message || 'Gagal mengganti password', { tone: 'error' })
     } finally {
@@ -133,9 +157,11 @@ export default function LoginForm() {
 
   if (mode === 'reset') {
     return (
-      <form onSubmit={handleReset} className="flex flex-col gap-3">
+      <form method="post" onSubmit={handleReset} className="flex flex-col gap-3">
         <p className="text-[12px] leading-relaxed text-gray-500">
-          Masukkan username akun lalu password baru. Password lama langsung diganti begitu disimpan.
+          {rsStep === 'request'
+            ? 'Masukkan username akun. Kode reset 6 digit akan dikirim ke email akun tersebut.'
+            : 'Masukkan kode 6 digit dari email (berlaku 15 menit) lalu password baru.'}
         </p>
 
         <label className="block">
@@ -144,7 +170,8 @@ export default function LoginForm() {
             <span className="text-gray-400">{UserIcon}</span>
             <input
               type="text"
-              autoFocus
+              autoFocus={rsStep === 'request'}
+              readOnly={rsStep === 'verify'}
               placeholder="Username akun"
               value={rsUser}
               onChange={(e) => setRsUser(e.target.value)}
@@ -153,6 +180,28 @@ export default function LoginForm() {
           </span>
         </label>
 
+        {rsStep === 'verify' && (
+          <label className="block">
+            <span className={labelText}>Kode dari Email</span>
+            <span className={fieldWrap}>
+              <span className="text-gray-400">{LockIcon}</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                autoFocus
+                placeholder="6 digit kode"
+                value={rsCode}
+                onChange={(e) => setRsCode(e.target.value.replace(/\D/g, ''))}
+                className={fieldInput}
+              />
+            </span>
+          </label>
+        )}
+
+        {rsStep === 'verify' && (
+          <>
         <label className="block">
           <span className={labelText}>Password Baru</span>
           <span className={fieldWrap}>
@@ -207,13 +256,19 @@ export default function LoginForm() {
             <span className="mt-1 block text-[11px] font-semibold text-green-600">Password cocok.</span>
           ) : null}
         </label>
+          </>
+        )}
 
         <button
           type="submit"
           disabled={!hydrated || rsBusy}
           className="btn btn-primary mt-1 w-full justify-center py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {rsBusy ? 'Menyimpan…' : 'Simpan Password Baru'}
+          {rsBusy
+            ? 'Memproses…'
+            : rsStep === 'request'
+              ? 'Kirim Kode ke Email'
+              : 'Simpan Password Baru'}
         </button>
 
         <button
@@ -228,7 +283,7 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label className="block">
         <span className={labelText}>Username</span>
         <span className={fieldWrap}>

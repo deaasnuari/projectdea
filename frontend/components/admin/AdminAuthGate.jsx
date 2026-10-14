@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { checkAdminSession, isAdminLoggedIn } from '@/services/adminAuth'
+import { checkAdminSessionState, isAdminLoggedIn } from '@/services/adminAuth'
 import { toast } from '@/components/ui/feedback'
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -22,18 +22,19 @@ export default function AdminAuthGate({ children }) {
     if (hadHint) setStatus('allowed')
 
     ;(async () => {
-      // Kalau baru saja login (ada hint) tapi cek pertama gagal, itu bisa
-      // cuma hiccup jaringan sesaat — coba ulang dulu sebelum benar-benar
-      // menolak & melempar balik ke /login.
-      const attempts = hadHint ? 3 : 1
+      // Cek sesi bisa gagal sesaat (backend lambat / cookie baru diset).
+      // Coba ulang dulu; hanya "belum login" yang pasti (false) yang boleh
+      // langsung menolak, setelah satu kali konfirmasi ulang.
+      const attempts = 4
       for (let i = 0; i < attempts; i += 1) {
         if (!alive) return
-        const ok = await checkAdminSession()
-        if (ok) {
+        const state = await checkAdminSessionState()
+        if (state === true) {
           if (alive) setStatus('allowed')
           return
         }
-        if (i < attempts - 1) await sleep(400)
+        if (state === false && !hadHint && i >= 1) break
+        if (i < attempts - 1) await sleep(500)
       }
 
       if (!alive) return

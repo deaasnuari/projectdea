@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from 'react'
 // Klien API akun admin — tabel `admin_accounts` di backend.
 // Semua endpoint di bawah /api/auth. register/accounts/reset butuh sesi
 // admin; change-password publik (perlu password lama yang benar).
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 async function req(path, { method = 'GET', body } = {}) {
   const res = await fetch(`${BASE}/api/auth${path}`, {
@@ -25,6 +26,9 @@ export const deleteAccount = (id) => req(`/accounts/${id}`, { method: 'DELETE' }
 export const resetAccountPassword = (id, newPassword) =>
   req(`/accounts/${id}/reset-password`, { method: 'POST', body: { newPassword } })
 export const changePassword = (payload) => req('/change-password', { method: 'POST', body: payload })
+// Lupa password: kode 6 digit dikirim ke email akun, lalu dipakai untuk reset.
+export const forgotPassword = (username) => req('/forgot-password', { method: 'POST', body: { username } })
+export const resetPasswordWithCode = (payload) => req('/reset-password', { method: 'POST', body: payload })
 
 export function useAdminAccounts() {
   const [accounts, setAccounts] = useState([])

@@ -6,7 +6,8 @@ import { DEFAULT_TENTANG_CONTENT } from '@/app/donatur/tentang-kami/tentangData'
 // Klien API konten "Tentang Kami" — tabel `about_page` (satu baris) di
 // backend. GET publik, PUT butuh sesi admin. Daftar anggota tim TIDAK di
 // sini (tetap lewat services/team.js → tabel team_members).
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 const CHANGE_EVENT = 'about-page:changed'
 const CHANGE_KEY = 'lazispln_about_rev'
 

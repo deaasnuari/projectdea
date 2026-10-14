@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from '@/components/ui/feedback'
 
 // Pesan dari formulir "Kontak Kami". POST publik; list/ubah/hapus butuh admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 // Selang cek pesan baru (ms) saat admin membuka halaman Pesan Masuk.
 const POLL_MS = 15000

@@ -5,7 +5,8 @@ import { DEFAULT_KONTAK_CONTENT, uid } from '@/app/donatur/kontak-kami/kontakDat
 
 // Klien API konten "Kontak Kami" — tabel `contact_page` (satu baris) di
 // backend. GET publik, PUT butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 const CHANGE_EVENT = 'contact-page:changed'
 const CHANGE_KEY = 'lazispln_contact_rev'
 

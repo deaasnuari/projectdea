@@ -7,7 +7,8 @@ import { toast } from '@/components/ui/feedback'
 // Selang cek donasi baru (ms) saat admin membuka halaman Riwayat Donasi.
 const POLL_MS = 15000
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 export async function createDonation(payload) {
   let res

@@ -7,7 +7,8 @@ import { DEFAULT_KAMI_PEDULI_CONTENT } from '@/app/donatur/sections/kamiPeduliDa
 // baris) di backend. GET publik, PUT butuh sesi admin.
 // Daftar video & foto galeri TIDAK di sini — sudah lewat services/docMedia.js
 // (tabel doc_videos / doc_photos).
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 const CHANGE_EVENT = 'home-page:changed'
 const CHANGE_KEY = 'lazispln_home_rev'
 

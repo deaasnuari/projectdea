@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const API_BASE = getApiBase()
 
 // Pilih file gambar → perkecil di browser → kirim ke backend, yang menyimpannya
 // sebagai FILE di folder /uploads dan membalas URL-nya. Yang disimpan di DB

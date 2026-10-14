@@ -6,7 +6,8 @@ import { POSTS } from '@/app/donatur/blog/blogData'
 // Klien API untuk artikel "Blog & Kursus" — tabel khusus `blog_posts` di
 // backend (bukan lagi dokumen JSON di site_content). GET publik, mutasi
 // (POST/PUT/DELETE) butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 export async function fetchPosts() {
   const res = await fetch(`${BASE}/api/blog`, { cache: 'no-store' })

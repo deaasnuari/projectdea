@@ -5,7 +5,8 @@ import { DEFAULT_KAMI_PEDULI_CONTENT } from '@/app/donatur/sections/kamiPeduliDa
 
 // Klien API "Dokumentasi" Kami Peduli — tabel `doc_videos` & `doc_photos`.
 // GET publik, mutasi (POST/PUT/DELETE) butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 async function getList(pathSeg) {
   const res = await fetch(`${BASE}/api/${pathSeg}`, { cache: 'no-store' })

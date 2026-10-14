@@ -224,11 +224,12 @@ export default function RiwayatDonasiView({ trash = false }) {
   }
 
   const CARDS = [
-    { label: 'Total Donasi', value: stats?.total ?? 0, ink: 'text-navy', tint: 'bg-navy/5', icon: STAT_ICONS.total },
-    { label: 'Menunggu', value: stats?.menunggu ?? 0, ink: 'text-amber-600', tint: 'bg-amber-50', icon: STAT_ICONS.menunggu },
-    { label: 'Terverifikasi', value: stats?.terverifikasi ?? 0, ink: 'text-green-600', tint: 'bg-green-50', icon: STAT_ICONS.terverifikasi },
+    { label: 'Total Donasi', tab: 'semua', value: stats?.total ?? 0, ink: 'text-navy', tint: 'bg-navy/5', icon: STAT_ICONS.total },
+    { label: 'Menunggu', tab: 'menunggu', value: stats?.menunggu ?? 0, ink: 'text-amber-600', tint: 'bg-amber-50', icon: STAT_ICONS.menunggu },
+    { label: 'Terverifikasi', tab: 'terverifikasi', value: stats?.terverifikasi ?? 0, ink: 'text-green-600', tint: 'bg-green-50', icon: STAT_ICONS.terverifikasi },
     {
       label: 'Dana Terkumpul',
+      tab: 'terverifikasi',
       value: formatRp(Number(stats?.total_terverifikasi ?? 0)),
       ink: 'text-primary-dark',
       tint: 'bg-primary/10',
@@ -374,7 +375,16 @@ export default function RiwayatDonasiView({ trash = false }) {
       {!trash && (
         <div className="mb-5 grid grid-cols-4 items-start gap-3 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
           {CARDS.map((s) => (
-            <div key={s.label} className="card p-4">
+            <button
+              key={s.label}
+              type="button"
+              onClick={() => setTab(s.tab)}
+              aria-pressed={tab === s.tab}
+              title={`Tampilkan donasi: ${TABS.find((t) => t.key === s.tab)?.label}`}
+              className={`card w-full cursor-pointer p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                tab === s.tab ? 'ring-2 ring-primary/50' : ''
+              }`}
+            >
               <div className="flex items-center gap-3">
                 <span
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${s.tint} ${s.ink}`}
@@ -389,7 +399,7 @@ export default function RiwayatDonasiView({ trash = false }) {
                 </div>
               </div>
               {s.sub}
-            </div>
+            </button>
           ))}
         </div>
       )}

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 export async function fetchContent(key) {
   const res = await fetch(`${BASE}/api/content/${key}`, { credentials: 'include', cache: 'no-store' })

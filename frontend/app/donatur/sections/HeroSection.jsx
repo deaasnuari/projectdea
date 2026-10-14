@@ -2,6 +2,7 @@
 
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
+import MovableBlock from '@/components/inline-edit/MovableBlock'
 import EditableImageElement from '@/components/inline-edit/EditableImageElement'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
@@ -127,9 +128,9 @@ export default function HeroSection() {
             label="deskripsi hero"
             multiline
           />
-          <CustomTexts section="hero" tone="dark" className="mb-6" />
-          <div data-flow-id="kami-peduli.hero.buttons" className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
-            <a href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
+          <CustomTexts section="hero" tone="dark" className="mb-6" chipAtTop />
+          <div data-flow-split className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
+            <MovableBlock as="a" elementKey="kami-peduli.hero.btn_zakat" section="hero" label="tombol Tunaikan Zakat" href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
               </svg>
@@ -139,8 +140,8 @@ export default function HeroSection() {
                 defaultText={hero.ctaZakat}
                 label="tombol Tunaikan Zakat"
               />
-            </a>
-            <a href="/donatur/program" className="btn btn-primary max-[600px]:py-2.5">
+            </MovableBlock>
+            <MovableBlock as="a" elementKey="kami-peduli.hero.btn_jelajahi" section="hero" label="tombol Jelajahi Kami" href="/donatur/program" className="btn btn-primary max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                 <circle cx="10" cy="10" r="7.5" />
                 <path d="M12.6 7.4l-1.8 3.8-3.8 1.8 1.8-3.8 3.8-1.8z" />
@@ -151,13 +152,13 @@ export default function HeroSection() {
                 defaultText={hero.ctaJelajahi}
                 label="tombol Jelajahi Kami"
               />
-            </a>
+            </MovableBlock>
           </div>
         </div>
 
         {/* Kartu-kartu fitur */}
         <div
-          data-flow-id="kami-peduli.hero.cards"
+          data-flow-split
           className="mb-6 grid animate-fade-in-up grid-cols-3 gap-4 opacity-0 max-[1023px]:grid-cols-2 max-[600px]:mb-0 max-[600px]:grid-cols-1 max-[600px]:gap-2.5"
           style={{ animationDelay: '0.3s' }}
         >
@@ -166,8 +167,12 @@ export default function HeroSection() {
             // Di mode edit admin, kartu jadi <div> supaya klik = edit teks, bukan pindah halaman.
             const Tag = meta.href && !isAdmin ? 'a' : 'div'
             return (
-              <Tag
+              <MovableBlock
+                as={Tag}
                 key={meta.id}
+                elementKey={`kami-peduli.hero.card.${meta.id}`}
+                section="hero"
+                label="kartu fitur"
                 href={meta.href}
                 className="group flex gap-4 rounded-tr-2xl rounded-bl-2xl rounded-tl-md rounded-br-md border border-white/[0.12] bg-white/[0.08] p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)] max-[600px]:gap-3 max-[600px]:p-3.5"
               >
@@ -193,7 +198,7 @@ export default function HeroSection() {
                     multiline
                   />
                 </div>
-              </Tag>
+              </MovableBlock>
             )
           })}
         </div>

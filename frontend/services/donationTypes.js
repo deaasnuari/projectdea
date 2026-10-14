@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 
 // Klien API jenis donasi — tabel `donation_types` di backend, per `scope`
 // ('tentang' | 'program'). GET publik, mutasi butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 // Tampilan awal sebelum data API tiba (offline fallback).
 const FALLBACK_JENIS = [

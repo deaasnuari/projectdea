@@ -54,7 +54,8 @@ export default function AdminDaftarAkunPage() {
     e.preventDefault()
     if (saving) return
     if (!form.username.trim()) return toast('Username wajib diisi.', { tone: 'error' })
-    if (form.password.length < 6) return toast('Password minimal 6 karakter.', { tone: 'error' })
+    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password))
+      return toast('Password minimal 8 karakter, mengandung huruf dan angka.', { tone: 'error' })
     if (form.password !== form.konfirmasi) return toast('Konfirmasi password tidak sama.', { tone: 'error' })
 
     setSaving(true)
@@ -98,7 +99,8 @@ export default function AdminDaftarAkunPage() {
   }
 
   const submitReset = async (acc) => {
-    if (resetPw.length < 6) return toast('Password baru minimal 6 karakter.', { tone: 'error' })
+    if (resetPw.length < 8 || !/[A-Za-z]/.test(resetPw) || !/\d/.test(resetPw))
+      return toast('Password baru minimal 8 karakter, mengandung huruf dan angka.', { tone: 'error' })
     try {
       await resetAccountPassword(acc.id, resetPw)
       toast(`Password akun "${acc.username}" diganti.`, { tone: 'success' })
@@ -166,8 +168,8 @@ export default function AdminDaftarAkunPage() {
                 <input
                   type={showPw ? 'text' : 'password'}
                   required
-                  minLength={6}
-                  placeholder="Min. 6 karakter"
+                  minLength={8}
+                  placeholder="Min. 8 karakter, huruf + angka"
                   value={form.password}
                   onChange={set('password')}
                   className={`${field} pr-9`}
@@ -277,8 +279,8 @@ export default function AdminDaftarAkunPage() {
                       <input
                         type={resetShow ? 'text' : 'password'}
                         autoFocus
-                        minLength={6}
-                        placeholder="Password baru (min. 6 karakter)"
+                        minLength={8}
+                        placeholder="Password baru (min. 8 karakter, huruf + angka)"
                         value={resetPw}
                         onChange={(e) => setResetPw(e.target.value)}
                         className={`${field} pr-9`}

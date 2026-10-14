@@ -89,7 +89,9 @@ function AddTextChip({ onDark, onPick, className = '' }) {
 }
 
 // `tone` = warna bawaan teks sesuai latar section ('light' / 'dark').
-export default function CustomTexts({ section, tone = 'light', className = '' }) {
+// `chipAtTop`: tombol "Tambah teks" (saat belum ada teks tambahan) ditaruh di
+// bagian atas `.container` terdekat (harus `relative`), bukan di titik slot.
+export default function CustomTexts({ section, tone = 'light', className = '', chipAtTop = false }) {
   const { editing } = useEditMode()
   const ctx = useTextElementsContext()
   const prefix = `${ctx.page}.${section}.custom.`
@@ -112,10 +114,12 @@ export default function CustomTexts({ section, tone = 'light', className = '' })
 
   // Belum ada teks tambahan → di halaman publik tidak ada apa-apa; di mode
   // edit hanya tombol "Tambah teks".
+  // Tinggi 0 & tanpa margin: tombol tidak boleh menambah tinggi halaman, kalau
+  // tidak elemen yang digeser (px) bergeser saat keluar dari mode edit.
   if (keys.length === 0) {
     return (
-      <div className={`relative ${className}`} data-flow-id={`${prefix}custom`}>
-        {addControl}
+      <div className={`h-0 ${chipAtTop ? '' : 'relative'}`} data-flow-id={`${prefix}custom`}>
+        <div className={chipAtTop ? 'absolute right-4 top-20 sm:right-6' : 'absolute left-0 -top-7'}>{addControl}</div>
       </div>
     )
   }

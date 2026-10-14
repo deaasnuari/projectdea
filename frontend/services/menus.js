@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 
 // Klien API "Manajemen Menu / Navbar Dinamis" — tabel `menus` + `menu_pages`.
 // GET publik (navbar), mutasi butuh sesi admin.
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import { getApiBase } from '@/services/apiBase'
+const BASE = getApiBase()
 
 const CHANGE_EVENT = 'menus:changed'
 const CHANGE_KEY = 'lazispln_menus_rev'
