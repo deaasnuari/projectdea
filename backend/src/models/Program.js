@@ -145,4 +145,59 @@ async function count() {
   return rows[0].n
 }
 
-module.exports = { toApi, slugify, list, findBySlug, findById, create, update, remove, count }
+// Ringkasan di halaman publik Daftar Program — dihitung LANGSUNG dari donasi
+// asli (terverifikasi, sumber "program", tidak di Sampah), bukan dari angka
+// manual di kartu program. Pengaturan tampil/sembunyi disimpan sebagai satu
+// baris text_elements (nilai live, tanpa alur draf).
+const SUMMARY_KEY = 'program.summary.settings'
+const DEFAULT_SUMMARY_SETTINGS = { show: true, programs: true, dana: true, donatur: true }
+
+function parseSettings(content) {
+  try {
+    const v = JSON.parse(content || '{}')
+    return { ...DEFAULT_SUMMARY_SETTINGS, ...(v && typeof v === 'object' ? v : {}) }
+  } catch {
+    return { ...DEFAULT_SUMMARY_SETTINGS }
+  }
+}
+
+async function summarySettings() {
+  const { rows } = await query('select content from text_elements where element_key = $1', [SUMMARY_KEY])
+  return parseSettings(rows[0]?.content)
+}
+
+async function saveSummarySettings(input = {}) {
+  const next = {}
+  for (const k of Object.keys(DEFAULT_SUMMARY_SETTINGS)) next[k] = input[k] === undefined ? undefined : Boolean(input[k])
+  const merged = { ...(await summarySettings()), ...JSON.parse(JSON.stringify(next)) }
+  await query(
+    `insert into text_elements (element_key, page, section, content)
+     values ($1, 'program', 'summary', $2)
+     on conflict (element_key) do update set content = excluded.content, updated_at = now()`,
+    [SUMMARY_KEY, JSON.stringify(merged)],
+  )
+  return merged
+}
+
+async function summary() {
+  const { rows } = await query(`
+    select
+      (select count(*)::int from programs where active is not false) as programs,
+      coalesce(sum(amount) filter (where status = 'terverifikasi' and source = 'program'), 0)::bigint as dana,
+      (
+        count(distinct donor_name) filter (where status = 'terverifikasi' and source = 'program' and not anonymous)
+        + count(*) filter (where status = 'terverifikasi' and source = 'program' and anonymous)
+      )::int as donatur
+    from donations
+    where deleted_at is null
+  `)
+  const r = rows[0] || {}
+  return {
+    programs: Number(r.programs) || 0,
+    dana: Number(r.dana) || 0,
+    donatur: Number(r.donatur) || 0,
+    settings: await summarySettings(),
+  }
+}
+
+module.exports = { toApi, slugify, list, findBySlug, findById, create, update, remove, count, summary, saveSummarySettings }

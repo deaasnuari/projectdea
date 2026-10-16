@@ -9,6 +9,24 @@ function toLines(input, sep) {
   return []
 }
 
+// GET /api/programs/summary  (publik) — angka asli + pengaturan tampil/sembunyi
+async function getSummary(_req, res, next) {
+  try {
+    res.json(await Program.summary())
+  } catch (err) {
+    next(err)
+  }
+}
+
+// PUT /api/programs/summary/settings  (admin)
+async function saveSummarySettings(req, res, next) {
+  try {
+    res.json({ settings: await Program.saveSummarySettings(req.body || {}) })
+  } catch (err) {
+    next(err)
+  }
+}
+
 // GET /api/programs  (publik) — kirim semua + flag `active`; frontend publik
 // yang menyaring yang ditutup, jadi tidak tergantung status login browser.
 async function list(_req, res, next) {
@@ -105,4 +123,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, getOne, create, update, remove }
+module.exports = { list, getOne, create, update, remove, getSummary, saveSummarySettings }

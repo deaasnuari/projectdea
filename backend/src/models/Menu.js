@@ -1,6 +1,6 @@
 const { query, pool } = require('../config/db')
 
-const TEMPLATES = ['system', 'text', 'blog', 'program']
+const TEMPLATES = ['system', 'text', 'blog', 'program', 'blocks']
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 function toApi(row) {
