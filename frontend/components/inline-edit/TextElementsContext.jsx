@@ -26,7 +26,7 @@ const TextElementsContext = createContext({
   ready: true,
 })
 
-export function TextElementsProvider({ page, children }) {
+export function TextElementsProvider({ page, children, toolbar = true }) {
   const { loading, ready, get, keysWithPrefix, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
     useTextElements(page)
 
@@ -50,7 +50,7 @@ export function TextElementsProvider({ page, children }) {
   return (
     <TextElementsContext.Provider value={value}>
       {children}
-      <EditToolbar />
+      {toolbar && <EditToolbar />}
     </TextElementsContext.Provider>
   )
 }

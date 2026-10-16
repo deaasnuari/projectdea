@@ -1,4 +1,5 @@
 import DevicePreviewFrame from '@/components/inline-edit/DevicePreviewFrame'
+import ContentPageHeader from '@/components/admin/ContentPageHeader'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
 
 export const metadata = {
@@ -9,17 +10,7 @@ export const metadata = {
 export default function AdminKontenTentangKamiPage() {
   return (
     <div>
-      <div className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">Kelola Konten</p>
-        <h1 className="font-heading text-xl font-bold text-navy">Konten &quot;Tentang Kami&quot;</h1>
-        <p className="mt-1 max-w-2xl text-[13px] text-gray-500">
-          Edit konten langsung pada pratinjau di bawah — klik ✏️ untuk mengubah teks, Tambah/Hapus untuk
-          mengelola item. Klik <b>Simpan Semua</b> untuk menyimpan sebagai draf (belum tampil ke
-          publik), lalu klik <b>Selesai Edit</b> untuk menerbitkannya. Daftar anggota tim diatur di
-          menu Tim.
-          Tampilan tablet &amp; HP menyesuaikan otomatis.
-        </p>
-      </div>
+      <ContentPageHeader title="Tentang Kami" note="Daftar anggota tim diatur di menu Tim. Metode donasi via transfer ada di bagian bawah halaman ini." />
 
       {/* Pratinjau per perangkat (Desktop / Tablet / HP) — isinya dimuat di
           iframe dari /admin-pratinjau/tentang-kami supaya tata letak responsif tiap

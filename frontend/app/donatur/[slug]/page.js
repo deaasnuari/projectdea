@@ -7,6 +7,7 @@ import { useMenuPage } from '@/services/menus'
 import TextTemplateView from './templates/TextTemplateView'
 import BlogTemplateView from './templates/BlogTemplateView'
 import ProgramTemplateView from './templates/ProgramTemplateView'
+import BlocksTemplateView from './templates/BlocksTemplateView'
 
 // Route catch-all 1 segmen untuk halaman yang dibuat admin lewat "Manajemen
 // Menu". Next mendahulukan route statis (blog/, program/, tentang-kami/, dst)
@@ -58,6 +59,9 @@ export default function DynamicMenuPage() {
       )}
       {menu.templateType === 'program' && (
         <ProgramTemplateView menu={menu} page={page} isPreview={isPreview} />
+      )}
+      {menu.templateType === 'blocks' && (
+        <BlocksTemplateView menu={menu} page={page} isPreview={isPreview} />
       )}
       <Footer />
     </>

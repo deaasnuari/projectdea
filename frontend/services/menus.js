@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { getCache, setCache } from '@/services/memoryCache'
 
 // Klien API "Manajemen Menu / Navbar Dinamis" — tabel `menus` + `menu_pages`.
 // GET publik (navbar), mutasi butuh sesi admin.
@@ -92,13 +93,16 @@ function useChangeSubscription(refresh) {
 
 // Navbar publik.
 export function usePublicMenus() {
-  const [menus, setMenus] = useState([])
-  const [ready, setReady] = useState(false)
+  const [menus, setMenus] = useState(() => getCache('menus:public') || [])
+  const [ready, setReady] = useState(() => Boolean(getCache('menus:public')))
 
   const refresh = useCallback(() => {
     return fetchPublicMenus()
       .then((data) => {
-        if (Array.isArray(data)) setMenus(data)
+        if (Array.isArray(data)) {
+          setMenus(data)
+          setCache('menus:public', data)
+        }
       })
       .catch(() => {
         /* diamkan → pakai fallback di komponen */

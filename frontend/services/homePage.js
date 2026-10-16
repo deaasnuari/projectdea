@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getCache, setCache } from '@/services/memoryCache'
 import { DEFAULT_KAMI_PEDULI_CONTENT } from '@/app/donatur/sections/kamiPeduliData'
 
 // Klien API konten "Kami Peduli" (Konten Situs) — tabel `home_page` (satu
@@ -52,10 +53,11 @@ function merge(data) {
 }
 
 export function useKamiPeduliContent() {
-  const [content, setContent] = useState(DEFAULT_KAMI_PEDULI_CONTENT)
-  const ref = useRef(DEFAULT_KAMI_PEDULI_CONTENT)
+  const [content, setContent] = useState(() => getCache('home:content') || DEFAULT_KAMI_PEDULI_CONTENT)
+  const ref = useRef(content)
 
   const apply = useCallback((next) => {
+    setCache('home:content', next)
     ref.current = next
     setContent(next)
   }, [])

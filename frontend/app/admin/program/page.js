@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { formatRp } from '@/services/format'
 import { uploadImage } from '@/services/imageFile'
-import { usePrograms } from '@/services/programs'
+import { usePrograms, fetchProgramSummary, saveProgramSummarySettings } from '@/services/programs'
 import { PROGRAM_THEMES, themeKeyOf } from '@/app/donatur/program/programData'
 import { useDonationMethods, DEFAULT_JENIS_DONASI } from '@/components/donation/donationMethodsData'
 import DonationMethodsManager from '@/components/donation/DonationMethodsManager'
@@ -29,6 +29,78 @@ const EMPTY_FORM = {
   target: '',
   collected: '',
   donors: '',
+}
+
+
+// Panel kecil: angka ringkasan di halaman publik Daftar Program diambil asli
+// dari donasi terverifikasi; admin cukup memilih mau ditampilkan atau tidak.
+const SUMMARY_OPTIONS = [
+  ['show', 'Tampilkan ringkasan angka', 'Menyalakan / mematikan seluruh baris ringkasan di halaman donatur.'],
+  ['programs', 'Jumlah program', null],
+  ['dana', 'Dana terkumpul', null],
+  ['donatur', 'Jumlah donatur', null],
+]
+
+function SummarySettingsPanel() {
+  const [data, setData] = useState(null)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    fetchProgramSummary().then(setData).catch(() => {})
+  }, [])
+
+  const toggle = async (key) => {
+    if (!data || busy) return
+    const next = { ...data.settings, [key]: !data.settings[key] }
+    setData({ ...data, settings: next })
+    setBusy(true)
+    try {
+      await saveProgramSummarySettings(next)
+      toast('Pengaturan ringkasan disimpan.', { tone: 'success' })
+    } catch (e) {
+      setData(data)
+      toast(e.message || 'Gagal menyimpan pengaturan', { tone: 'error' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const st = data?.settings
+  return (
+    <section className="mb-8 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <h2 className="text-sm font-bold text-navy">Ringkasan Angka di Halaman Donatur</h2>
+      <p className="mb-3 mt-1 text-[13px] text-gray-500">
+        Angka diambil langsung dari donasi <b>terverifikasi</b> di database (bukan diketik manual) dan ikut
+        berubah otomatis. Pilih bagian yang mau ditampilkan.
+      </p>
+      {data && (
+        <div className="mb-3 flex flex-wrap gap-2 text-[12px]">
+          <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary-dark">{data.programs} program</span>
+          <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary-dark">{formatRp(data.dana)}</span>
+          <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary-dark">{data.donatur} donatur</span>
+        </div>
+      )}
+      <div className="flex flex-wrap gap-x-6 gap-y-2">
+        {SUMMARY_OPTIONS.map(([key, label], i) => (
+          <label
+            key={key}
+            className={`flex cursor-pointer items-center gap-2 text-sm text-gray-700 ${
+              i > 0 && st && st.show === false ? 'opacity-40' : ''
+            }`}
+          >
+            <input
+              type="checkbox"
+              disabled={!st || busy}
+              checked={st ? st[key] !== false : true}
+              onChange={() => toggle(key)}
+              className="h-4 w-4 accent-primary"
+            />
+            <span className={i === 0 ? 'font-semibold' : ''}>{label}</span>
+          </label>
+        ))}
+      </div>
+    </section>
+  )
 }
 
 export default function AdminProgramPage() {
@@ -191,6 +263,8 @@ export default function AdminProgramPage() {
           Tambah Program
         </button>
       </div>
+
+      <SummarySettingsPanel />
 
       {/* Teks header halaman donatur — edit langsung di pratinjau (klik ✏️),
           Simpan Semua → draf, Selesai Edit → terbit. */}

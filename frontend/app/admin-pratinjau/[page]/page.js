@@ -11,6 +11,7 @@ import GabungMisiSection from '@/app/donatur/tentang-kami/GabungMisiSection'
 import ContactSection from '@/app/donatur/kontak-kami/ContactSection'
 import ProgramHeroText from '@/app/donatur/program/ProgramHeroText'
 import BlogHeroText from '@/app/donatur/blog/BlogHeroText'
+import FooterContent from '@/components/layout/FooterContent'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import AdminAuthGate from '@/components/admin/AdminAuthGate'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
@@ -62,6 +63,10 @@ const PAGES = {
   'kontak-kami': {
     className: '[&_#kontak-hero]:!pt-10 [&_#kontak-hero]:!pb-6',
     sections: [ContactSection],
+  },
+  footer: {
+    className: '',
+    sections: [FooterContent],
   },
   program: {
     className: '',

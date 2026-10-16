@@ -114,6 +114,16 @@ const NAV_SECTIONS = [
         ),
       },
       {
+        href: '/admin/konten-footer',
+        label: 'Konten Footer',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 15h18M7 18h4" />
+          </svg>
+        ),
+      },
+      {
         href: '/admin/donatur',
         label: 'Informasi Donatur Kami Peduli',
         icon: (

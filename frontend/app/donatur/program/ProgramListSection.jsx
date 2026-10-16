@@ -6,6 +6,7 @@ import DonationModal from '@/components/donation/DonationModal'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import { formatRp } from '@/services/format'
 import { usePrograms } from './usePrograms'
+import { useProgramSummary } from '@/services/programs'
 import ProgramHeroText from './ProgramHeroText'
 
 function ArrowIcon({ className = '' }) {
@@ -26,6 +27,23 @@ export default function ProgramListSection() {
   // "Tutup donasi" (donationOpen=false) → tetap tampil, tombol donasi mati.
   const programs = allPrograms.filter((p) => p.active !== false)
   const [donationProgram, setDonationProgram] = useState(null)
+  const [cat, setCat] = useState('Semua')
+
+  // Filter kategori (badge program) + ringkasan angka dari program yang tampil.
+  const cats = ['Semua', ...Array.from(new Set(programs.map((p) => p.badge).filter(Boolean)))]
+  const shown = cat === 'Semua' ? programs : programs.filter((p) => p.badge === cat)
+  // Angka asli dari database (donasi terverifikasi) + pilihan admin mau
+  // menampilkan ringkasan / tiap kotaknya atau tidak.
+  const { summary: sum } = useProgramSummary()
+  const st = sum?.settings || {}
+  const summary = sum
+    ? [
+        st.programs !== false && { label: 'Program', value: Number(sum.programs).toLocaleString('id-ID') },
+        st.dana !== false && { label: 'Dana terkumpul', value: formatRp(Number(sum.dana)) },
+        st.donatur !== false && { label: 'Donatur', value: Number(sum.donatur).toLocaleString('id-ID') },
+      ].filter(Boolean)
+    : []
+  const showSummary = st.show !== false && summary.length > 0
 
   return (
     <>
@@ -34,8 +52,53 @@ export default function ProgramListSection() {
           {/* Teks header — dikelola admin di /admin/program */}
           <ProgramHeroText />
 
+          {programs.length > 0 && (showSummary || cats.length > 2) && (
+            <div className="mb-8 flex flex-col gap-4">
+              {/* Ringkasan: memberi gambaran skala program sebelum memilih */}
+              {showSummary && (
+              <div
+                className={`grid gap-2 sm:gap-3 ${
+                  summary.length >= 3 ? 'grid-cols-3' : summary.length === 2 ? 'grid-cols-2' : 'grid-cols-1 max-w-sm'
+                }`}
+              >
+                {summary.map((s) => (
+                  <div
+                    key={s.label}
+                    className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-2.5 py-2 backdrop-blur-md sm:px-4 sm:py-3"
+                  >
+                    <p className="whitespace-nowrap font-heading text-[13px] font-extrabold leading-tight text-gold min-[400px]:text-[15px] sm:text-2xl">{s.value}</p>
+                    <p className="text-[9px] font-semibold uppercase leading-tight tracking-[0.04em] text-white/70 sm:text-[11px] sm:tracking-[0.08em]">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              )}
+
+              {/* Filter kategori — hanya tampil kalau ada lebih dari satu kategori */}
+              {cats.length > 2 && (
+                <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter kategori program">
+                  {cats.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      role="tab"
+                      aria-selected={cat === c}
+                      onClick={() => setCat(c)}
+                      className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+                        cat === c
+                          ? 'bg-gold text-navy shadow'
+                          : 'bg-white/10 text-white/80 ring-1 ring-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {programs.map((p) => {
+            {shown.map((p) => {
               const percent = p.target > 0 ? Math.round((p.collected / p.target) * 100) : 0
               const reached = p.target > 0 && p.collected >= p.target
               const lebih = Math.max(0, p.collected - p.target)
@@ -49,7 +112,7 @@ export default function ProgramListSection() {
                       tidak: badge ikon di atas blok warna bertekstur. */}
                   <Link
                     href={`/donatur/program/${p.slug}`}
-                    className={`relative flex aspect-[16/10] items-center justify-center overflow-hidden ${p.blockBg}`}
+                    className={`relative flex items-center justify-center overflow-hidden ${p.image ? 'aspect-[16/10]' : 'aspect-[16/7]'} ${p.blockBg}`}
                   >
                     {p.image ? (
                       <img
@@ -69,7 +132,7 @@ export default function ProgramListSection() {
                           </defs>
                           <rect width="100%" height="100%" fill={`url(#prg-${p.id})`} />
                         </svg>
-                        <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white/70 text-3xl shadow-sm backdrop-blur-sm transition-transform duration-500 group-hover:scale-105">
+                        <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white/80 text-4xl shadow-md backdrop-blur-sm transition-transform duration-500 group-hover:scale-105">
                           {p.icon}
                         </span>
                       </>

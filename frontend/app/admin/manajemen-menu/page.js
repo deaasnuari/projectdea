@@ -4,7 +4,8 @@ import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
-import { useAdminMenus } from '@/services/menus'
+import { useAdminMenus, saveMenuPage } from '@/services/menus'
+import { PRESETS, presetByKey } from '@/services/pageBlocks'
 import { toast, confirmDialog } from '@/components/ui/feedback'
 
 const TEMPLATES = [
@@ -12,12 +13,113 @@ const TEMPLATES = [
   { value: 'blog', label: 'Blog', badge: 'bg-blue-100 text-blue-700', hint: 'Halaman artikel tunggal (kategori, penulis, tanggal, SEO).' },
   { value: 'program', label: 'Program', badge: 'bg-amber-100 text-amber-700', hint: 'Halaman program/kegiatan (tujuan, detail, galeri).' },
 ]
+const BLOCKS_BADGE = 'bg-rose-100 text-rose-700'
 const badgeFor = (t) =>
   t === 'system'
     ? 'bg-gray-100 text-gray-600'
-    : (TEMPLATES.find((x) => x.value === t) || {}).badge || 'bg-gray-100 text-gray-600'
+    : t === 'blocks'
+      ? BLOCKS_BADGE
+      : (TEMPLATES.find((x) => x.value === t) || {}).badge || 'bg-gray-100 text-gray-600'
 const labelFor = (t) =>
-  t === 'system' ? 'System' : (TEMPLATES.find((x) => x.value === t) || {}).label || t
+  t === 'system' ? 'System' : t === 'blocks' ? 'Template Bagian' : (TEMPLATES.find((x) => x.value === t) || {}).label || t
+
+// Denah mini tiap jenis bagian — supaya admin bisa "melihat" susunan template
+// sebelum memilihnya, bukan cuma membaca namanya.
+function MiniBlock({ type }) {
+  switch (type) {
+    case 'hero':
+      return (
+        <div className="flex h-7 items-center gap-1 rounded-sm bg-gradient-to-r from-primary-dark to-primary px-1.5">
+          <div className="flex flex-1 flex-col gap-0.5">
+            <div className="h-1 w-3/4 rounded bg-white/90" />
+            <div className="h-0.5 w-1/2 rounded bg-white/50" />
+          </div>
+          <div className="h-4 w-5 rounded-sm bg-white/25" />
+        </div>
+      )
+    case 'stats':
+      return (
+        <div className="flex h-4 items-center justify-around rounded-sm bg-navy">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-1.5 w-3 rounded bg-gold" />
+          ))}
+        </div>
+      )
+    case 'features':
+      return (
+        <div className="grid grid-cols-3 gap-0.5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-5 rounded-sm bg-primary/15 ring-1 ring-primary/20" />
+          ))}
+        </div>
+      )
+    case 'gallery':
+      return (
+        <div className="grid grid-cols-4 gap-0.5">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="aspect-square rounded-sm bg-gray-300" />
+          ))}
+        </div>
+      )
+    case 'steps':
+      return (
+        <div className="flex flex-col gap-0.5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-1">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <div className="h-0.5 flex-1 rounded bg-gray-300" />
+            </div>
+          ))}
+        </div>
+      )
+    case 'faq':
+      return (
+        <div className="flex flex-col gap-0.5">
+          {[0, 1].map((i) => (
+            <div key={i} className="flex h-2 items-center justify-between rounded-sm bg-gray-100 px-1">
+              <div className="h-0.5 w-1/2 rounded bg-gray-400" />
+              <div className="h-1 w-1 rounded-full bg-primary" />
+            </div>
+          ))}
+        </div>
+      )
+    case 'donate':
+      return (
+        <div className="flex h-6 flex-col items-center justify-center gap-0.5 rounded-sm bg-gradient-to-br from-primary-dark to-navy">
+          <div className="h-0.5 w-1/2 rounded bg-white/80" />
+          <div className="h-1.5 w-1/4 rounded-full bg-gold" />
+        </div>
+      )
+    case 'cta':
+      return (
+        <div className="flex h-4 flex-col items-center justify-center gap-0.5 rounded-sm bg-primary/10">
+          <div className="h-0.5 w-1/3 rounded bg-navy/60" />
+          <div className="h-1 w-1/5 rounded-full bg-primary" />
+        </div>
+      )
+    case 'image':
+      return <div className="h-6 rounded-sm bg-gradient-to-br from-gray-200 to-gray-300" />
+    default: // text
+      return (
+        <div className="flex flex-col gap-0.5 px-0.5">
+          <div className="h-0.5 w-2/5 rounded bg-navy/70" />
+          <div className="h-0.5 w-full rounded bg-gray-300" />
+          <div className="h-0.5 w-5/6 rounded bg-gray-300" />
+        </div>
+      )
+  }
+}
+
+function PresetThumb({ preset }) {
+  const types = preset.build().map((b) => b.type)
+  return (
+    <div className="flex h-36 flex-col gap-1 overflow-hidden rounded-lg border border-gray-200 bg-white p-1.5">
+      {types.map((t, i) => (
+        <MiniBlock key={i} type={t} />
+      ))}
+    </div>
+  )
+}
 
 const slugify = (s) =>
   String(s || '')
@@ -28,7 +130,7 @@ const slugify = (s) =>
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
 
-const EMPTY = { id: null, name: '', slug: '', templateType: 'text', parentId: '', isVisible: true, openNewTab: false }
+const EMPTY = { id: null, name: '', slug: '', templateType: 'blocks', preset: 'profil', parentId: '', isVisible: true, openNewTab: false }
 
 export default function ManajemenMenuPage() {
   const { flat, tree, loading, error, saveMenu, removeMenu, reorderMenus } = useAdminMenus()
@@ -78,7 +180,7 @@ export default function ManajemenMenuPage() {
     setSaving(true)
     setFormErr('')
     try {
-      await saveMenu({
+      const saved = await saveMenu({
         id: form.id,
         name,
         slug,
@@ -87,8 +189,19 @@ export default function ManajemenMenuPage() {
         isVisible: form.isVisible,
         openNewTab: form.openNewTab,
       })
+      // Menu baru bertemplate bagian: isi halaman awal dari template yang dipilih.
+      if (!form.id && form.templateType === 'blocks' && saved?.id) {
+        const preset = presetByKey(form.preset) || PRESETS[0]
+        await saveMenuPage(saved.id, {
+          title: name,
+          data: { preset: preset.key, blocks: preset.build() },
+          status: 'draft',
+        })
+      }
       setModalOpen(false)
-      toast(form.id ? 'Menu diperbarui.' : 'Menu ditambahkan.', { tone: 'success' })
+      toast(form.id ? 'Menu diperbarui.' : 'Menu ditambahkan — lanjut isi kontennya lewat tombol Edit Konten.', {
+        tone: 'success',
+      })
     } catch (err) {
       setFormErr(err.body?.error || err.message || 'Gagal menyimpan menu.')
     } finally {
@@ -311,7 +424,7 @@ export default function ManajemenMenuPage() {
         </div>
       </div>
 
-      <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={form.id ? 'Edit Menu' : 'Tambah Menu'}>
+      <AdminModal wide open={modalOpen} onClose={() => setModalOpen(false)} title={form.id ? 'Edit Menu' : 'Tambah Menu'}>
         <form onSubmit={submit} className="flex flex-col gap-4">
           <div>
             <label className={labelClass}>Nama Menu</label>
@@ -350,25 +463,61 @@ export default function ManajemenMenuPage() {
           {!form.isSystem && (
             <div>
               <label className={labelClass}>Pilih Template</label>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {TEMPLATES.map((t) => (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => setForm((f) => ({ ...f, templateType: t.value }))}
-                    className={`rounded-xl border p-3 text-left transition-all ${
-                      form.templateType === t.value
-                        ? 'border-primary bg-primary/[0.07] ring-1 ring-primary'
-                        : 'border-gray-200 hover:border-primary/40'
-                    }`}
-                  >
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${t.badge}`}>
-                      {t.label}
-                    </span>
-                    <span className="mt-1 block text-[11px] leading-snug text-gray-500">{t.hint}</span>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {(form.id ? [] : PRESETS).map((t) => {
+                  const on = form.templateType === 'blocks' && form.preset === t.key
+                  return (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, templateType: 'blocks', preset: t.key }))}
+                      className={`rounded-xl border p-2 text-left transition-all ${
+                        on ? 'border-primary bg-primary/[0.07] ring-2 ring-primary' : 'border-gray-200 hover:border-primary/40'
+                      }`}
+                    >
+                      <PresetThumb preset={t} />
+                      <span className={`mt-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${t.tone}`}>{t.label}</span>
+                      <span className="mt-1 block text-[11px] leading-snug text-gray-500">{t.desc}</span>
+                    </button>
+                  )
+                })}
               </div>
+              {form.templateType === 'blocks' && !form.id && (
+                <p className="mt-2 text-[11px] text-gray-500">
+                  Template sudah berisi susunan bagian & contoh isi — nanti tinggal diganti, disembunyikan, diurutkan,
+                  atau ditambah bagiannya di Edit Konten.
+                </p>
+              )}
+              {form.id && form.templateType === 'blocks' && (
+                <p className="rounded-lg bg-gray-50 px-3 py-2 text-[12px] text-gray-500">
+                  Template bagian — isi & susunannya diatur lewat tombol <b>Edit Konten</b>.
+                </p>
+              )}
+
+              <details className="mt-3" open={form.templateType !== 'blocks'}>
+                <summary className="cursor-pointer text-[11px] font-semibold text-gray-400 hover:text-gray-600">
+                  Template klasik (formulir isian sederhana)
+                </summary>
+                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {TEMPLATES.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, templateType: t.value }))}
+                      className={`rounded-xl border p-3 text-left transition-all ${
+                        form.templateType === t.value
+                          ? 'border-primary bg-primary/[0.07] ring-1 ring-primary'
+                          : 'border-gray-200 hover:border-primary/40'
+                      }`}
+                    >
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${t.badge}`}>
+                        {t.label}
+                      </span>
+                      <span className="mt-1 block text-[11px] leading-snug text-gray-500">{t.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              </details>
             </div>
           )}
 

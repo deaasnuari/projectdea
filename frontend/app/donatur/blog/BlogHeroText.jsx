@@ -13,7 +13,7 @@ export default function BlogHeroText() {
   useFlowOrder(flowRef, 'hero')
 
   return (
-    <div ref={flowRef} data-flow-group className="mb-12">
+    <div ref={flowRef} data-flow-group className="mb-5 sm:mb-6">
       <EditableRichText
         elementKey="blog.hero.label"
         section="hero"

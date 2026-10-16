@@ -11,8 +11,10 @@ import { fetchBankAccounts } from '@/services/bankAccounts'
 import { toast } from '@/components/ui/feedback'
 import ResizableImage from '@/components/admin/ResizableImage'
 import { normalizeHeroSize } from '@/services/heroSize'
+import BlocksEditor from '@/components/admin/BlocksEditor'
+import { presetByKey } from '@/services/pageBlocks'
 
-const TEMPLATE_LABEL = { text: 'Teks Biasa', blog: 'Blog', program: 'Program' }
+const TEMPLATE_LABEL = { text: 'Teks Biasa', blog: 'Blog', program: 'Program', blocks: 'Template Bagian' }
 
 export default function EditMenuContentPage() {
   const { id } = useParams()
@@ -127,7 +129,7 @@ export default function EditMenuContentPage() {
           </Link>
           <h1 className="mt-1 font-heading text-xl font-bold text-navy">Edit Konten — {menu.name}</h1>
           <p className="mt-1 text-[13px] text-gray-500">
-            Template: <b>{TEMPLATE_LABEL[tt] || tt}</b> · URL:{' '}
+            Template: <b>{tt === 'blocks' ? presetByKey(data.preset)?.label || TEMPLATE_LABEL.blocks : TEMPLATE_LABEL[tt] || tt}</b> · URL:{' '}
             <code className="text-primary-dark">/donatur/{menu.slug}</code> · Status:{' '}
             <span className={page?.status === 'published' ? 'font-semibold text-primary-dark' : 'font-semibold text-amber-600'}>
               {page?.status === 'published' ? 'Published' : 'Draft'}
@@ -164,10 +166,18 @@ export default function EditMenuContentPage() {
 
       <div className="flex flex-col gap-4">
         <div>
-          <label className={labelClass}>{tt === 'program' ? 'Judul Program' : 'Judul Halaman'}</label>
+          <label className={labelClass}>
+            {tt === 'program' ? 'Judul Program' : tt === 'blocks' ? 'Judul Halaman (untuk tab browser)' : 'Judul Halaman'}
+          </label>
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
         </div>
 
+        {/* ---- Template berbasis bagian: semua isi diatur per bagian ---- */}
+        {tt === 'blocks' && (
+          <BlocksEditor blocks={Array.isArray(data.blocks) ? data.blocks : []} onChange={(blocks) => setD({ blocks })} />
+        )}
+
+        {tt !== 'blocks' && (
         <div>
           <label className={labelClass}>
             {tt === 'blog' ? 'Thumbnail / Gambar' : tt === 'program' ? 'Gambar / Thumbnail' : 'Gambar Utama (opsional)'}
@@ -187,6 +197,7 @@ export default function EditMenuContentPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* ---- Field khusus BLOG ---- */}
         {tt === 'blog' && (
@@ -249,12 +260,14 @@ export default function EditMenuContentPage() {
           </>
         )}
 
+        {tt !== 'blocks' && (
         <div>
           <label className={labelClass}>
             {tt === 'blog' ? 'Isi Artikel' : tt === 'program' ? 'Isi / Detail Program' : 'Isi Halaman'}
           </label>
           <RichTextEditor value={bodyHtml} onChange={setBodyHtml} />
         </div>
+        )}
 
         {/* ---- Rekening Donasi (PROGRAM) — tampil sebagai kotak "Donasi via
              Transfer" di halaman publik, seperti di Daftar Program ---- */}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { getCache, setCache } from '@/services/memoryCache'
 import { POSTS } from '@/app/donatur/blog/blogData'
 
 // Klien API untuk artikel "Blog & Kursus" — tabel khusus `blog_posts` di
@@ -63,15 +64,15 @@ function broadcastChange() {
 // tidak ada "kedipan" fallback → data asli; `POSTS` hanya dipakai kalau API
 // benar-benar gagal.
 export function useBlogPosts() {
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [posts, setPosts] = useState(() => getCache('blog:posts') || [])
+  const [loading, setLoading] = useState(() => !getCache('blog:posts'))
   const [error, setError] = useState('')
 
   const refresh = useCallback(() => {
-    setLoading(true)
     return fetchPosts()
       .then((data) => {
         if (Array.isArray(data)) {
+          setCache('blog:posts', data)
           setPosts(data)
           setError('')
         }

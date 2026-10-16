@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { getCache, setCache } from '@/services/memoryCache'
 import { PROGRAMS, expandProgram } from '@/app/donatur/program/programData'
 
 // Klien API "Daftar Program" — tabel `programs` di backend. GET publik,
@@ -65,15 +66,18 @@ export const notifyProgramsChanged = broadcastChange
 // (offline fallback) sampai data API tiba. Setiap program di-expand
 // warna theme-nya.
 export function usePrograms() {
-  const [programs, setPrograms] = useState(() => PROGRAMS.map(expandProgram))
-  const [loading, setLoading] = useState(true)
+  const [programs, setPrograms] = useState(() => {
+    const c = getCache('programs:list')
+    return (c || PROGRAMS).map(expandProgram)
+  })
+  const [loading, setLoading] = useState(() => !getCache('programs:list'))
   const [error, setError] = useState('')
 
   const refresh = useCallback(() => {
-    setLoading(true)
     return fetchPrograms()
       .then((data) => {
         if (Array.isArray(data)) {
+          setCache('programs:list', data)
           setPrograms(data.map(expandProgram))
           setError('')
         }
@@ -163,4 +167,55 @@ export function usePrograms() {
     setProgramActive,
     setProgramState,
   }
+}
+
+
+// Ringkasan angka asli (dari donasi terverifikasi) + pengaturan tampil/sembunyi.
+export async function fetchProgramSummary() {
+  const res = await fetch(`${BASE}/api/programs/summary`, { credentials: 'include', cache: 'no-store' })
+  if (!res.ok) throw new Error(`GET programs/summary → ${res.status}`)
+  return res.json()
+}
+
+export async function saveProgramSummarySettings(settings) {
+  const res = await fetch(`${BASE}/api/programs/summary/settings`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(settings),
+  })
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}))
+    throw new Error(b.error || `PUT programs/summary/settings → ${res.status}`)
+  }
+  broadcastChange()
+  return (await res.json()).settings
+}
+
+export function useProgramSummary() {
+  const [summary, setSummary] = useState(() => getCache('programs:summary') || null)
+
+  const refresh = useCallback(
+    () =>
+      fetchProgramSummary()
+        .then((d) => {
+          setCache('programs:summary', d)
+          setSummary(d)
+        })
+        .catch(() => {}),
+    [],
+  )
+
+  useEffect(() => {
+    refresh()
+    const onChanged = () => refresh()
+    window.addEventListener(CHANGE_EVENT, onChanged)
+    window.addEventListener('focus', onChanged)
+    return () => {
+      window.removeEventListener(CHANGE_EVENT, onChanged)
+      window.removeEventListener('focus', onChanged)
+    }
+  }, [refresh])
+
+  return { summary, refresh }
 }

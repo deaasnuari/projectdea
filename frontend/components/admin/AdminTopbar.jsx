@@ -12,6 +12,7 @@ const PAGE_TITLES = [
   ['/admin/sampah-donasi', 'Sampah Donasi'],
   ['/admin/pesan-masuk', 'Pesan Masuk'],
   ['/admin/konten-kami-peduli', 'Konten Kami Peduli'],
+  ['/admin/konten-footer', 'Konten Footer'],
   ['/admin/konten-tentang-kami', 'Konten Tentang Kami'],
   ['/admin/konten-kontak-kami', 'Konten Kontak Kami'],
   ['/admin/blog', 'Blog & Kursus'],

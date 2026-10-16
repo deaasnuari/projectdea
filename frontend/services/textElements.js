@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 // menyimpan ISI + styling-nya di tabel `text_elements`. GET publik, PUT/DELETE
 // butuh sesi admin. Kalau elemen belum ada di DB → komponen pakai style bawaan.
 import { getApiBase } from '@/services/apiBase'
+import { getCache, setCache } from '@/services/memoryCache'
 const BASE = getApiBase()
 
 export const STYLE_FIELDS = [
@@ -139,13 +140,13 @@ function broadcast() {
 // pratinjau tetap terasa langsung. Baru saat admin klik "Simpan Semua"
 // (`saveAll`) seluruh tahanan itu dikirim sekaligus ke database.
 export function useTextElements(page) {
-  const [map, setMap] = useState(() => new Map())
-  const [loading, setLoading] = useState(true)
+  const [map, setMap] = useState(() => getCache(`te:${page}`) || new Map())
+  const [loading, setLoading] = useState(() => !getCache(`te:${page}`))
   // `ready` = fetch PERTAMA sudah selesai (sukses/gagal). Beda dengan
   // `loading` yang ikut true lagi tiap refresh (mis. saat tab difokuskan) —
   // dipakai untuk menyembunyikan elemen sampai isi dari DB sudah ada, supaya
   // pengunjung tidak melihat teks bawaan lalu "meloncat" ke versi editan.
-  const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState(() => Boolean(getCache(`te:${page}`)))
   const [pendingPatches, setPendingPatches] = useState(() => new Map()) // elementKey -> payload belum dikirim
   const [pendingResets, setPendingResets] = useState(() => new Set()) // elementKey yang ditahan untuk direset
 
@@ -155,6 +156,7 @@ export function useTextElements(page) {
       .then((rows) => {
         const m = new Map()
         for (const r of rows) m.set(r.elementKey, r)
+        setCache(`te:${page}`, m)
         setMap(m)
       })
       .catch(() => {

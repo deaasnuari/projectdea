@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getCache, setCache } from '@/services/memoryCache'
 
 // Klien API "Informasi Donatur" — tabel `donor_info` (satu baris) di backend.
 // GET publik, PUT butuh sesi admin.
@@ -62,12 +63,13 @@ function broadcast() {
 }
 
 export function useDonorContent() {
-  const [content, setContent] = useState(DEFAULT_DONOR_CONTENT)
-  const [loading, setLoading] = useState(true)
+  const [content, setContent] = useState(() => getCache('donor:content') || DEFAULT_DONOR_CONTENT)
+  const [loading, setLoading] = useState(() => !getCache('donor:content'))
   const [error, setError] = useState('')
-  const ref = useRef(DEFAULT_DONOR_CONTENT)
+  const ref = useRef(content)
 
   const apply = useCallback((next) => {
+    setCache('donor:content', next)
     ref.current = next
     setContent(next)
   }, [])

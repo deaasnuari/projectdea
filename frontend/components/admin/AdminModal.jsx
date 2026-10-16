@@ -1,6 +1,6 @@
 'use client'
 
-export default function AdminModal({ open, onClose, title, children }) {
+export default function AdminModal({ open, onClose, title, children, wide = false }) {
   if (!open) return null
 
   return (
@@ -12,7 +12,7 @@ export default function AdminModal({ open, onClose, title, children }) {
           kartu tidak ikut geser dari tengah layar; bar-nya disembunyikan
           (.no-scrollbar) supaya tidak nongol di sudut yang melengkung. */}
       <div
-        className="no-scrollbar relative max-h-[92vh] w-full max-w-[560px] overflow-y-auto rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white p-5 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8"
+        className={`no-scrollbar relative max-h-[92vh] w-full ${wide ? 'max-w-[760px]' : 'max-w-[560px]'} overflow-y-auto rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg bg-white p-5 shadow-[0_32px_70px_-24px_rgba(6,30,40,0.55)] sm:p-8`}
         onClick={(e) => e.stopPropagation()}
       >
         <button

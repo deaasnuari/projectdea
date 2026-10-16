@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -12,7 +13,13 @@ import BlogHeroText from './BlogHeroText'
 export default function BlogPage() {
   const { posts: allPosts, loading } = useBlogPosts()
   // Artikel yang di-"Sembunyikan" di admin tidak tampil di halaman donatur.
-  const posts = allPosts.filter((p) => p.active !== false)
+  const visible = allPosts.filter((p) => p.active !== false)
+  const [cat, setCat] = useState('Semua')
+  const cats = ['Semua', ...Array.from(new Set(visible.map((p) => p.badge).filter(Boolean)))]
+  const filtered = cat === 'Semua' ? visible : visible.filter((p) => p.badge === cat)
+  // Artikel pertama jadi sorotan besar (hanya di tampilan "Semua", bila ada >1 artikel).
+  const featured = cat === 'Semua' && filtered.length > 1 ? filtered[0] : null
+  const posts = featured ? filtered.slice(1) : filtered
 
   // Sampai 3 artikel: grid biasa. Lebih dari itu: baris yang digeser ke
   // samping (scroll-snap) supaya halaman tidak makin panjang ke bawah —
@@ -73,7 +80,7 @@ export default function BlogPage() {
             <BlogHeroText />
           </TextElementsProvider>
 
-          {posts.length === 0 ? (
+          {visible.length === 0 ? (
             // Diam saja selagi memuat pertama kali — tanpa spinner/skeleton,
             // biar tidak ada kesan "loading" di antara kartu.
             <div aria-hidden className="min-h-[40vh]">
@@ -81,12 +88,62 @@ export default function BlogPage() {
                 <p className="text-sm text-white/70">Belum ada artikel.</p>
               )}
             </div>
-          ) : slideMode ? (
+          ) : null}
+
+          {visible.length > 0 && cats.length > 2 && (
+            <div className="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Filter kategori artikel">
+              {cats.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  role="tab"
+                  aria-selected={cat === c}
+                  onClick={() => setCat(c)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+                    cat === c
+                      ? 'bg-gold text-navy shadow'
+                      : 'bg-white/10 text-white/80 ring-1 ring-white/20 hover:bg-white/20'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {featured && (
+            <article className="card mb-6 grid overflow-hidden md:h-[340px] md:grid-cols-[1.15fr_1fr]">
+              <Link href={`/donatur/blog/${featured.slug}`} className="block aspect-[16/10] overflow-hidden md:aspect-auto md:h-full">
+                <img src={featured.image} alt={featured.title} className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04]" />
+              </Link>
+              <div className="flex flex-col justify-center p-6 sm:p-9">
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy">Terbaru</span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">{featured.badge}</span>
+                  <span className="text-xs text-gray-500">{formatBlogDate(featured.date)}</span>
+                </div>
+                <h2 className="mb-3 font-heading text-2xl font-bold leading-snug text-navy sm:text-3xl">
+                  <Link href={`/donatur/blog/${featured.slug}`} className="hover:text-primary">
+                    {featured.title}
+                  </Link>
+                </h2>
+                <p className="mb-5 text-[15px] leading-relaxed text-gray-500">{featured.desc}</p>
+                <Link
+                  href={`/donatur/blog/${featured.slug}`}
+                  className="btn btn-primary self-start"
+                >
+                  Baca Selengkapnya
+                </Link>
+              </div>
+            </article>
+          )}
+
+          {visible.length === 0 ? null : posts.length === 0 ? null : slideMode ? (
             <div className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2">
               {posts.map(renderCard)}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-6 sm:gap-8 max-[1000px]:grid-cols-2 max-[640px]:grid-cols-1">
+            <div className={`grid gap-6 sm:gap-8 max-[640px]:grid-cols-1 ${posts.length === 2 ? "grid-cols-2" : "grid-cols-3 max-[1000px]:grid-cols-2"}`}>
               {posts.map(renderCard)}
             </div>
           )}
