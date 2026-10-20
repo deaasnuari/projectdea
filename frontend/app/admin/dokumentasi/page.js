@@ -6,7 +6,7 @@ import VisibilityStatus from '@/components/admin/VisibilityStatus'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
 import { useKamiPeduliContent } from '@/app/donatur/sections/useKamiPeduliContent'
-import { youtubeThumb, youtubeWatchUrl, youtubeId } from '@/services/youtube'
+import { youtubeThumb, youtubeWatchUrl, youtubeId, localThumb } from '@/services/youtube'
 import { uploadImage } from '@/services/imageFile'
 import { toDateInputValue, formatDateID as fmtDateID } from '@/services/dateText'
 import { toast, confirmDialog } from '@/components/ui/feedback'
@@ -223,7 +223,7 @@ export default function AdminDokumentasiPage() {
       }`}
     >
       <div className="relative aspect-video overflow-hidden">
-        {v.image && <img src={v.image} alt={v.title} className="h-full w-full object-cover" />}
+        {v.image && <img width="640" height="360" src={localThumb(v.image)} alt={v.title} className="h-full w-full object-cover" />}
         {v.active === false && (
           <span className="absolute right-3 top-3 z-[1] rounded-full bg-navy px-2.5 py-1 text-[11px] font-bold text-white">
             Disembunyikan
@@ -241,7 +241,7 @@ export default function AdminDokumentasiPage() {
         )}
       </div>
       <div className="p-5">
-        {v.date && <p className="mb-1 text-xs font-medium text-gray-400">{fmtDateID(v.date)}</p>}
+        {v.date && <p className="mb-1 text-xs font-medium text-gray-500">{fmtDateID(v.date)}</p>}
         <h3 className="mb-1 font-heading text-base font-bold leading-snug text-navy">{v.title}</h3>
         {v.desc && <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-gray-500">{v.desc}</p>}
         {v.videoUrl && (
@@ -264,7 +264,7 @@ export default function AdminDokumentasiPage() {
           <button
             type="button"
             onClick={() => deleteVideo(v)}
-            className="flex-1 rounded-lg bg-coral/10 px-3 py-2 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+            className="flex-1 rounded-lg bg-coral/10 px-3 py-2 text-xs font-semibold text-coral-dark transition-colors hover:bg-coral/20"
           >
             Hapus
           </button>
@@ -281,7 +281,7 @@ export default function AdminDokumentasiPage() {
       }`}
     >
       <div className="relative mb-2">
-        <img src={f.image} alt={f.caption} className="aspect-square w-full rounded-lg object-cover" />
+        <img width="200" height="200" src={f.image} alt={f.caption} className="aspect-square w-full rounded-lg object-cover" />
         {f.active === false && (
           <span className="absolute right-2 top-2 rounded-full bg-navy px-2 py-0.5 text-[10px] font-bold text-white">
             Disembunyikan
@@ -306,7 +306,7 @@ export default function AdminDokumentasiPage() {
         <button
           type="button"
           onClick={() => deleteFoto(f)}
-          className="flex-1 rounded-lg bg-coral/10 px-2 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+          className="flex-1 rounded-lg bg-coral/10 px-2 py-1.5 text-xs font-semibold text-coral-dark transition-colors hover:bg-coral/20"
         >
           Hapus
         </button>
@@ -325,7 +325,7 @@ export default function AdminDokumentasiPage() {
       </div>
 
       {(vErr || gErr) && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat data: {vErr || gErr}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -337,7 +337,7 @@ export default function AdminDokumentasiPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">{videoLabel}</p>
           )}
           <h2 className="font-heading text-lg font-bold text-navy">
-            Video Dokumentasi <span className="text-sm font-medium text-gray-400">({videos.length})</span>
+            Video Dokumentasi <span className="text-sm font-medium text-gray-500">({videos.length})</span>
           </h2>
         </div>
         <button type="button" onClick={openAddVideo} className="btn btn-primary shrink-0 self-start sm:self-auto">
@@ -347,7 +347,7 @@ export default function AdminDokumentasiPage() {
       </div>
 
       {videos.length === 0 ? (
-        <p className="mb-12 rounded-xl border border-dashed border-gray-300 py-12 text-center text-sm text-gray-400">
+        <p className="mb-12 rounded-xl border border-dashed border-gray-300 py-12 text-center text-sm text-gray-500">
           Belum ada video. Klik "Tambah Video".
         </p>
       ) : slideVideos ? (
@@ -363,7 +363,7 @@ export default function AdminDokumentasiPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">{galeriLabel}</p>
           )}
           <h2 className="font-heading text-lg font-bold text-navy">
-            Galeri Foto <span className="text-sm font-medium text-gray-400">({galeri.length})</span>
+            Galeri Foto <span className="text-sm font-medium text-gray-500">({galeri.length})</span>
           </h2>
         </div>
         <button type="button" onClick={openAddFoto} className="btn btn-primary shrink-0 self-start sm:self-auto">
@@ -373,7 +373,7 @@ export default function AdminDokumentasiPage() {
       </div>
 
       {galeri.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-sm text-gray-400">
+        <p className="rounded-xl border border-dashed border-gray-300 py-12 text-center text-sm text-gray-500">
           Belum ada foto. Klik "Tambah Foto".
         </p>
       ) : slidePhotos ? (
@@ -398,13 +398,13 @@ export default function AdminDokumentasiPage() {
               className={inputClass}
             />
             {videoForm.videoUrl.trim() && !youtubeId(videoForm.videoUrl) && (
-              <p className="mt-1 text-xs text-coral">Link YouTube tidak dikenali. Contoh: https://www.youtube.com/watch?v=XXXXXXXXXXX</p>
+              <p className="mt-1 text-xs text-coral-dark">Link YouTube tidak dikenali. Contoh: https://www.youtube.com/watch?v=XXXXXXXXXXX</p>
             )}
           </div>
 
           {(videoForm.image.trim() || youtubeThumb(videoForm.videoUrl)) && (
-            <img
-              src={videoForm.image.trim() || youtubeThumb(videoForm.videoUrl)}
+            <img width="640" height="360"
+              src={localThumb(videoForm.image.trim() || youtubeThumb(videoForm.videoUrl))}
               alt="Pratinjau thumbnail"
               className="aspect-video w-full rounded-lg bg-gray-100 object-cover"
             />
@@ -460,7 +460,7 @@ export default function AdminDokumentasiPage() {
               className={`${inputClass} resize-none`}
             />
           </div>
-          {videoErr && <p className="text-xs font-semibold text-coral">{videoErr}</p>}
+          {videoErr && <p className="text-xs font-semibold text-coral-dark">{videoErr}</p>}
           <div className="mt-2 flex gap-3">
             <button
               type="button"
@@ -491,10 +491,10 @@ export default function AdminDokumentasiPage() {
               onChange={handleFotoFile}
               className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-primary-dark hover:file:cursor-pointer hover:file:bg-primary/20"
             />
-            <p className="mt-1 text-xs text-gray-400">JPG/PNG — otomatis diperkecil & diunggah ke storage.</p>
+            <p className="mt-1 text-xs text-gray-500">JPG/PNG — otomatis diperkecil & diunggah ke storage.</p>
             {fotoBusy && <p className="mt-1 text-xs text-primary">Memproses…</p>}
             {fotoForm.image && (
-              <img
+              <img width="200" height="200"
                 src={fotoForm.image}
                 alt="Pratinjau foto"
                 className="mt-2 aspect-square w-32 rounded-lg border border-gray-100 object-cover"
@@ -511,7 +511,7 @@ export default function AdminDokumentasiPage() {
               className={inputClass}
             />
           </div>
-          {fotoErr && <p className="text-xs font-semibold text-coral">{fotoErr}</p>}
+          {fotoErr && <p className="text-xs font-semibold text-coral-dark">{fotoErr}</p>}
           <div className="mt-2 flex gap-3">
             <button
               type="button"

@@ -6,7 +6,7 @@ import EditableText from '@/components/inline-edit/EditableText'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
-import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
+import { useFlowOrder, useFlowSsr } from '@/components/inline-edit/useFlowOrder'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useKontakContent, kontakHref } from './kontakData'
 import { sendContactMessage } from '@/services/contactMessages'
@@ -193,6 +193,7 @@ export default function ContactSection() {
   // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
   const flowRef = useRef(null)
   useFlowOrder(flowRef, 'hero')
+  const ssrFlow = useFlowSsr('hero')
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -234,7 +235,8 @@ export default function ContactSection() {
   return (
     <>
       <PageHeroBackground id="kontak-hero" className="pb-10 pt-24">
-        <div ref={flowRef} data-flow-group className="container">
+        <div ref={flowRef} data-flow-group {...(ssrFlow && { 'data-flow-ssr': '' })} className="container">
+{ssrFlow && <style>{ssrFlow.css}</style>}
           <EditableRichText
             elementKey="kontak-kami.hero.label"
             section="hero"

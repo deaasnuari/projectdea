@@ -163,7 +163,7 @@ export default function AdminBlogPage() {
       </section>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat artikel: {error}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -188,7 +188,7 @@ export default function AdminBlogPage() {
             >
               <div className="relative flex h-32 items-center justify-center overflow-hidden bg-gray-100">
                 {post.image && (
-                  <img src={post.image} alt={post.title} className="absolute inset-0 h-full w-full object-cover" />
+                  <img width="640" height="360" src={post.image} alt={post.title} className="absolute inset-0 h-full w-full object-cover" />
                 )}
                 {post.badge && (
                   <span className="absolute left-4 top-4 z-[1] rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark backdrop-blur-sm">
@@ -202,7 +202,7 @@ export default function AdminBlogPage() {
                 )}
               </div>
               <div className="p-5">
-                <p className="mb-1 text-xs text-gray-400">{formatBlogDate(post.date)}</p>
+                <p className="mb-1 text-xs text-gray-500">{formatBlogDate(post.date)}</p>
                 <h3 className="mb-1 font-heading text-base font-bold leading-snug text-navy">{post.title}</h3>
                 <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-gray-500">{post.desc}</p>
                 <VisibilityStatus
@@ -220,7 +220,7 @@ export default function AdminBlogPage() {
                   <button
                     type="button"
                     onClick={() => handleDelete(post)}
-                    className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+                    className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral-dark transition-colors hover:bg-coral/20"
                   >
                     Hapus
                   </button>
@@ -230,10 +230,10 @@ export default function AdminBlogPage() {
           )
         })}
         {loading && posts.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-gray-400">Memuat…</p>
+          <p className="col-span-full py-10 text-center text-sm text-gray-500">Memuat…</p>
         )}
         {!loading && posts.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-gray-400">Belum ada artikel.</p>
+          <p className="col-span-full py-10 text-center text-sm text-gray-500">Belum ada artikel.</p>
         )}
       </div>
 
@@ -258,7 +258,7 @@ export default function AdminBlogPage() {
                 onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
                 className={inputClass}
               />
-              <p className="mt-1 text-xs text-gray-400">Klik untuk pilih tanggal dari kalender.</p>
+              <p className="mt-1 text-xs text-gray-500">Klik untuk pilih tanggal dari kalender.</p>
             </div>
           </div>
 
@@ -270,14 +270,14 @@ export default function AdminBlogPage() {
               onChange={handleImageFile}
               className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-primary-dark hover:file:cursor-pointer hover:file:bg-primary/20"
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-500">
               Pilih file gambar dari perangkat (JPG/PNG). Tampil sebagai gambar utama artikel.
             </p>
             {imgBusy && <p className="mt-1 text-xs text-primary">Memproses gambar…</p>}
-            {imgError && <p className="mt-1 text-xs font-semibold text-coral">{imgError}</p>}
+            {imgError && <p className="mt-1 text-xs font-semibold text-coral-dark">{imgError}</p>}
             {form.image && (
               <div className="mt-2 flex items-center gap-3">
-                <img
+                <img width="128" height="80"
                   src={form.image}
                   alt="Pratinjau gambar artikel"
                   className="h-20 w-32 rounded-lg border border-gray-100 object-cover"
@@ -285,7 +285,7 @@ export default function AdminBlogPage() {
                 <button
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, image: '' }))}
-                  className="text-xs font-semibold text-coral hover:text-coral-dark"
+                  className="text-xs font-semibold text-coral-dark hover:text-coral-dark"
                 >
                   Hapus gambar
                 </button>
@@ -310,7 +310,7 @@ export default function AdminBlogPage() {
               className={`${inputClass} resize-none`}
             />
           </div>
-          {saveError && <p className="text-xs font-semibold text-coral">{saveError}</p>}
+          {saveError && <p className="text-xs font-semibold text-coral-dark">{saveError}</p>}
           <div className="mt-2 flex gap-3">
             <button
               type="button"

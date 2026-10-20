@@ -117,10 +117,10 @@ export default function FooterContent() {
           <div className="max-[768px]:col-span-full">
             <div className="mb-1.5">
               <img
-                src="/images/logo-lazis-pln-putih.png"
+                src="/images/logo-lazis-pln-putih-sm.png"
                 alt="Lazis PLN Batam"
-                width="1080"
-                height="387"
+                width="360"
+                height="129"
                 loading="lazy"
                 decoding="async"
                 className="h-5 w-auto"

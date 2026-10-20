@@ -95,7 +95,7 @@ export default function TimSection() {
                 </div>
               )}
               <h3 className="mb-0.5 font-heading text-sm font-bold text-navy">{member.name}</h3>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.05em] text-gray-400">{member.role}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.05em] text-gray-500">{member.role}</p>
             </div>
           ))}
         </div>

@@ -26,9 +26,9 @@ const TextElementsContext = createContext({
   ready: true,
 })
 
-export function TextElementsProvider({ page, children, toolbar = true }) {
+export function TextElementsProvider({ page, children, toolbar = true, initialRows }) {
   const { loading, ready, get, keysWithPrefix, stage, stageReset, saveAll, discardAll, publish, pendingCount } =
-    useTextElements(page)
+    useTextElements(page, initialRows)
 
   const value = useMemo(
     () => ({

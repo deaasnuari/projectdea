@@ -268,8 +268,8 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
             onClick={onClose}
             className={`flex items-center ${rail ? '' : 'min-w-0 flex-1 gap-2.5'}`}
           >
-            <img
-              src="/images/logo-lazis-pln-putih.png"
+            <img width="360" height="129"
+              src="/images/logo-lazis-pln-putih-sm.png"
               alt="Lazis PLN Batam"
               className={`shrink-0 ${
                 rail ? 'h-7 w-10 object-contain' : 'h-7 w-auto'
@@ -280,7 +280,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                 <span className="whitespace-nowrap font-heading text-xs font-bold uppercase tracking-[0.08em]">
                   Admin Panel
                 </span>
-                <span className="truncate text-[10px] font-normal text-white/45">Lembaga Zakat &amp; Shadaqah</span>
+                <span className="truncate text-[10px] font-normal text-white/60">Lembaga Zakat &amp; Shadaqah</span>
               </span>
             )}
           </Link>
@@ -317,7 +317,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
               {rail ? (
                 <div className="mx-2 mb-1.5 border-t border-white/10" />
               ) : (
-                <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/30">
+                <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
                   {section.label}
                 </p>
               )}
@@ -328,7 +328,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                       <span
                         key={item.label}
                         title={rail ? `${item.label} (Segera)` : undefined}
-                        className={`flex cursor-not-allowed items-center rounded-lg text-[13px] font-medium text-white/30 ${
+                        className={`flex cursor-not-allowed items-center rounded-lg text-[13px] font-medium text-white/55 ${
                           rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
                         }`}
                       >
@@ -400,7 +400,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
                               >
                                 {c.label}
                                 {count > 0 && (
-                                  <span className="ml-auto text-[10px] font-semibold text-white/50">{count}</span>
+                                  <span className="ml-auto text-[10px] font-semibold text-white/65">{count}</span>
                                 )}
                               </Link>
                             )
@@ -439,7 +439,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose = () => {} })
             onClick={handleLogout}
             title={rail ? 'Keluar' : undefined}
             aria-label="Keluar"
-            className={`mt-0.5 flex w-full items-center rounded-lg text-[13px] font-semibold text-coral transition-colors hover:bg-coral/10 ${
+            className={`mt-0.5 flex w-full items-center rounded-lg text-[13px] font-semibold text-red-300 transition-colors hover:bg-coral/10 ${
               rail ? 'justify-center py-2.5' : 'gap-3 px-3 py-2'
             }`}
           >

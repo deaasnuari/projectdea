@@ -10,7 +10,7 @@ const AVATAR_PALETTE = [
   'bg-primary/10 text-primary',
   'bg-amber-100 text-amber-700',
   'bg-navy/10 text-navy',
-  'bg-coral/10 text-coral',
+  'bg-coral/10 text-coral-dark',
   'bg-gray-200 text-gray-500',
 ]
 
@@ -111,9 +111,9 @@ export default function AdminDashboardPage() {
       href: '/admin/riwayat-donasi',
       icon: ICON_TRANSAKSI,
       iconBg: 'bg-coral/10',
-      iconText: 'text-coral',
+      iconText: 'text-coral-dark',
       value: donLoading ? '…' : totalTransaksi.toLocaleString('id-ID'),
-      valueClass: 'text-coral',
+      valueClass: 'text-coral-dark',
       sublabel: `${menungguVerif} menunggu verifikasi`,
       title: 'Total Transaksi',
     },
@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
                 {s.value}
               </p>
               <p className="truncate text-[11px] font-semibold text-navy">{s.title}</p>
-              <p className="truncate text-[11px] text-gray-400">{s.sublabel}</p>
+              <p className="truncate text-[11px] text-gray-500">{s.sublabel}</p>
             </div>
           </Link>
         ))}
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
                       style={{ width: `${Math.min(percent, 100)}%` }}
                     />
                   </div>
-                  <div className="mt-1 flex items-center justify-between text-[11px] text-gray-400">
+                  <div className="mt-1 flex items-center justify-between text-[11px] text-gray-500">
                     <span>{formatRp(p.collected)}</span>
                     <span>Target: {formatRp(p.target)}</span>
                   </div>
@@ -210,7 +210,7 @@ export default function AdminDashboardPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-semibold text-navy">{nama}</p>
-                    <p className="truncate text-[11px] text-gray-400">
+                    <p className="truncate text-[11px] text-gray-500">
                       {label} · {fmtTanggal(d.created_at)}
                     </p>
                   </div>
@@ -219,9 +219,9 @@ export default function AdminDashboardPage() {
               )
             })}
             {!donLoading && recent.length === 0 && (
-              <p className="py-5 text-center text-sm text-gray-400">Belum ada donasi terverifikasi.</p>
+              <p className="py-5 text-center text-sm text-gray-500">Belum ada donasi terverifikasi.</p>
             )}
-            {donLoading && <p className="py-5 text-center text-sm text-gray-400">Memuat…</p>}
+            {donLoading && <p className="py-5 text-center text-sm text-gray-500">Memuat…</p>}
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ const SOURCE_TABS = [
 const STATUS_STYLE = {
   menunggu: 'bg-amber-100 text-amber-700',
   terverifikasi: 'bg-green-100 text-green-700',
-  ditolak: 'bg-coral/15 text-coral',
+  ditolak: 'bg-coral/15 text-coral-dark',
 }
 
 const SOURCE_META = {
@@ -225,7 +225,7 @@ export default function RiwayatDonasiView({ trash = false }) {
 
   const CARDS = [
     { label: 'Total Donasi', tab: 'semua', value: stats?.total ?? 0, ink: 'text-navy', tint: 'bg-navy/5', icon: STAT_ICONS.total },
-    { label: 'Menunggu', tab: 'menunggu', value: stats?.menunggu ?? 0, ink: 'text-amber-600', tint: 'bg-amber-50', icon: STAT_ICONS.menunggu },
+    { label: 'Menunggu', tab: 'menunggu', value: stats?.menunggu ?? 0, ink: 'text-amber-700', tint: 'bg-amber-50', icon: STAT_ICONS.menunggu },
     { label: 'Terverifikasi', tab: 'terverifikasi', value: stats?.terverifikasi ?? 0, ink: 'text-green-600', tint: 'bg-green-50', icon: STAT_ICONS.terverifikasi },
     {
       label: 'Dana Terkumpul',
@@ -235,7 +235,7 @@ export default function RiwayatDonasiView({ trash = false }) {
       tint: 'bg-primary/10',
       icon: STAT_ICONS.dana,
       sub: (
-        <span className="mt-2 flex w-full flex-col gap-1 border-t border-gray-100 pt-2 text-left text-[10px] leading-tight text-gray-400">
+        <span className="mt-2 flex w-full flex-col gap-1 border-t border-gray-100 pt-2 text-left text-[10px] leading-tight text-gray-500">
           <span className="flex items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-primary-dark" /> Program
@@ -269,7 +269,7 @@ export default function RiwayatDonasiView({ trash = false }) {
           type="button"
           onClick={() => handlePurge([d.id])}
           disabled={bulkBusy}
-          className="rounded-lg bg-coral px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+          className="rounded-lg bg-coral-dark px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:brightness-90 disabled:opacity-60"
         >
           Hapus Permanen
         </button>
@@ -289,7 +289,7 @@ export default function RiwayatDonasiView({ trash = false }) {
           <button
             type="button"
             onClick={() => applyStatus(d.id, 'ditolak')}
-            className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
+            className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral-dark transition-colors hover:bg-coral/20"
           >
             Tolak
           </button>
@@ -306,7 +306,7 @@ export default function RiwayatDonasiView({ trash = false }) {
         <button
           type="button"
           onClick={() => handleDelete(d)}
-          className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
+          className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral-dark transition-colors hover:bg-coral/20"
         >
           Hapus
         </button>
@@ -318,7 +318,7 @@ export default function RiwayatDonasiView({ trash = false }) {
     if (!trash || !d.deleted_at) return null
     const t = fmtDate(d.deleted_at)
     return (
-      <div className="mt-1 text-[11px] font-semibold text-coral">
+      <div className="mt-1 text-[11px] font-semibold text-coral-dark">
         Dihapus {t.date} · {t.time}
       </div>
     )
@@ -349,7 +349,7 @@ export default function RiwayatDonasiView({ trash = false }) {
           <button
             type="button"
             onClick={() => setTab('menunggu')}
-            className="inline-flex animate-pulse items-center gap-2 rounded-full bg-coral px-3.5 py-2 text-xs font-bold text-white shadow-[0_6px_16px_-4px_rgba(231,76,60,0.6)] transition-transform hover:scale-[1.02]"
+            className="inline-flex items-center gap-2 rounded-full bg-coral-dark px-3.5 py-2 text-xs font-bold text-white shadow-[0_6px_16px_-4px_rgba(231,76,60,0.6)] transition-transform hover:scale-[1.02]"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
@@ -363,7 +363,7 @@ export default function RiwayatDonasiView({ trash = false }) {
             type="button"
             onClick={handleEmptyTrash}
             disabled={bulkBusy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-coral/40 bg-white px-3.5 py-2 text-xs font-bold text-coral transition-colors hover:bg-coral/5 disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-full border border-coral/40 bg-white px-3.5 py-2 text-xs font-bold text-coral-dark transition-colors hover:bg-coral/5 disabled:opacity-60"
           >
             {STAT_ICONS.sampah}
             Kosongkan Sampah ({trashCount})
@@ -393,7 +393,7 @@ export default function RiwayatDonasiView({ trash = false }) {
                 </span>
                 <div className="min-w-0">
                   <p className={`font-heading text-lg font-extrabold leading-tight ${s.ink}`}>{s.value}</p>
-                  <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-gray-400">
+                  <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-gray-500">
                     {s.label}
                   </p>
                 </div>
@@ -407,7 +407,7 @@ export default function RiwayatDonasiView({ trash = false }) {
       {/* Filter */}
       <div className={`mb-4 flex flex-col gap-2.5 ${trash ? 'hidden' : ''}`}>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">Status</span>
+          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-500">Status</span>
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -422,7 +422,7 @@ export default function RiwayatDonasiView({ trash = false }) {
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">Sumber</span>
+          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-500">Sumber</span>
           {SOURCE_TABS.map((t) => (
             <button
               key={t.key}
@@ -442,7 +442,7 @@ export default function RiwayatDonasiView({ trash = false }) {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat data: {error}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -473,7 +473,7 @@ export default function RiwayatDonasiView({ trash = false }) {
                   type="button"
                   onClick={() => handlePurge([...selected])}
                   disabled={bulkBusy}
-                  className="rounded-lg bg-coral px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+                  className="rounded-lg bg-coral-dark px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:brightness-90 disabled:opacity-60"
                 >
                   Hapus Permanen ({selected.size})
                 </button>
@@ -483,7 +483,7 @@ export default function RiwayatDonasiView({ trash = false }) {
                 type="button"
                 onClick={handleBulkDelete}
                 disabled={bulkBusy}
-                className="rounded-lg bg-coral px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-coral-dark disabled:opacity-60"
+                className="rounded-lg bg-coral-dark px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:brightness-90 disabled:opacity-60"
               >
                 {bulkBusy ? 'Menghapus…' : `Hapus Terpilih (${selected.size})`}
               </button>
@@ -497,7 +497,7 @@ export default function RiwayatDonasiView({ trash = false }) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] border-collapse text-left text-[13px]">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">
+              <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-500">
                 <th className="px-3 py-2.5">
                   <input
                     type="checkbox"
@@ -539,7 +539,7 @@ export default function RiwayatDonasiView({ trash = false }) {
                     <td className="px-4 py-3">
                       <div className="font-semibold text-navy">{d.anonymous ? 'Anonim' : d.donor_name}</div>
                       {d.note && (
-                        <div className="max-w-[200px] truncate text-[11px] italic text-gray-400">“{d.note}”</div>
+                        <div className="max-w-[200px] truncate text-[11px] italic text-gray-500">“{d.note}”</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -547,17 +547,17 @@ export default function RiwayatDonasiView({ trash = false }) {
                         {src.label}
                       </span>
                       {d.source === 'program' && d.program && (
-                        <div className="mt-1 max-w-[180px] truncate text-[11px] text-gray-400">{d.program}</div>
+                        <div className="mt-1 max-w-[180px] truncate text-[11px] text-gray-500">{d.program}</div>
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{d.jenis_label || d.jenis_id || '—'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="font-semibold text-navy">{formatRp(Number(d.amount))}</div>
-                      <div className="text-[11px] text-gray-400">{d.bank_name || 'tanpa bank'}</div>
+                      <div className="text-[11px] text-gray-500">{d.bank_name || 'tanpa bank'}</div>
                     </td>
                     <td className="px-4 py-3 text-gray-500">
                       <div>{t.date}</div>
-                      <div className="text-[11px] text-gray-400">{t.time}</div>
+                      <div className="text-[11px] text-gray-500">{t.time}</div>
                       {deletedInfo(d)}
                     </td>
                     <td className="px-4 py-3">
@@ -575,14 +575,14 @@ export default function RiwayatDonasiView({ trash = false }) {
               })}
               {!loading && rows.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-500">
                     {trash ? 'Sampah kosong.' : `Belum ada donasi${tab !== 'semua' ? ` berstatus "${tab}"` : ''}.`}
                   </td>
                 </tr>
               )}
               {loading && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-500">
                     Memuat…
                   </td>
                 </tr>
@@ -606,10 +606,10 @@ export default function RiwayatDonasiView({ trash = false }) {
           </label>
         )}
         {loading && (
-          <div className="card p-6 text-center text-sm text-gray-400">Memuat…</div>
+          <div className="card p-6 text-center text-sm text-gray-500">Memuat…</div>
         )}
         {!loading && rows.length === 0 && (
-          <div className="card p-8 text-center text-sm text-gray-400">
+          <div className="card p-8 text-center text-sm text-gray-500">
             {trash ? 'Sampah kosong.' : `Belum ada donasi${tab !== 'semua' ? ` berstatus "${tab}"` : ''}.`}
           </div>
         )}
@@ -643,31 +643,31 @@ export default function RiwayatDonasiView({ trash = false }) {
 
               <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
                 <span className={`rounded-full px-2 py-0.5 font-semibold ${src.cls}`}>{src.label}</span>
-                {d.source === 'program' && d.program && <span className="text-gray-400">· {d.program}</span>}
+                {d.source === 'program' && d.program && <span className="text-gray-500">· {d.program}</span>}
               </div>
 
               <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[12px]">
                 <div>
-                  <dt className="text-gray-400">Nominal</dt>
+                  <dt className="text-gray-500">Nominal</dt>
                   <dd className="font-semibold text-navy">{formatRp(Number(d.amount))}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-400">Jenis</dt>
+                  <dt className="text-gray-500">Jenis</dt>
                   <dd className="text-gray-600">{d.jenis_label || d.jenis_id || '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-400">Bank</dt>
+                  <dt className="text-gray-500">Bank</dt>
                   <dd className="text-gray-600">{d.bank_name || 'tanpa bank'}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-400">Tanggal</dt>
+                  <dt className="text-gray-500">Tanggal</dt>
                   <dd className="text-gray-600">
                     {t.date} · {t.time}
                   </dd>
                 </div>
               </dl>
 
-              {d.note && <p className="mt-2 text-[11px] italic text-gray-400">“{d.note}”</p>}
+              {d.note && <p className="mt-2 text-[11px] italic text-gray-500">“{d.note}”</p>}
               {deletedInfo(d)}
 
               <div className="mt-3 flex flex-wrap gap-1.5 border-t border-gray-100 pt-3">{renderActions(d)}</div>

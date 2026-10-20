@@ -5,7 +5,8 @@ import CustomTexts from '@/components/inline-edit/CustomTexts'
 import MovableBlock from '@/components/inline-edit/MovableBlock'
 import EditableImageElement from '@/components/inline-edit/EditableImageElement'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
-import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
+import { useTextElementsContext } from '@/components/inline-edit/TextElementsContext'
+import { flowSsr, useFlowOrder } from '@/components/inline-edit/useFlowOrder'
 import { useRef } from 'react'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { DEFAULT_KAMI_PEDULI_CONTENT } from './kamiPeduliData'
@@ -53,6 +54,7 @@ export default function HeroSection() {
   // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
   const flowRef = useRef(null)
   useFlowOrder(flowRef, 'hero')
+  const ssrFlow = flowSsr(useTextElementsContext(), 'hero')
   const hero = content.hero
   const features = content.features || DEFAULT_KAMI_PEDULI_CONTENT.features
   const featureById = (id) => features.find((f) => f.id === id) || {}
@@ -91,7 +93,8 @@ export default function HeroSection() {
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-navy/80" />
       </div>
 
-      <div ref={flowRef} data-flow-group className="container relative z-[1] pt-24 max-[600px]:pt-[86px]">
+      <div ref={flowRef} data-flow-group {...(ssrFlow ? { 'data-flow-ssr': '' } : {})} className="container relative z-[1] pt-24 max-[600px]:pt-[86px]">
+        {ssrFlow && <style>{ssrFlow.css}</style>}
         {/* Konten */}
         <div data-flow-split className="max-w-[650px] animate-fade-in-up">
           <EditableRichText

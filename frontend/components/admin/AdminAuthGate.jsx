@@ -54,7 +54,7 @@ export default function AdminAuthGate({ children }) {
   // (bukan layar putih kosong).
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="flex flex-col items-center gap-3 text-gray-400">
+      <div className="flex flex-col items-center gap-3 text-gray-500">
         <span className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-primary" />
         <p className="text-sm font-medium">
           {status === 'denied' ? 'Mengarahkan ke halaman login…' : 'Memeriksa sesi…'}

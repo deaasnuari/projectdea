@@ -1,3 +1,4 @@
+import { getTextElementsSSR } from '@/services/textElementsServer'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
@@ -7,16 +8,19 @@ import ProgramKamiSection from './sections/ProgramKamiSection'
 import ZakatCalculatorSection from './sections/ZakatCalculatorSection'
 import KonsultasiSection from './sections/KonsultasiSection'
 
-export default function DonaturLandingPage() {
+export default async function DonaturLandingPage() {
+  const initialRows = await getTextElementsSSR('kami-peduli')
   return (
     <>
       <Navbar />
-      <TextElementsProvider page="kami-peduli">
-        <HeroSection />
-        <DonorStatsSection />
-        <ProgramKamiSection />
-        <ZakatCalculatorSection />
-        <KonsultasiSection />
+      <TextElementsProvider page="kami-peduli" initialRows={initialRows || undefined}>
+        <main>
+          <HeroSection />
+          <DonorStatsSection />
+          <ProgramKamiSection />
+          <ZakatCalculatorSection />
+          <KonsultasiSection />
+        </main>
       </TextElementsProvider>
       <Footer />
     </>

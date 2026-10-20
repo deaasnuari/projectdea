@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
-import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
+import { useFlowOrder, useFlowSsr } from '@/components/inline-edit/useFlowOrder'
 
 // Teks header halaman Daftar Program — bisa diedit admin lewat pratinjau di
 // /admin/program (klik ✏️). Disimpan di text_elements, page "program".
@@ -11,9 +11,11 @@ export default function ProgramHeroText() {
   // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
   const flowRef = useRef(null)
   useFlowOrder(flowRef, 'hero')
+  const ssrFlow = useFlowSsr('hero')
 
   return (
-    <div ref={flowRef} data-flow-group className="mb-2 sm:mb-3">
+    <div ref={flowRef} data-flow-group {...(ssrFlow && { 'data-flow-ssr': '' })} className="mb-2 sm:mb-3">
+{ssrFlow && <style>{ssrFlow.css}</style>}
       <EditableRichText
         elementKey="program.hero.label"
         section="hero"

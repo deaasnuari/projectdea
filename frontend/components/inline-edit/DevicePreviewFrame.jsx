@@ -92,7 +92,7 @@ export default function DevicePreviewFrame({ page }) {
       {/* Bar atas: pilihan perangkat + tombol edit. Menempel di bawah header
           admin (h-14 di layar lebar, ±61px di HP/iPad) saat di-scroll. */}
       <div className="sticky top-[61px] z-20 -mx-1 mb-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white/95 p-2 shadow-sm backdrop-blur min-[900px]:top-14">
-        <span className="pl-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+        <span className="pl-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500">
           Pratinjau
         </span>
         <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">

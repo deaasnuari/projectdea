@@ -788,3 +788,25 @@
 [data-te-fade='out'] {
   opacity: 0;
 }
+
+/* Versi "sudah tersusun dari server" dari aturan data-flow-active di atas:
+   HTML awal (SSR) langsung memakai urutan hasil geser admin di Tablet/HP,
+   jadi tidak ada loncatan (CLS) saat hydration memasang urutan yang sama. */
+@media (max-width: 1023px) {
+  [data-flow-ssr] {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 0.85rem;
+  }
+  [data-flow-ssr] [data-flow-split] {
+    display: contents !important;
+  }
+  [data-flow-ssr] [data-flow-split] > br {
+    display: none;
+  }
+  [data-flow-ssr] [data-flow-id] {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}

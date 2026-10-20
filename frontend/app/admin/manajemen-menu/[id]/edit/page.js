@@ -106,11 +106,11 @@ export default function EditMenuContentPage() {
   const patchBankRow = (i, patch) => setBanks(banks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)))
   const removeBankRow = (i) => setBanks(banks.filter((_, idx) => idx !== i))
 
-  if (loading) return <p className="py-16 text-center text-sm text-gray-400">Memuat editor…</p>
+  if (loading) return <p className="py-16 text-center text-sm text-gray-500">Memuat editor…</p>
   if (err || !menu)
     return (
       <div className="py-16 text-center">
-        <p className="text-sm font-semibold text-coral">{err || 'Menu tidak ditemukan.'}</p>
+        <p className="text-sm font-semibold text-coral-dark">{err || 'Menu tidak ditemukan.'}</p>
         <Link href="/admin/manajemen-menu" className="mt-3 inline-block text-xs font-semibold text-primary">
           ← Kembali ke Manajemen Menu
         </Link>
@@ -190,7 +190,7 @@ export default function EditMenuContentPage() {
               <button
                 type="button"
                 onClick={() => setHeroImage('')}
-                className="self-start text-xs font-semibold text-coral hover:text-coral-dark"
+                className="self-start text-xs font-semibold text-coral-dark hover:text-coral-dark"
               >
                 Hapus gambar
               </button>
@@ -274,7 +274,7 @@ export default function EditMenuContentPage() {
         {tt === 'program' && (
           <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400">
+              <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-500">
                 Rekening Donasi (No. Rekening)
               </p>
               <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export default function EditMenuContentPage() {
               </div>
             </div>
             {banks.length === 0 ? (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-500">
                 Belum ada rekening. Kalau diisi, halaman publik akan menampilkan kotak
                 &ldquo;Donasi via Transfer&rdquo;.
               </p>
@@ -338,7 +338,7 @@ export default function EditMenuContentPage() {
                     <button
                       type="button"
                       onClick={() => removeBankRow(i)}
-                      className="rounded bg-coral/10 px-2.5 py-1.5 text-[11px] font-bold text-coral hover:bg-coral/20"
+                      className="rounded bg-coral/10 px-2.5 py-1.5 text-[11px] font-bold text-coral-dark hover:bg-coral/20"
                     >
                       Hapus
                     </button>
@@ -358,7 +358,7 @@ export default function EditMenuContentPage() {
               <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
                 {data.gallery.map((url, i) => (
                   <div key={i} className="relative">
-                    <img src={url} alt="" className="aspect-square w-full rounded-lg border border-gray-100 object-cover" />
+                    <img width="200" height="200" src={url} alt="" className="aspect-square w-full rounded-lg border border-gray-100 object-cover" />
                     <button
                       type="button"
                       onClick={() => removeGalleryAt(i)}
@@ -376,7 +376,7 @@ export default function EditMenuContentPage() {
         {/* ---- SEO (BLOG) ---- */}
         {tt === 'blog' && (
           <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400">SEO</p>
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.06em] text-gray-500">SEO</p>
             <div className="flex flex-col gap-3">
               <div>
                 <label className={labelClass}>SEO Title</label>

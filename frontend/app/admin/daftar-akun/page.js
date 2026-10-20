@@ -13,7 +13,7 @@ import {
 const EMPTY = { username: '', nama: '', nik: '', email: '', password: '', konfirmasi: '' }
 
 const field =
-  'w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15'
+  'w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 outline-none transition-colors placeholder:text-gray-500 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15'
 
 const EyeIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16">
@@ -134,7 +134,7 @@ export default function AdminDaftarAkunPage() {
           </span>
           <div>
             <p className="text-sm font-bold text-navy">Buat Akun Baru</p>
-            <p className="text-[12px] text-gray-400">Username &amp; password dipakai untuk login.</p>
+            <p className="text-[12px] text-gray-500">Username &amp; password dipakai untuk login.</p>
           </div>
         </div>
 
@@ -179,7 +179,7 @@ export default function AdminDaftarAkunPage() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-navy"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-navy"
                 >
                   {showPw ? EyeOffIcon : EyeIcon}
                 </button>
@@ -201,13 +201,13 @@ export default function AdminDaftarAkunPage() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-navy"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-navy"
                 >
                   {showPw ? EyeOffIcon : EyeIcon}
                 </button>
               </div>
               {pwMismatch ? (
-                <p className="mt-1 text-[11px] font-semibold text-coral">Konfirmasi password tidak sama.</p>
+                <p className="mt-1 text-[11px] font-semibold text-coral-dark">Konfirmasi password tidak sama.</p>
               ) : form.konfirmasi.length > 0 ? (
                 <p className="mt-1 text-[11px] font-semibold text-green-600">Password cocok.</p>
               ) : null}
@@ -233,14 +233,14 @@ export default function AdminDaftarAkunPage() {
       <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 bg-gray-50/60 px-5 py-3">
           <p className="text-sm font-bold text-navy">
-            Akun Terdaftar <span className="text-gray-400">({accounts.length})</span>
+            Akun Terdaftar <span className="text-gray-500">({accounts.length})</span>
           </p>
         </div>
 
         {loading ? (
-          <p className="px-5 py-8 text-center text-sm text-gray-400">Memuat…</p>
+          <p className="px-5 py-8 text-center text-sm text-gray-500">Memuat…</p>
         ) : accounts.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-gray-400">
+          <p className="px-5 py-8 text-center text-sm text-gray-500">
             Belum ada akun tambahan. Akun bawaan tetap bisa login.
           </p>
         ) : (
@@ -250,7 +250,7 @@ export default function AdminDaftarAkunPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-navy">@{acc.username}</p>
-                    <p className="truncate text-xs text-gray-400">
+                    <p className="truncate text-xs text-gray-500">
                       {[acc.name, acc.email].filter(Boolean).join(' · ') || 'Tanpa detail'}
                       {acc.created_at ? ` · dibuat ${fmtDate(acc.created_at)}` : ''}
                     </p>
@@ -266,7 +266,7 @@ export default function AdminDaftarAkunPage() {
                     <button
                       type="button"
                       onClick={() => handleDelete(acc)}
-                      className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+                      className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral-dark transition-colors hover:bg-coral/20"
                     >
                       Hapus
                     </button>
@@ -289,7 +289,7 @@ export default function AdminDaftarAkunPage() {
                         type="button"
                         onClick={() => setResetShow((v) => !v)}
                         aria-label={resetShow ? 'Sembunyikan password' : 'Tampilkan password'}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-navy"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-navy"
                       >
                         {resetShow ? EyeOffIcon : EyeIcon}
                       </button>

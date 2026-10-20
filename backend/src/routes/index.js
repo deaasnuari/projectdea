@@ -21,6 +21,28 @@ const menuRoutes = require('./menus.routes')
 const router = Router()
 
 router.get('/health', healthController.check)
+
+// Thumbnail YouTube lewat server sendiri — browser pengunjung tidak perlu
+// menghubungi google/youtube (menghindari cookie pihak ketiga). Di-cache di memori.
+const ytThumbCache = new Map()
+router.get('/yt-thumb/:id', async (req, res) => {
+  const id = req.params.id
+  if (!/^[a-zA-Z0-9_-]{11}$/.test(id)) return res.status(400).end()
+  try {
+    let buf = ytThumbCache.get(id)
+    if (!buf) {
+      const r = await fetch(`https://i.ytimg.com/vi/${id}/hqdefault.jpg`)
+      if (!r.ok) return res.status(404).end()
+      buf = Buffer.from(await r.arrayBuffer())
+      if (ytThumbCache.size > 100) ytThumbCache.clear()
+      ytThumbCache.set(id, buf)
+    }
+    res.set({ 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=604800' })
+    res.send(buf)
+  } catch {
+    res.status(502).end()
+  }
+})
 router.use('/auth', authRoutes)
 router.use('/content', contentRoutes)
 router.use('/donations', donationRoutes)

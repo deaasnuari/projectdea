@@ -38,7 +38,7 @@ export default function AdminTopbar() {
   return (
     <header className="sticky top-0 z-30 hidden h-14 items-center justify-between border-b border-gray-200 bg-white px-6 min-[900px]:flex sm:px-10">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-gray-400">Panel Admin</span>
+        <span className="text-gray-500">Panel Admin</span>
         <span className="text-gray-300">/</span>
         <span className="font-semibold text-navy">{title}</span>
       </div>

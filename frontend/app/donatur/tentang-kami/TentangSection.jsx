@@ -6,7 +6,7 @@ import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
-import { useFlowOrder } from '@/components/inline-edit/useFlowOrder'
+import { useFlowOrder, useFlowSsr } from '@/components/inline-edit/useFlowOrder'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
 
@@ -31,13 +31,15 @@ export default function TentangSection() {
   // Susunan hasil geser di Desktop ikut (sebagai urutan) di Tablet & HP.
   const flowRef = useRef(null)
   useFlowOrder(flowRef, 'hero')
+  const ssrFlow = useFlowSsr('hero')
 
   return (
     <>
       <PageHeroBackground id="tentang-hero" className="pb-10 pt-24">
         <div className="container grid grid-cols-[1.1fr_0.9fr] items-start gap-12 max-[900px]:grid-cols-1">
           {/* Kiri: teks pengantar */}
-          <div ref={flowRef} data-flow-group>
+          <div ref={flowRef} data-flow-group {...(ssrFlow && { 'data-flow-ssr': '' })}>
+{ssrFlow && <style>{ssrFlow.css}</style>}
             <EditableRichText
               elementKey="tentang-kami.hero.label"
               section="hero"
@@ -114,7 +116,7 @@ export default function TentangSection() {
 
           {/* Kanan: card donasi — SENGAJA tidak diberi inline editing */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
-            <h3 className="mb-3 font-heading text-xl font-bold text-navy">Donasi via Transfer</h3>
+            <h2 className="mb-3 font-heading text-xl font-bold text-navy">Donasi via Transfer</h2>
             <p className="mb-6 text-sm leading-relaxed text-gray-500">
               Pilih jenis donasi dan bank tujuan langsung lewat tombol di bawah — nomor rekening ditampilkan otomatis
               di langkah terakhir.

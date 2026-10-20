@@ -1,5 +1,6 @@
 'use client'
 
+import { localThumb } from '@/services/youtube'
 import Link from 'next/link'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
@@ -84,7 +85,7 @@ export default function ProgramKamiSection() {
       >
         <div className="relative aspect-video overflow-hidden">
           <img
-            src={program.image}
+            src={localThumb(program.image)}
             alt={program.title}
             width="640"
             height="360"
@@ -246,7 +247,7 @@ export default function ProgramKamiSection() {
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <img
-                  src={foto.image}
+                  src={localThumb(foto.image)}
                   alt={foto.caption}
                   width="260"
                   height="260"

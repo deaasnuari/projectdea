@@ -48,6 +48,23 @@ export const FONT_WEIGHT_OPTIONS = [
 
 export const TEXT_ALIGN_OPTIONS = ['left', 'center', 'right', 'justify']
 
+const EXTRA_FONTS_HREF =
+  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Merriweather:wght@300;400;700&family=Roboto+Slab:wght@300;400;600;700&family=Lobster&family=Pacifico&family=Irish+Grover&display=swap'
+const EXTRA_FONT_NAMES = /Poppins|Playfair|Merriweather|Roboto Slab|Lobster|Pacifico|Irish Grover/i
+
+// Font dekoratif dari Google Fonts baru dimuat kalau memang ada teks yang
+// memakainya — selebihnya halaman publik tidak menghubungi Google sama sekali.
+function ensureExtraFonts(rows) {
+  if (typeof document === 'undefined') return
+  if (!rows.some((r) => r.fontFamily && EXTRA_FONT_NAMES.test(r.fontFamily))) return
+  if (document.getElementById('lazis-extra-fonts')) return
+  const l = document.createElement('link')
+  l.id = 'lazis-extra-fonts'
+  l.rel = 'stylesheet'
+  l.href = EXTRA_FONTS_HREF
+  document.head.appendChild(l)
+}
+
 // Ubah satu baris DB jadi object style React (hanya field yang terisi).
 export function styleToCss(row) {
   if (!row) return undefined
@@ -139,14 +156,25 @@ function broadcast() {
 // langsung mengembalikan versi gabungan (tersimpan + tahanan) supaya
 // pratinjau tetap terasa langsung. Baru saat admin klik "Simpan Semua"
 // (`saveAll`) seluruh tahanan itu dikirim sekaligus ke database.
-export function useTextElements(page) {
-  const [map, setMap] = useState(() => getCache(`te:${page}`) || new Map())
-  const [loading, setLoading] = useState(() => !getCache(`te:${page}`))
+// `initialRows` (opsional): isi DB yang sudah diambil di server saat render
+// awal, supaya HTML pertama langsung berisi teks/gambar final (LCP cepat) dan
+// tidak perlu menyembunyikan elemen sambil menunggu fetch di browser.
+function rowsToMap(rows) {
+  const m = new Map()
+  for (const r of rows) m.set(r.elementKey, r)
+  return m
+}
+
+export function useTextElements(page, initialRows) {
+  const [map, setMap] = useState(
+    () => getCache(`te:${page}`) || (initialRows ? rowsToMap(initialRows) : new Map()),
+  )
+  const [loading, setLoading] = useState(() => !getCache(`te:${page}`) && !initialRows)
   // `ready` = fetch PERTAMA sudah selesai (sukses/gagal). Beda dengan
   // `loading` yang ikut true lagi tiap refresh (mis. saat tab difokuskan) —
   // dipakai untuk menyembunyikan elemen sampai isi dari DB sudah ada, supaya
   // pengunjung tidak melihat teks bawaan lalu "meloncat" ke versi editan.
-  const [ready, setReady] = useState(() => Boolean(getCache(`te:${page}`)))
+  const [ready, setReady] = useState(() => Boolean(getCache(`te:${page}`)) || Boolean(initialRows))
   const [pendingPatches, setPendingPatches] = useState(() => new Map()) // elementKey -> payload belum dikirim
   const [pendingResets, setPendingResets] = useState(() => new Set()) // elementKey yang ditahan untuk direset
 
@@ -156,6 +184,7 @@ export function useTextElements(page) {
       .then((rows) => {
         const m = new Map()
         for (const r of rows) m.set(r.elementKey, r)
+        ensureExtraFonts(rows)
         setCache(`te:${page}`, m)
         setMap(m)
       })

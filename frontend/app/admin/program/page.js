@@ -278,7 +278,7 @@ export default function AdminProgramPage() {
       </section>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat program: {error}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -307,7 +307,7 @@ export default function AdminProgramPage() {
             >
               <div className={`relative flex h-28 items-center justify-center overflow-hidden ${p.blockBg}`}>
                 {p.image ? (
-                  <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
+                  <img width="640" height="360" src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
                 ) : (
                   <span className="text-4xl">{p.icon}</span>
                 )}
@@ -346,7 +346,7 @@ export default function AdminProgramPage() {
                   </p>
                 )}
                 <div className="mb-2.5">
-                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500">
                     Status di halaman donatur
                   </p>
                   <div className="flex flex-col gap-1.5">
@@ -354,7 +354,7 @@ export default function AdminProgramPage() {
                       {
                         key: 'active',
                         label: 'Aktif — tampil & donasi dibuka',
-                        on: 'border-green-600 bg-green-600 text-white',
+                        on: 'border-green-600 bg-green-700 text-white',
                         off: 'border-green-200 text-green-700 hover:bg-green-50',
                       },
                       {
@@ -395,7 +395,7 @@ export default function AdminProgramPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs text-gray-400">{p.donors} donatur</span>
+                  <span className="text-xs text-gray-500">{p.donors} donatur</span>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
@@ -407,7 +407,7 @@ export default function AdminProgramPage() {
                     <button
                       type="button"
                       onClick={() => handleDelete(p)}
-                      className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+                      className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral-dark transition-colors hover:bg-coral/20"
                     >
                       Hapus
                     </button>
@@ -418,10 +418,10 @@ export default function AdminProgramPage() {
           )
         })}
         {loading && programs.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-gray-400">Memuat…</p>
+          <p className="col-span-full py-10 text-center text-sm text-gray-500">Memuat…</p>
         )}
         {!loading && programs.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-gray-400">Belum ada program.</p>
+          <p className="col-span-full py-10 text-center text-sm text-gray-500">Belum ada program.</p>
         )}
       </div>
 
@@ -462,7 +462,7 @@ export default function AdminProgramPage() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-500">
                 Dipakai sebagai badge di kartu program & jenis di form Donasi via Transfer.
               </p>
             </div>
@@ -490,14 +490,14 @@ export default function AdminProgramPage() {
               onChange={handleImageFile}
               className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-primary-dark hover:file:cursor-pointer hover:file:bg-primary/20"
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-500">
               Pilih file gambar dari perangkat (JPG/PNG). Tampil sebagai gambar utama kartu program.
             </p>
             {imgBusy && <p className="mt-1 text-xs text-primary">Memproses gambar…</p>}
-            {imgError && <p className="mt-1 text-xs font-semibold text-coral">{imgError}</p>}
+            {imgError && <p className="mt-1 text-xs font-semibold text-coral-dark">{imgError}</p>}
             {form.image && (
               <div className="mt-2 flex items-center gap-3">
-                <img
+                <img width="128" height="80"
                   src={form.image}
                   alt="Pratinjau gambar program"
                   className="h-20 w-32 rounded-lg border border-gray-100 object-cover"
@@ -505,7 +505,7 @@ export default function AdminProgramPage() {
                 <button
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, image: '' }))}
-                  className="text-xs font-semibold text-coral hover:text-coral-dark"
+                  className="text-xs font-semibold text-coral-dark hover:text-coral-dark"
                 >
                   Hapus gambar
                 </button>
@@ -583,7 +583,7 @@ export default function AdminProgramPage() {
             />
           </div>
 
-          {saveError && <p className="text-xs font-semibold text-coral">{saveError}</p>}
+          {saveError && <p className="text-xs font-semibold text-coral-dark">{saveError}</p>}
           <div className="mt-2 flex gap-3">
             <button
               type="button"

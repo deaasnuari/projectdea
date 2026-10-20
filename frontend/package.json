@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next build && next start",
+    "dev:hot": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

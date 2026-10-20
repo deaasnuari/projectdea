@@ -116,7 +116,7 @@ export default function AdminTimPage() {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat tim: {error}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -125,7 +125,7 @@ export default function AdminTimPage() {
         {members.map((member) => (
           <div key={member.id} className="card p-5 text-center">
             {member.photo ? (
-              <img
+              <img width="64" height="64"
                 src={member.photo}
                 alt={member.name}
                 className="mx-auto mb-3 h-16 w-16 rounded-full object-cover"
@@ -136,7 +136,7 @@ export default function AdminTimPage() {
               </div>
             )}
             <h3 className="mb-0.5 font-heading text-sm font-bold text-navy">{member.name}</h3>
-            <p className="mb-4 text-xs text-gray-400">{member.role}</p>
+            <p className="mb-4 text-xs text-gray-500">{member.role}</p>
             <div className="flex items-center justify-center gap-2">
               <button
                 type="button"
@@ -148,7 +148,7 @@ export default function AdminTimPage() {
               <button
                 type="button"
                 onClick={() => handleDelete(member)}
-                className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral transition-colors hover:bg-coral/20"
+                className="rounded-lg bg-coral/10 px-3 py-1.5 text-xs font-semibold text-coral-dark transition-colors hover:bg-coral/20"
               >
                 Hapus
               </button>
@@ -156,10 +156,10 @@ export default function AdminTimPage() {
           </div>
         ))}
         {loading && members.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-gray-400">Memuat…</p>
+          <p className="col-span-full py-10 text-center text-sm text-gray-500">Memuat…</p>
         )}
         {!loading && members.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-gray-400">Belum ada anggota tim.</p>
+          <p className="col-span-full py-10 text-center text-sm text-gray-500">Belum ada anggota tim.</p>
         )}
       </div>
 
@@ -196,12 +196,12 @@ export default function AdminTimPage() {
               onChange={handlePhotoFile}
               className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-primary-dark hover:file:cursor-pointer hover:file:bg-primary/20"
             />
-            <p className="mt-1 text-xs text-gray-400">JPG/PNG — ditampilkan sebagai foto bulat di kartu tim.</p>
+            <p className="mt-1 text-xs text-gray-500">JPG/PNG — ditampilkan sebagai foto bulat di kartu tim.</p>
             {imgBusy && <p className="mt-1 text-xs text-primary">Memproses gambar…</p>}
-            {imgError && <p className="mt-1 text-xs font-semibold text-coral">{imgError}</p>}
+            {imgError && <p className="mt-1 text-xs font-semibold text-coral-dark">{imgError}</p>}
             {form.photo && (
               <div className="mt-2 flex items-center gap-3">
-                <img
+                <img width="64" height="64"
                   src={form.photo}
                   alt="Pratinjau foto"
                   className="h-16 w-16 rounded-full border border-gray-100 object-cover"
@@ -209,7 +209,7 @@ export default function AdminTimPage() {
                 <button
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, photo: '' }))}
-                  className="text-xs font-semibold text-coral hover:text-coral-dark"
+                  className="text-xs font-semibold text-coral-dark hover:text-coral-dark"
                 >
                   Hapus foto
                 </button>
@@ -217,7 +217,7 @@ export default function AdminTimPage() {
             )}
           </div>
 
-          {saveError && <p className="text-xs font-semibold text-coral">{saveError}</p>}
+          {saveError && <p className="text-xs font-semibold text-coral-dark">{saveError}</p>}
           <div className="mt-2 flex gap-3">
             <button
               type="button"

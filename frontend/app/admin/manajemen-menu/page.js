@@ -302,7 +302,7 @@ export default function ManajemenMenuPage() {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat menu: {error}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -310,7 +310,7 @@ export default function ManajemenMenuPage() {
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-[13px]">
-            <thead className="bg-gray-50 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">
+            <thead className="bg-gray-50 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-500">
               <tr>
                 <th className="px-3 py-2.5">#</th>
                 <th className="px-3 py-2.5">Nama Menu</th>
@@ -332,7 +332,7 @@ export default function ManajemenMenuPage() {
                     onPointerUp={onRowPointerUp}
                     className={order ? 'bg-primary/[0.03]' : ''}
                   >
-                    <td className="px-3 py-3 text-gray-400">
+                    <td className="px-3 py-3 text-gray-500">
                       <span className="flex items-center gap-2">
                         <span data-drag-handle className="cursor-grab select-none text-gray-300 hover:text-gray-500" title="Seret untuk urutkan">
                           ☰
@@ -346,7 +346,7 @@ export default function ManajemenMenuPage() {
                         {m.name}
                       </span>
                       {m.templateType !== 'system' && (
-                        <span className="block text-[11px] text-gray-400">/donatur/{m.slug}</span>
+                        <span className="block text-[11px] text-gray-500">/donatur/{m.slug}</span>
                       )}
                     </td>
                     <td className="px-3 py-3">
@@ -403,7 +403,7 @@ export default function ManajemenMenuPage() {
                             <button
                               type="button"
                               onClick={() => handleDelete(m)}
-                              className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
+                              className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral-dark transition-colors hover:bg-coral/20"
                             >
                               Hapus
                             </button>
@@ -416,7 +416,7 @@ export default function ManajemenMenuPage() {
               })}
               {loading && rows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-gray-400">Memuat…</td>
+                  <td colSpan={6} className="px-4 py-12 text-center text-gray-500">Memuat…</td>
                 </tr>
               )}
             </tbody>
@@ -445,7 +445,7 @@ export default function ManajemenMenuPage() {
             <div>
               <label className={labelClass}>Slug / URL</label>
               <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-3">
-                <span className="text-xs text-gray-400">/donatur/</span>
+                <span className="text-xs text-gray-500">/donatur/</span>
                 <input
                   type="text"
                   value={form.slug}
@@ -495,7 +495,7 @@ export default function ManajemenMenuPage() {
               )}
 
               <details className="mt-3" open={form.templateType !== 'blocks'}>
-                <summary className="cursor-pointer text-[11px] font-semibold text-gray-400 hover:text-gray-600">
+                <summary className="cursor-pointer text-[11px] font-semibold text-gray-500 hover:text-gray-600">
                   Template klasik (formulir isian sederhana)
                 </summary>
                 <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -561,7 +561,7 @@ export default function ManajemenMenuPage() {
             </div>
           </div>
 
-          {formErr && <p className="text-xs font-semibold text-coral">{formErr}</p>}
+          {formErr && <p className="text-xs font-semibold text-coral-dark">{formErr}</p>}
 
           <div className="mt-2 flex gap-3">
             <button

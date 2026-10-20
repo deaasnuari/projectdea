@@ -15,7 +15,7 @@ function Field({ label, hint, children }) {
     <div>
       <label className={labelClass}>{label}</label>
       {children}
-      {hint && <p className="mt-1 text-[11px] text-gray-400">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-gray-500">{hint}</p>}
     </div>
   )
 }
@@ -53,8 +53,8 @@ function ImagePick({ value, onChange, label = 'Gambar' }) {
     <Field label={label}>
       {value ? (
         <div className="flex items-center gap-3">
-          <img src={value} alt="" className="h-20 w-32 rounded-lg border border-gray-100 object-cover" />
-          <button type="button" onClick={() => onChange('')} className="text-xs font-semibold text-coral hover:text-coral-dark">
+          <img width="128" height="80" src={value} alt="" className="h-20 w-32 rounded-lg border border-gray-100 object-cover" />
+          <button type="button" onClick={() => onChange('')} className="text-xs font-semibold text-coral-dark hover:text-coral-dark">
             Hapus gambar
           </button>
         </div>
@@ -81,11 +81,11 @@ function ListEditor({ items = [], onChange, make, addLabel, max = 12, children }
       {items.map((it, i) => (
         <div key={i} className="rounded-lg border border-gray-100 bg-white p-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[11px] font-bold text-gray-400">#{i + 1}</span>
+            <span className="text-[11px] font-bold text-gray-500">#{i + 1}</span>
             <div className="flex gap-1">
-              <button type="button" onClick={() => move(i, -1)} className="rounded px-1.5 text-xs text-gray-400 hover:bg-gray-100">▲</button>
-              <button type="button" onClick={() => move(i, 1)} className="rounded px-1.5 text-xs text-gray-400 hover:bg-gray-100">▼</button>
-              <button type="button" onClick={() => del(i)} className="rounded bg-coral/10 px-2 text-[11px] font-bold text-coral hover:bg-coral/20">
+              <button type="button" onClick={() => move(i, -1)} className="rounded px-1.5 text-xs text-gray-500 hover:bg-gray-100">▲</button>
+              <button type="button" onClick={() => move(i, 1)} className="rounded px-1.5 text-xs text-gray-500 hover:bg-gray-100">▼</button>
+              <button type="button" onClick={() => del(i)} className="rounded bg-coral/10 px-2 text-[11px] font-bold text-coral-dark hover:bg-coral/20">
                 Hapus
               </button>
             </div>
@@ -321,7 +321,7 @@ function GalleryPicker({ images, onChange }) {
         <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
           {images.map((u, i) => (
             <div key={i} className="relative">
-              <img src={u} alt="" className="aspect-square w-full rounded-lg border border-gray-100 object-cover" />
+              <img width="200" height="200" src={u} alt="" className="aspect-square w-full rounded-lg border border-gray-100 object-cover" />
               <button
                 type="button"
                 onClick={() => onChange(images.filter((_, idx) => idx !== i))}
@@ -387,7 +387,7 @@ export default function BlocksEditor({ blocks, onChange }) {
           >
             Buka semua
           </button>
-          <button type="button" onClick={() => setOpen(new Set())} className="text-xs font-semibold text-gray-400 hover:text-gray-600">
+          <button type="button" onClick={() => setOpen(new Set())} className="text-xs font-semibold text-gray-500 hover:text-gray-600">
             Tutup semua
           </button>
         </div>
@@ -414,9 +414,9 @@ export default function BlocksEditor({ blocks, onChange }) {
                       {def.label}
                       {hidden && <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">Disembunyikan</span>}
                     </span>
-                    <span className="block truncate text-[12px] text-gray-400">{summaryOf(b) || def.desc}</span>
+                    <span className="block truncate text-[12px] text-gray-500">{summaryOf(b) || def.desc}</span>
                   </span>
-                  <span className={`ml-auto text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
+                  <span className={`ml-auto text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
                 </button>
                 <div className="flex shrink-0 items-center gap-0.5">
                   <button type="button" title="Naik" disabled={i === 0} onClick={() => move(i, -1)} className="h-8 w-8 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30">▲</button>
@@ -440,7 +440,7 @@ export default function BlocksEditor({ blocks, onChange }) {
                       })
                       if (ok) onChange(blocks.filter((x) => x.id !== b.id))
                     }}
-                    className="h-8 w-8 rounded-lg text-coral hover:bg-coral/10"
+                    className="h-8 w-8 rounded-lg text-coral-dark hover:bg-coral/10"
                   >
                     🗑
                   </button>
@@ -469,7 +469,7 @@ export default function BlocksEditor({ blocks, onChange }) {
           <div className="rounded-xl border border-primary/30 bg-primary/[0.04] p-3">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-xs font-bold uppercase tracking-[0.06em] text-gray-500">Pilih jenis bagian</p>
-              <button type="button" onClick={() => setAdding(false)} className="text-xs font-semibold text-gray-400 hover:text-gray-600">
+              <button type="button" onClick={() => setAdding(false)} className="text-xs font-semibold text-gray-500 hover:text-gray-600">
                 Batal
               </button>
             </div>

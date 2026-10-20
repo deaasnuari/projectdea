@@ -45,7 +45,7 @@ export default function VisibilityStatus({
   return (
     <div className="mb-2.5">
       {label && (
-        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500">
           {label}
         </p>
       )}

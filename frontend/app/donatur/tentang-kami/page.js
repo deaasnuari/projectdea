@@ -1,3 +1,4 @@
+import { getTextElementsSSR } from '@/services/textElementsServer'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
@@ -12,17 +13,20 @@ export const metadata = {
   title: 'Tentang Kami — Lazis PLN Batam',
 }
 
-export default function TentangKamiPage() {
+export default async function TentangKamiPage() {
+  const initialRows = await getTextElementsSSR('tentang-kami')
   return (
     <>
       <Navbar />
-      <TextElementsProvider page="tentang-kami">
-        <TentangSection />
-        <SejarahSection />
-        <PencapaianSection />
-        <NilaiSection />
-        <TimSection />
-        <GabungMisiSection />
+      <TextElementsProvider page="tentang-kami" initialRows={initialRows || undefined}>
+        <main>
+          <TentangSection />
+          <SejarahSection />
+          <PencapaianSection />
+          <NilaiSection />
+          <TimSection />
+          <GabungMisiSection />
+        </main>
       </TextElementsProvider>
       <Footer />
     </>

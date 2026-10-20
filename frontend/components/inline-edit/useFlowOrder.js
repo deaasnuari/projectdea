@@ -59,6 +59,23 @@ function parseOrder(content) {
   }
 }
 
+// Urutan hasil geser admin untuk render awal (SSR) di Tablet/HP: atribut untuk
+// grupnya + <style> berisi `order` tiap elemen. Null kalau belum ada urutan.
+export function flowSsr(ctx, group) {
+  const saved = parseOrder(ctx.get(flowKey(ctx.page, group))?.content)
+  if (!saved.length) return null
+  const css = saved
+    .map((id, i) => `[data-flow-ssr] [data-flow-id=${JSON.stringify(id)}]{order:${i}}`)
+    .join('')
+  return { css: `@media (max-width:1023px){${css}}` }
+}
+
+// Pemakaian di komponen: const ssr = useFlowSsr('hero'), lalu pada elemen grup
+// tambahkan {...(ssr && { 'data-flow-ssr': '' })} dan <style>{ssr.css}</style>.
+export function useFlowSsr(group) {
+  return flowSsr(useTextElementsContext(), group)
+}
+
 export function useFlowOrder(ref, group) {
   const ctx = useTextElementsContext()
   const { editing } = useEditMode()
@@ -72,6 +89,10 @@ export function useFlowOrder(ref, group) {
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
+    // Tandai grup sudah disusun — elemen ber-`data-flow-defer` (lihat
+    // globals.css) disembunyikan sampai saat ini supaya tidak "meloncat"
+    // (layout shift) ketika urutannya diubah.
+    el.setAttribute('data-flow-ready', '')
     const items = itemsOf(el)
     const active = small && saved.length > 0
     if (!active) {

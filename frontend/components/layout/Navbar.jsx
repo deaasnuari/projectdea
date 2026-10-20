@@ -138,10 +138,10 @@ export default function Navbar({ solid = false }) {
           className="flex shrink-0 items-center transition-transform duration-300 hover:scale-[1.03]"
         >
           <img
-            src="/images/logo-lazis-pln-putih.png"
+            src="/images/logo-lazis-pln-putih-sm.png"
             alt="Lazis PLN Batam"
-            width="1080"
-            height="387"
+            width="360"
+            height="129"
             decoding="async"
             className="h-6 w-auto md:h-8"
           />

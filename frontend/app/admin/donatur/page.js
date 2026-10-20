@@ -192,7 +192,7 @@ export default function AdminDonaturPage() {
             </span>
             <div>
               <h2 className="font-heading text-sm font-bold text-navy">Informasi utama</h2>
-              <p className="text-[12px] text-gray-400">Judul &amp; teks pengantar pada bagian Donatur.</p>
+              <p className="text-[12px] text-gray-500">Judul &amp; teks pengantar pada bagian Donatur.</p>
             </div>
           </div>
           <div className="flex flex-col gap-3">
@@ -237,7 +237,7 @@ export default function AdminDonaturPage() {
             </span>
             <div>
               <h2 className="font-heading text-sm font-bold text-navy">Ringkasan jumlah donatur</h2>
-              <p className="text-[12px] text-gray-400">
+              <p className="text-[12px] text-gray-500">
                 <b>Manual</b> = ketik angka sendiri. <b>Dari Riwayat Donasi</b> = ikut otomatis dari
                 transaksi yang sudah diterima.
               </p>
@@ -258,7 +258,7 @@ export default function AdminDonaturPage() {
                     <button
                       type="button"
                       onClick={() => removeStat(index)}
-                      className="rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/10"
+                      className="rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-coral-dark transition-colors hover:bg-coral/10"
                     >
                       Hapus
                     </button>

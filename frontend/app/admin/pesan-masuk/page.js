@@ -80,7 +80,7 @@ export default function AdminPesanMasukPage() {
       <button
         type="button"
         onClick={() => handleDelete(m)}
-        className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral transition-colors hover:bg-coral/20"
+        className="rounded-lg bg-coral/10 px-2.5 py-1 text-[11px] font-semibold text-coral-dark transition-colors hover:bg-coral/20"
       >
         Hapus
       </button>
@@ -101,7 +101,7 @@ export default function AdminPesanMasukPage() {
         {CARDS.map((c) => (
           <div key={c.label} className="card p-3.5">
             <p className={`font-heading text-lg font-extrabold leading-tight ${c.accent || 'text-navy'}`}>{c.value}</p>
-            <p className="mt-0.5 text-[11px] text-gray-400">{c.label}</p>
+            <p className="mt-0.5 text-[11px] text-gray-500">{c.label}</p>
           </div>
         ))}
       </div>
@@ -122,7 +122,7 @@ export default function AdminPesanMasukPage() {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral">
+        <p className="mb-4 rounded-lg bg-coral/10 px-4 py-3 text-sm font-semibold text-coral-dark">
           Gagal memuat pesan: {error}. Pastikan backend jalan di :3001.
         </p>
       )}
@@ -132,7 +132,7 @@ export default function AdminPesanMasukPage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left text-[13px]">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-400">
+              <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] font-semibold uppercase tracking-[0.04em] text-gray-500">
                 <th className="px-4 py-2.5 font-semibold">Pengirim</th>
                 <th className="px-4 py-2.5 font-semibold">Pesan</th>
                 <th className="px-4 py-2.5 font-semibold">Tanggal</th>
@@ -180,14 +180,14 @@ export default function AdminPesanMasukPage() {
               ))}
               {!loading && messages.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-gray-400">
+                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-gray-500">
                     Belum ada pesan{tab !== 'semua' ? ` berstatus "${tab}"` : ''}.
                   </td>
                 </tr>
               )}
               {loading && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-gray-400">
+                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-gray-500">
                     Memuat…
                   </td>
                 </tr>
@@ -199,9 +199,9 @@ export default function AdminPesanMasukPage() {
 
       {/* Kartu — HP & iPad portrait */}
       <div className="flex flex-col gap-3 md:hidden">
-        {loading && <div className="card p-6 text-center text-sm text-gray-400">Memuat…</div>}
+        {loading && <div className="card p-6 text-center text-sm text-gray-500">Memuat…</div>}
         {!loading && messages.length === 0 && (
-          <div className="card p-8 text-center text-sm text-gray-400">
+          <div className="card p-8 text-center text-sm text-gray-500">
             Belum ada pesan{tab !== 'semua' ? ` berstatus "${tab}"` : ''}.
           </div>
         )}
@@ -234,7 +234,7 @@ export default function AdminPesanMasukPage() {
               </span>
             </div>
             <p className="mt-2 whitespace-pre-wrap text-[13px] text-gray-600">{m.message}</p>
-            <p className="mt-2 text-[11px] text-gray-400">{fmtDate(m.created_at)}</p>
+            <p className="mt-2 text-[11px] text-gray-500">{fmtDate(m.created_at)}</p>
             <div className="mt-3 border-t border-gray-100 pt-3">{actions(m)}</div>
           </div>
         ))}
