@@ -87,9 +87,11 @@ export default function HeroSection() {
           </defs>
           <rect width="100%" height="100%" fill="url(#hero-lattice)" />
         </svg>
+        {/* Pudar ke warna navy di dasar hero, supaya tidak ada garis patah ke section statistik */}
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-navy/80" />
       </div>
 
-      <div ref={flowRef} data-flow-group className="container relative z-[1] pt-32 max-[600px]:pt-[86px]">
+      <div ref={flowRef} data-flow-group className="container relative z-[1] pt-24 max-[600px]:pt-[86px]">
         {/* Konten */}
         <div data-flow-split className="max-w-[650px] animate-fade-in-up">
           <EditableRichText
@@ -123,13 +125,13 @@ export default function HeroSection() {
             elementKey="kami-peduli.hero.description"
             section="hero"
             as="p"
-            className="mb-6 max-w-[520px] text-lg leading-[1.6] text-white/80 max-[600px]:mb-4 max-[600px]:text-[13px] max-[600px]:leading-[1.55]"
+            className="mb-0 max-w-[520px] text-lg leading-[1.6] text-white/80 max-[600px]:mb-4 max-[600px]:text-[13px] max-[600px]:leading-[1.55]"
             defaultText={hero.description}
             label="deskripsi hero"
             multiline
           />
-          <CustomTexts section="hero" tone="dark" className="mb-6" chipAtTop />
-          <div data-flow-split className="mb-6 flex flex-wrap gap-4 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
+          <CustomTexts section="hero" tone="dark" className="mb-2" chipAtTop />
+          <div data-flow-split className="mt-2 mb-6 flex flex-wrap gap-4 max-[600px]:mt-0 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
             <MovableBlock as="a" elementKey="kami-peduli.hero.btn_zakat" section="hero" label="tombol Tunaikan Zakat" href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />

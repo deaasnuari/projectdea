@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -14,12 +13,9 @@ export default function BlogPage() {
   const { posts: allPosts, loading } = useBlogPosts()
   // Artikel yang di-"Sembunyikan" di admin tidak tampil di halaman donatur.
   const visible = allPosts.filter((p) => p.active !== false)
-  const [cat, setCat] = useState('Semua')
-  const cats = ['Semua', ...Array.from(new Set(visible.map((p) => p.badge).filter(Boolean)))]
-  const filtered = cat === 'Semua' ? visible : visible.filter((p) => p.badge === cat)
-  // Artikel pertama jadi sorotan besar (hanya di tampilan "Semua", bila ada >1 artikel).
-  const featured = cat === 'Semua' && filtered.length > 1 ? filtered[0] : null
-  const posts = featured ? filtered.slice(1) : filtered
+  // Artikel pertama jadi sorotan besar (bila ada >1 artikel).
+  const featured = visible.length > 1 ? visible[0] : null
+  const posts = featured ? visible.slice(1) : visible
 
   // Sampai 3 artikel: grid biasa. Lebih dari itu: baris yang digeser ke
   // samping (scroll-snap) supaya halaman tidak makin panjang ke bawah —
@@ -40,9 +36,6 @@ export default function BlogPage() {
       </Link>
       <div className="p-6">
         <div className="mb-3 flex items-center gap-3">
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">
-            {post.badge}
-          </span>
           <span className="text-xs text-gray-500">{formatBlogDate(post.date)}</span>
         </div>
         <h2 className="mb-2 font-heading text-lg font-bold leading-snug text-navy">
@@ -90,39 +83,17 @@ export default function BlogPage() {
             </div>
           ) : null}
 
-          {visible.length > 0 && cats.length > 2 && (
-            <div className="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Filter kategori artikel">
-              {cats.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  role="tab"
-                  aria-selected={cat === c}
-                  onClick={() => setCat(c)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
-                    cat === c
-                      ? 'bg-gold text-navy shadow'
-                      : 'bg-white/10 text-white/80 ring-1 ring-white/20 hover:bg-white/20'
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          )}
-
           {featured && (
-            <article className="card mb-6 grid overflow-hidden md:h-[340px] md:grid-cols-[1.15fr_1fr]">
-              <Link href={`/donatur/blog/${featured.slug}`} className="block aspect-[16/10] overflow-hidden md:aspect-auto md:h-full">
-                <img src={featured.image} alt={featured.title} className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04]" />
+            <article className="card mb-6 grid overflow-hidden md:min-h-[340px] md:grid-cols-[1.15fr_1fr]">
+              <Link href={`/donatur/blog/${featured.slug}`} className="relative block aspect-[16/10] overflow-hidden md:aspect-auto">
+                <img src={featured.image} alt={featured.title} className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04] md:absolute md:inset-0" />
               </Link>
-              <div className="flex flex-col justify-center p-6 sm:p-9">
+              <div className="flex flex-col justify-center p-6 md:p-6 lg:p-9">
                 <div className="mb-3 flex items-center gap-3">
                   <span className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy">Terbaru</span>
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-dark">{featured.badge}</span>
                   <span className="text-xs text-gray-500">{formatBlogDate(featured.date)}</span>
                 </div>
-                <h2 className="mb-3 font-heading text-2xl font-bold leading-snug text-navy sm:text-3xl">
+                <h2 className="mb-3 font-heading text-2xl font-bold leading-snug text-navy lg:text-3xl">
                   <Link href={`/donatur/blog/${featured.slug}`} className="hover:text-primary">
                     {featured.title}
                   </Link>

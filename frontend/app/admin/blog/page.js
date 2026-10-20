@@ -9,7 +9,7 @@ import { useBlogPosts, formatBlogDate, toDateInputValue } from '@/services/blog'
 import { toast, confirmDialog } from '@/components/ui/feedback'
 import DevicePreviewFrame from '@/components/inline-edit/DevicePreviewFrame'
 
-const EMPTY_FORM = { id: null, slug: '', title: '', badge: '', date: '', image: '', desc: '', content: '' }
+const EMPTY_FORM ={ id: null, slug: '', title: '', badge: '', date: '', image: '', desc: '', content: '' }
 
 //ini fungsi untuk menampilkan halaman admin untuk mengelola konten "Blog
 export default function AdminBlogPage() {
@@ -249,17 +249,7 @@ export default function AdminBlogPage() {
               className={inputClass}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4 max-[480px]:grid-cols-1">
-            <div>
-              <label className={labelClass}>Badge / Kategori</label>
-              <input
-                type="text"
-                placeholder="Contoh: Kursus Zakat"
-                value={form.badge}
-                onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
-                className={inputClass}
-              />
-            </div>
+          <div>
             <div>
               <label className={labelClass}>Tanggal Terbit</label>
               <input

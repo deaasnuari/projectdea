@@ -167,12 +167,12 @@ export default function AdminDonaturPage() {
         <p className="mt-1 max-w-lg text-[13px] leading-relaxed text-white/65">
           {form.description || 'Teks pengantar akan tampil di sini.'}
         </p>
-        <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
           {previewStats.length === 0 ? (
-            <span className="text-[13px] text-white/40">Belum ada ringkasan angka.</span>
+            <span className="col-span-full text-[13px] text-white/40">Belum ada ringkasan angka.</span>
           ) : (
             previewStats.map((s, i) => (
-              <div key={i}>
+              <div key={i} className="min-w-0 break-words">
                 <span className="block font-heading text-xl font-extrabold text-gold">{s.text}</span>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
                   {s.label}

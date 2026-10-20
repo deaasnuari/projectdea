@@ -68,14 +68,14 @@ export default function TentangSection() {
               elementKey="tentang-kami.hero.description"
               section="hero"
               as="p"
-              className="mb-8 max-w-[520px] leading-[1.7] text-white/80"
+              className="mb-8 max-w-[520px] leading-[1.7] text-white/80 max-[900px]:max-w-none"
               defaultText={h.description}
               label="paragraf pengantar"
               multiline
             />
-            <CustomTexts section="hero" tone="dark" className="mb-8 max-w-[520px]" />
+            <CustomTexts section="hero" tone="dark" className="mb-8 max-w-[520px] max-[900px]:max-w-none" />
 
-            <div data-flow-id="tentang-kami.hero.keunggulan" className="grid max-w-[520px] grid-cols-2 gap-4 max-[480px]:grid-cols-1">
+            <div data-flow-id="tentang-kami.hero.keunggulan" className="grid max-w-[520px] grid-cols-2 gap-4 max-[900px]:max-w-none max-[480px]:grid-cols-1">
               {content.keunggulan.map((item) => (
                 <div
                   key={item.id}

@@ -31,10 +31,10 @@ const JENIS = {
 function RupiahField({ label, hint, value, onChange }) {
   return (
     <div className="mb-3">
-      <label className="block text-sm font-semibold text-gray-800">{label}</label>
+      <label className="block text-sm font-semibold text-navy">{label}</label>
       <span className="mb-1 block text-[11px] text-gray-500">{hint}</span>
-      <label className="flex cursor-text items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 transition-colors focus-within:border-primary">
-        <span className="text-sm font-semibold text-gray-500">Rp</span>
+      <label className="flex cursor-text items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 transition-all focus-within:border-primary focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(10,126,126,0.12)]">
+        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary-dark">Rp</span>
         <input
           type="text"
           inputMode="numeric"
@@ -42,7 +42,7 @@ function RupiahField({ label, hint, value, onChange }) {
           placeholder="0"
           value={formatRupiahInput(value)}
           onChange={(e) => onChange(parseRupiah(e.target.value))}
-          className="min-w-0 flex-1 py-2 text-sm font-semibold text-gray-800"
+          className="min-w-0 flex-1 bg-transparent py-2 text-sm font-semibold text-navy outline-none placeholder:text-gray-300"
         />
       </label>
     </div>
@@ -64,8 +64,10 @@ export default function ZakatCalculatorSection() {
   const kurang = Math.max(0, info.nisab - total)
 
   return (
-    <section id="zakat-calculator" className="bg-gradient-to-br from-navy to-primary-dark py-10 text-white">
-      <div className="container mx-auto grid max-w-[880px] grid-cols-[0.9fr_1.1fr] items-start gap-8 max-[900px]:grid-cols-1">
+    <section id="zakat-calculator" className="relative overflow-hidden bg-gradient-to-br from-navy to-primary-dark py-10 text-white">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
+      <div className="container relative mx-auto grid max-w-[880px] grid-cols-[0.9fr_1.1fr] items-center gap-8 max-[900px]:grid-cols-1">
         {/* Kiri: teks pengantar + nilai nisab (klik untuk pilih jenis zakat) */}
         <div>
           <p className="section-label !text-xs !text-gold">Kalkulator Zakat</p>
@@ -87,16 +89,31 @@ export default function ZakatCalculatorSection() {
                 type="button"
                 onClick={() => setJenis(key)}
                 aria-pressed={on}
-                className={`mb-2 flex w-full max-w-[340px] flex-col gap-0.5 rounded-lg border px-4 py-2.5 text-left transition-colors ${
+                className={`group mb-2 flex w-full max-w-[340px] items-center gap-3 rounded-xl border px-4 py-2.5 text-left backdrop-blur-sm transition-all ${
                   on
-                    ? 'border-gold/60 bg-white/[0.14]'
-                    : 'border-white/[0.12] bg-white/[0.07] hover:bg-white/[0.1]'
+                    ? 'border-gold/70 bg-white/[0.14] shadow-[0_8px_24px_rgba(0,0,0,0.2)]'
+                    : 'border-white/[0.12] bg-white/[0.06] hover:-translate-y-0.5 hover:bg-white/[0.1]'
                 }`}
               >
-                <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-white/55">
-                  {j.nisabLabel}
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                    on ? 'border-gold bg-gold text-navy' : 'border-gold/30 bg-gold/[0.12] text-gold'
+                  }`}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {key === 'profesi' ? (
+                      <path d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zM10 5h4v2h-4z" />
+                    ) : (
+                      <path d="M12 2l3 6 6 .9-4.5 4.4 1 6.2L12 16.5 6.5 19.5l1-6.2L3 8.9 9 8z" />
+                    )}
+                  </svg>
                 </span>
-                <span className="font-heading text-base font-extrabold text-gold">{formatRp(j.nisab)}</span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-white/60">
+                    {j.nisabLabel}
+                  </span>
+                  <span className="font-heading text-base font-extrabold text-gold">{formatRp(j.nisab)}</span>
+                </span>
               </button>
             )
           })}
@@ -114,8 +131,8 @@ export default function ZakatCalculatorSection() {
                   role="tab"
                   aria-selected={on}
                   onClick={() => setJenis(key)}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-bold transition-colors ${
-                    on ? 'bg-white text-navy shadow-sm' : 'text-gray-500 hover:text-navy'
+                  className={`rounded-lg px-3 py-1.5 text-sm font-bold transition-all ${
+                    on ? 'bg-white text-navy shadow-md' : 'text-gray-500 hover:text-navy'
                   }`}
                 >
                   {j.label}
@@ -127,7 +144,7 @@ export default function ZakatCalculatorSection() {
             })}
           </div>
 
-          <p className="mb-3 rounded-lg bg-primary/[0.06] px-3 py-2 text-xs leading-relaxed text-gray-600">
+          <p className="mb-3 rounded-lg border-l-4 border-primary bg-primary/[0.06] px-3 py-2 text-xs leading-relaxed text-gray-600">
             {info.keterangan}
           </p>
 
@@ -164,21 +181,27 @@ export default function ZakatCalculatorSection() {
           )}
 
           {/* Hasil — hanya untuk jenis zakat yang sedang dipilih */}
-          <div className={`rounded-lg px-3 py-2.5 ${zakat ? 'bg-primary/[0.08]' : 'bg-gray-50'}`}>
+          <div className={`rounded-lg px-3 py-2.5 ${zakat ? 'bg-primary/[0.09]' : 'bg-gray-50'}`}>
             <div className="flex items-center justify-between gap-4 text-[12px] text-gray-500">
               <span>{jenis === 'profesi' ? 'Total penghasilan / bulan' : 'Total harta'}</span>
-              <span className="font-semibold text-gray-700">{formatRp(total)}</span>
+              <span className="font-semibold text-navy">{formatRp(total)}</span>
             </div>
-            <div className="mt-1.5 flex items-center justify-between gap-4 border-t border-gray-200/70 pt-1.5">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-200" aria-hidden="true">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${zakat ? 'bg-primary' : 'bg-gold'}`}
+                style={{ width: `${Math.min(100, (total / info.nisab) * 100)}%` }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-4 border-t border-gray-200/80 pt-2">
               <span className="text-[11px] font-bold uppercase tracking-[0.4px] text-gray-500">
                 {info.label} ({info.periode})
               </span>
-              <strong className={zakat ? 'text-base text-primary-dark' : 'text-xs text-gray-400'}>
+              <strong className={zakat ? 'font-heading text-base text-primary-dark' : 'text-sm text-gray-400'}>
                 {zakat ? formatRp(zakat) : 'Belum mencapai nisab'}
               </strong>
             </div>
             {!zakat && total > 0 && (
-              <p className="mt-1.5 text-[11px] text-gray-400">
+              <p className="mt-1.5 text-[11px] text-gray-500">
                 Kurang {formatRp(kurang)} lagi untuk mencapai nisab.
               </p>
             )}
