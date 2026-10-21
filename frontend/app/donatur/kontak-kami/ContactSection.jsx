@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Captcha from '@/components/ui/Captcha'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableText from '@/components/inline-edit/EditableText'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
@@ -187,6 +188,8 @@ export default function ContactSection() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
+  const [captcha, setCaptcha] = useState({ captchaToken: '', captchaAnswer: '' })
+  const [captchaKey, setCaptchaKey] = useState(0) // naik = muat soal baru
   const { content, patchInfo, addInfo, removeInfo } = useKontakContent()
   const { isAdmin } = useEditMode()
   const h = content.hero
@@ -213,10 +216,15 @@ export default function ContactSection() {
       setConsentOpen(true)
       return
     }
+    if (!captcha.captchaAnswer) {
+      setSendError('Jawab soal verifikasi dulu.')
+      return
+    }
     setSending(true)
     setSendError('')
     try {
       await sendContactMessage({
+        ...captcha,
         name: form.nama,
         email: form.email,
         phone: form.noHp,
@@ -229,6 +237,7 @@ export default function ContactSection() {
       setSendError(err.message || 'Gagal mengirim pesan. Coba lagi.')
     } finally {
       setSending(false)
+      setCaptchaKey((k) => k + 1) // token sekali pakai → soal baru
     }
   }
 
@@ -462,7 +471,9 @@ export default function ContactSection() {
                   </div>
                 </div>
 
-                {sendError && <p className="text-xs font-semibold text-coral">{sendError}</p>}
+                <Captcha onChange={setCaptcha} resetKey={captchaKey} />
+
+                {sendError && <p className="text-xs font-semibold text-coral-dark">{sendError}</p>}
 
                 <button
                   type="submit"

@@ -6,10 +6,6 @@ import { getApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
 const HINT_KEY = 'lazispln_admin_hint'
 
-// Hanya untuk teks bantuan di halaman login — kredensial asli ada di
-// backend/.env (ADMIN_USERNAME / ADMIN_PASSWORD).
-export const DEMO_ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' }
-
 function setHint(ok) {
   try {
     if (ok) sessionStorage.setItem(HINT_KEY, '1')

@@ -1,31 +1,34 @@
 const Donation = require('../models/Donation')
+const { line, text, isProof } = require('../lib/validate')
 
 // POST /api/donations  (publik — dikirim dari modal donasi)
 async function create(req, res, next) {
   try {
     const b = req.body || {}
     const amount = Math.round(Number(b.amount) || 0)
-    if (amount <= 0) return res.status(400).json({ error: 'Nominal tidak valid' })
+    // Batas wajar: > 0 dan ≤ Rp 100 miliar (mencegah angka raksasa/overflow di DB).
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 100_000_000_000) {
+      return res.status(400).json({ error: 'Nominal tidak valid' })
+    }
 
-    const anonymous = !!b.anonymous
-    const donorName = anonymous ? 'Anonim' : String(b.donorName || '').trim()
+    const anonymous = b.anonymous === true || b.anonymous === 'true'
+    const donorName = anonymous ? 'Anonim' : line(b.donorName, 100)
     if (!anonymous && !donorName) return res.status(400).json({ error: 'Nama donatur wajib diisi' })
 
-    // Batasi ukuran bukti (data URL) supaya baris tidak membengkak.
-    let proof = typeof b.proof === 'string' ? b.proof : null
-    if (proof && proof.length > 1_500_000) proof = null
+    // Bukti transfer: hanya gambar jpeg/png/webp yang valid; selain itu diabaikan.
+    const proof = isProof(b.proof) ? b.proof : null
 
     const row = await Donation.create({
       donorName,
       anonymous,
-      jenisId: b.jenisId,
-      jenisLabel: b.jenisLabel,
-      program: b.program,
-      source: b.source,
+      jenisId: line(b.jenisId, 60) || null,
+      jenisLabel: line(b.jenisLabel, 120) || null,
+      program: line(b.program, 200) || null,
+      source: line(b.source, 20),
       amount,
-      bankId: b.bankId,
-      bankName: b.bankName,
-      note: b.note ? String(b.note).trim() : null,
+      bankId: line(b.bankId, 60) || null,
+      bankName: line(b.bankName, 120) || null,
+      note: text(b.note, 500) || null,
       proof,
     })
     res.status(201).json({ id: row.id, status: row.status, created_at: row.created_at })
@@ -75,7 +78,10 @@ async function proof(req, res, next) {
     if (!dataUrl) return res.status(404).json({ error: 'Tidak ada bukti' })
     const m = /^data:(.+?);base64,(.*)$/s.exec(dataUrl)
     if (!m) return res.status(415).json({ error: 'Format bukti tidak dikenal' })
-    res.set('Content-Type', m[1])
+    // Tipe hanya dari daftar putih (data lama bisa saja berisi tipe lain) +
+    // diunduh sebagai file, bukan dirender di origin API.
+    const type = /^image\/(jpeg|jpg|png|webp)$/.test(m[1]) ? m[1] : 'application/octet-stream'
+    res.set({ 'Content-Type': type, 'Content-Disposition': 'inline; filename="bukti"', 'X-Content-Type-Options': 'nosniff' })
     res.send(Buffer.from(m[2], 'base64'))
   } catch (err) {
     next(err)

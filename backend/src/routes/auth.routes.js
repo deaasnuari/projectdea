@@ -5,12 +5,26 @@ const { rateLimit, formatWait } = require('../middleware/rateLimit')
 
 const router = Router()
 
-router.post('/login', authController.login)
+// Respons auth tidak boleh disimpan cache browser/proxy.
+router.use((_req, res, next) => {
+  res.set('Cache-Control', 'no-store')
+  next()
+})
+
+// Pembatas login PER IP (semua username digabung): menahan penebakan massal
+// dengan mengganti-ganti username, di atas kunci per IP+username di controller.
+const loginLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: (s) => `Terlalu banyak percobaan login. Coba lagi dalam ${formatWait(s)}.`,
+})
+
+router.post('/login', loginLimit, authController.login)
 router.post('/logout', authController.logout)
 router.get('/me', authController.me)
 
 // Ubah password sendiri — butuh password lama yang benar (publik).
-router.post('/change-password', authController.changePassword)
+router.post('/change-password', loginLimit, authController.changePassword)
 
 // Lupa password: kode 6 digit dikirim ke email akun, lalu dipakai untuk reset.
 const emailLimit = rateLimit({

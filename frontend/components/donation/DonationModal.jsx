@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { formatRp, formatCountdown } from '@/services/format'
 import { createDonation } from '@/services/donations'
+import Captcha from '@/components/ui/Captcha'
 import { useDonationMethods } from './donationMethodsData'
 
 const NOMINAL_PRESETS = [50000, 100000, 250000, 500000, 'lainnya', 1000000]
@@ -244,6 +245,8 @@ export default function DonationModal({
 
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [captcha, setCaptcha] = useState({ captchaToken: '', captchaAnswer: '' })
+  const [captchaKey, setCaptchaKey] = useState(0) // naik = muat soal baru
 
   const jenis =
     jenisList.find((j) => j.key === jenisId || String(j.id) === String(jenisId)) || null
@@ -287,10 +290,15 @@ export default function DonationModal({
 
   const handleConfirm = async () => {
     if (submitting) return
+    if (!captcha.captchaAnswer) {
+      setSubmitError('Jawab soal verifikasi dulu.')
+      return
+    }
     setSubmitting(true)
     setSubmitError('')
     try {
       await createDonation({
+        ...captcha,
         donorName: anonim ? 'Anonim' : nama.trim(),
         anonymous: anonim,
         source: scope, // 'program' | 'tentang'
@@ -307,6 +315,7 @@ export default function DonationModal({
       setSubmitError(err.message || 'Gagal mengirim. Coba lagi.')
     } finally {
       setSubmitting(false)
+      setCaptchaKey((k) => k + 1) // token sekali pakai → soal baru
     }
   }
 
@@ -627,8 +636,9 @@ export default function DonationModal({
               </ol>
             </div>
 
+            <Captcha onChange={setCaptcha} resetKey={captchaKey} className="mb-3" />
             {submitError && (
-              <p className="mb-3 text-center text-xs font-semibold text-coral">{submitError}</p>
+              <p className="mb-3 text-center text-xs font-semibold text-coral-dark">{submitError}</p>
             )}
             <button
               type="button"

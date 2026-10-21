@@ -65,4 +65,39 @@ function recordFail(req, username) {
 
 const recordSuccess = (req, username) => fails.delete(keyOf(req, username))
 
-module.exports = { securityHeaders, originGuard, lockRemaining, recordFail, recordSuccess }
+// Ringkasan untuk halaman Keamanan admin (tanpa membuka kunci/username).
+function lockStats() {
+  let tracked = 0
+  let locked = 0
+  const now = Date.now()
+  for (const v of fails.values()) {
+    if (v.n > 0) tracked += 1
+    if (v.until > now) locked += 1
+  }
+  return { tracked, locked, maxFails: MAX_FAILS, lockMinutes: LOCK_MS / 60000 }
+}
+
+// Catat aksi admin yang mengubah data (POST/PUT/PATCH/DELETE yang berhasil)
+// ke audit log — siapa, apa (pola rute, tanpa isi body), kapan, dari IP mana.
+const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+function auditAdmin(req, res, next) {
+  if (!MUTATING.has(req.method)) return next()
+  res.on('finish', () => {
+    if (res.statusCode >= 400) return
+    const { COOKIE_NAME, verifyToken } = require('../lib/session')
+    const session = verifyToken(req.cookies?.[COOKIE_NAME])
+    if (!session) return
+    const sub = req.route?.path && req.route.path !== '/' ? req.route.path : ''
+    const pattern = `${req.baseUrl || ''}${sub}`
+    if (/^\/api\/auth\/(login|logout)/.test(pattern)) return // dicatat khusus di controller
+    require('../models/AuditLog').record({
+      actor: session.sub,
+      action: `${req.method} ${pattern}`,
+      detail: req.params && Object.keys(req.params).length ? JSON.stringify(req.params) : '',
+      ip: req.ip || '',
+    })
+  })
+  next()
+}
+
+module.exports = { securityHeaders, originGuard, lockRemaining, recordFail, recordSuccess, lockStats, auditAdmin }

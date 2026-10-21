@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import AdminModal from '@/components/admin/AdminModal'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
+import RequiredMark from '@/components/admin/RequiredMark'
 import { useAdminMenus, saveMenuPage } from '@/services/menus'
 import { PRESETS, presetByKey } from '@/services/pageBlocks'
 import { toast, confirmDialog } from '@/components/ui/feedback'
@@ -426,8 +427,13 @@ export default function ManajemenMenuPage() {
 
       <AdminModal wide open={modalOpen} onClose={() => setModalOpen(false)} title={form.id ? 'Edit Menu' : 'Tambah Menu'}>
         <form onSubmit={submit} className="flex flex-col gap-4">
+          <p className="text-xs text-gray-500">
+            <span className="font-bold text-coral-dark">*</span> wajib diisi
+          </p>
           <div>
-            <label className={labelClass}>Nama Menu</label>
+            <label className={labelClass}>
+              Nama Menu <RequiredMark />
+            </label>
             <input
               type="text"
               required
@@ -443,11 +449,14 @@ export default function ManajemenMenuPage() {
 
           {!form.isSystem && (
             <div>
-              <label className={labelClass}>Slug / URL</label>
+              <label className={labelClass}>
+                Slug / URL <RequiredMark />
+              </label>
               <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-3">
                 <span className="text-xs text-gray-500">/donatur/</span>
                 <input
                   type="text"
+                  required
                   value={form.slug}
                   onChange={(e) => {
                     setSlugTouched(true)

@@ -349,17 +349,19 @@
   }
 
   .navbar-link {
-    @apply relative py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/85 transition-colors duration-150 hover:text-white;
+    @apply relative py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-white/85 transition-colors duration-150 hover:text-white;
   }
 
   .navbar-link::after {
     content: '';
     position: absolute;
-    left: 0;
+    left: 50%;
     bottom: -2px;
     width: 0;
     height: 2px;
+    border-radius: 9999px;
     background: theme('colors.gold.DEFAULT');
+    transform: translateX(-50%);
     transition: width 250ms ease;
   }
 
@@ -372,17 +374,19 @@
      item navigasi tetap terlihat sebagai teks biasa, tidak ada yang
      terlihat seperti tombol sementara yang lain seperti link. */
   .navbar-link-active {
-    @apply relative py-2 text-xs font-semibold uppercase tracking-[0.08em] text-gold;
+    @apply relative py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-gold;
   }
 
   .navbar-link-active::after {
     content: '';
     position: absolute;
-    left: 0;
+    left: 50%;
     bottom: -2px;
     width: 100%;
     height: 2px;
+    border-radius: 9999px;
     background: theme('colors.gold.DEFAULT');
+    transform: translateX(-50%);
   }
 
   /* ================= Inline editing (mode edit admin) =================
@@ -809,4 +813,40 @@
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
+}
+
+/* Footer selalu di dasar layar: kalau isi halaman pendek, footer tidak
+   "naik" dan meninggalkan ruang kosong di bawahnya. Halaman panjang tidak
+   berubah (footer tetap di akhir halaman). */
+body:has(> footer) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+body:has(> footer) > footer {
+  margin-top: auto;
+}
+
+/* Tidak ada "layar putih" di atas maupun di bawah halaman saat di-scroll
+   mentok / ditarik (efek bounce): halaman tidak bisa digulir melewati
+   ujungnya, dan kalaupun ada celah, yang terlihat warna navy — bukan putih. */
+html {
+  overscroll-behavior: none;
+}
+/* Hanya halaman publik (yang punya footer): latar html = warna footer. */
+html:has(body > footer) {
+  background-color: #061e28;
+}
+body {
+  overscroll-behavior: none;
+}
+
+/* Halaman publik: gambar tidak bisa diseret / ditahan-lama untuk disimpan
+   (lihat ImageProtection.jsx). Teks tetap bisa diseleksi seperti biasa. */
+html[data-protect-media] img,
+html[data-protect-media] video {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
 }

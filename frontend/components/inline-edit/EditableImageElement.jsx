@@ -94,7 +94,7 @@ export default function EditableImageElement({
       // File-nya sendiri harus diunggah dulu supaya ada URL untuk pratinjau —
       // tapi menghubungkan URL itu ke elemen ini (kolom `content`) ditahan
       // lewat ctx.stage(), baru masuk DB saat klik "Simpan Semua".
-      const url = await uploadImage(file)
+      const url = await uploadImage(file, { watermark: false }) // gambar latar/elemen situs: tanpa watermark
       ctx.stage(elementKey, { page: ctx.page, section, content: url })
       toast('Gambar diganti — klik "Simpan Semua" untuk menyimpan.', { tone: 'info' })
     } catch (err) {

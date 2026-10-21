@@ -1,10 +1,11 @@
 const crypto = require('node:crypto')
 const Admin = require('../models/Admin')
 const AdminAccount = require('../models/AdminAccount')
-const { COOKIE_NAME, createToken, verifyToken, cookieOptions } = require('../lib/session')
+const { COOKIE_NAME, createToken, verifyToken, cookieOptions, revokeToken, revokeUser } = require('../lib/session')
 const { passwordError } = require('../lib/passwordPolicy')
 const { lockRemaining, recordFail, recordSuccess } = require('../middleware/security')
 const { sendMail, isMailConfigured } = require('../lib/mailer')
+const AuditLog = require('../models/AuditLog')
 
 const POLICY_MSG = /sudah dipakai|wajib|minimal|maksimal|huruf/i
 const waitText = (sec) => (sec < 60 ? `${sec} detik` : `${Math.ceil(sec / 60)} menit`)
@@ -22,15 +23,23 @@ function rejectIfLocked(req, res, username) {
 async function login(req, res, next) {
   try {
     const { username, password } = req.body || {}
-    const uname = String(username || '').trim().slice(0, 100)
+    // Hanya string biasa: objek/array/angka (mis. {"$ne":""} atau ["a"]) ditolak
+    // mentah-mentah sebelum menyentuh logika login.
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Username dan password wajib diisi' })
+    }
+    const uname = username.trim().slice(0, 100)
+    if (!uname || !password) return res.status(400).json({ error: 'Username dan password wajib diisi' })
     if (rejectIfLocked(req, res, uname)) return
 
-    const ok = await Admin.verify(uname, String(password || '').slice(0, 200))
+    const ok = await Admin.verify(uname, password.slice(0, 200))
     if (!ok) {
       recordFail(req, uname)
+      AuditLog.record({ actor: uname, action: 'login_gagal', ip: req.ip })
       return res.status(401).json({ error: 'Username atau password salah' })
     }
     recordSuccess(req, uname)
+    AuditLog.record({ actor: uname, action: 'login', ip: req.ip })
     res.cookie(COOKIE_NAME, createToken(uname || 'admin'), cookieOptions())
     res.json({ ok: true, username: uname || 'admin' })
   } catch (err) {
@@ -39,7 +48,10 @@ async function login(req, res, next) {
 }
 
 // POST /api/auth/logout
-function logout(_req, res) {
+function logout(req, res) {
+  const who = verifyToken(req.cookies?.[COOKIE_NAME])
+  if (who) AuditLog.record({ actor: who.sub, action: 'logout', ip: req.ip })
+  revokeToken(req.cookies?.[COOKIE_NAME]) // token dicabut di server, bukan cuma dihapus di browser
   res.clearCookie(COOKIE_NAME, { ...cookieOptions(), maxAge: undefined })
   res.json({ ok: true })
 }
@@ -122,6 +134,8 @@ async function changePassword(req, res, next) {
     recordSuccess(req, username)
 
     await AdminAccount.setPassword(username, newPassword)
+    revokeUser(username) // semua sesi lama akun ini tidak berlaku lagi
+    AuditLog.record({ actor: username, action: 'ganti_password', ip: req.ip })
     res.json({ ok: true })
   } catch (err) {
     if (POLICY_MSG.test(err.message)) return res.status(400).json({ error: err.message })
@@ -197,6 +211,8 @@ async function resetPassword(req, res, next) {
 
     resets.delete(key)
     await AdminAccount.setPassword(username, newPassword)
+    revokeUser(username)
+    AuditLog.record({ actor: username, action: 'reset_password_email', ip: req.ip })
     res.json({ ok: true })
   } catch (err) {
     if (POLICY_MSG.test(err.message)) return res.status(400).json({ error: err.message })
@@ -217,6 +233,7 @@ async function resetAccountPassword(req, res, next) {
     if (pwErr) return res.status(400).json({ error: pwErr })
 
     await AdminAccount.setPassword(row.username, newPassword)
+    revokeUser(row.username)
     res.json({ ok: true })
   } catch (err) {
     next(err)

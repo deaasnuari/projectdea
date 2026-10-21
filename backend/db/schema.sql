@@ -365,3 +365,14 @@ insert into menus (name, slug, template_type, system_path, sort_order) values
   ('Daftar Program', 'daftar-program', 'system', '/donatur/program',       4),
   ('Kontak Kami',    'kontak-kami',    'system', '/donatur/kontak-kami',   5)
 on conflict (slug) do nothing;
+
+-- Log aktivitas admin (audit): siapa melakukan apa, kapan, dari IP mana.
+create table if not exists audit_log (
+  id      bigserial primary key,
+  at      timestamptz not null default now(),
+  actor   text not null default '',
+  action  text not null,
+  detail  text not null default '',
+  ip      text not null default ''
+);
+create index if not exists audit_log_at_idx on audit_log (at desc);

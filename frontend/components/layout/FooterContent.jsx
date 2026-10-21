@@ -107,12 +107,12 @@ export default function FooterContent() {
   const noNav = editing ? (e) => e.preventDefault() : undefined
 
   return (
-    <footer className="relative bg-navy-dark pt-4 text-white/70">
+    <footer className="relative bg-navy-dark pt-3 text-white/70 leading-snug">
       {/* Garis tipis di atas footer: gradasi transparan → emas → transparan */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
 
       <div className="container">
-        <div className="grid grid-cols-[1.4fr_1fr_1fr_1.3fr] gap-5 pb-4 max-[768px]:grid-cols-2 max-[768px]:gap-5 max-[480px]:grid-cols-1">
+        <div className="grid grid-cols-[1.4fr_1fr_1fr_1.3fr] gap-4 pb-3 max-[768px]:grid-cols-2 max-[768px]:gap-5 max-[480px]:grid-cols-1">
           {/* Logo & deskripsi brand */}
           <div className="max-[768px]:col-span-full">
             <div className="mb-1.5">
@@ -162,7 +162,7 @@ export default function FooterContent() {
           {/* Link navigasi */}
           <div>
             <h2 className={H2}>{T('judul.navigasi', 'Navigasi', 'judul kolom Navigasi')}</h2>
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {NAV.map(([k, label, href]) => (
                 <li key={k}>
                   <Link href={href} onClick={noNav} className={LINK}>
@@ -176,7 +176,7 @@ export default function FooterContent() {
           {/* Daftar layanan */}
           <div>
             <h2 className={H2}>{T('judul.layanan', 'Layanan', 'judul kolom Layanan')}</h2>
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {LAYANAN.map(([k, label]) => (
                 <li key={k}>
                   <a href="#" onClick={noNav} className={LINK}>
@@ -190,7 +190,7 @@ export default function FooterContent() {
           {/* Info kontak */}
           <div>
             <h2 className={H2}>{T('judul.kontak', 'Kontak', 'judul kolom Kontak')}</h2>
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {CONTACTS.map(([k, text, d]) => (
                 <li key={k} className="flex items-start gap-2.5">
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-primary-light">
@@ -208,7 +208,7 @@ export default function FooterContent() {
         </div>
 
         {/* Baris paling bawah */}
-        <div className="flex flex-col items-center gap-1 border-t border-white/[0.08] py-2 text-[11px] text-white/60 sm:flex-row sm:justify-between">
+        <div className="flex flex-col items-center gap-1 border-t border-white/[0.08] py-1.5 text-[11px] text-white/60 sm:flex-row sm:justify-between">
           <p>{T('hak-cipta', `© ${year} Lazis PLN Batam.`, 'hak cipta')}</p>
           <a
             href="#top"

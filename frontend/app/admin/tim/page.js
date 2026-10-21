@@ -51,7 +51,7 @@ export default function AdminTimPage() {
     setImgBusy(true)
     setImgError('')
     try {
-      const url = await uploadImage(file, { maxDim: 600, quality: 0.82 })
+      const url = await uploadImage(file, { maxDim: 600, quality: 0.82, watermark: false })
       setForm((f) => ({ ...f, photo: url }))
     } catch (err) {
       setImgError(err.message || 'Gagal mengunggah gambar')

@@ -1,3 +1,4 @@
+const { youtubeWatchUrl } = require('../lib/youtube')
 const DocVideo = require('../models/DocVideo')
 const DocPhoto = require('../models/DocPhoto')
 
@@ -16,10 +17,12 @@ async function createVideo(req, res, next) {
     const title = String(b.title || '').trim()
     const videoUrl = String(b.videoUrl || '').trim()
     if (!title || !videoUrl) return res.status(400).json({ error: 'Judul & link video wajib diisi' })
+    const watchUrl = youtubeWatchUrl(videoUrl)
+    if (!watchUrl) return res.status(400).json({ error: 'Link video harus berupa link YouTube yang valid' })
     res.status(201).json(
       await DocVideo.create({
         title,
-        videoUrl,
+        videoUrl: watchUrl,
         image: b.image ? String(b.image).trim() : null,
         badge: b.badge ? String(b.badge).trim() : null,
         desc: b.desc ? String(b.desc).trim() : null,
@@ -42,6 +45,11 @@ async function updateVideo(req, res, next) {
       if (b[k] != null) patch[k] = String(b[k])
     }
     if (b.active != null) patch.active = !!b.active
+    if (patch.videoUrl !== undefined && patch.videoUrl.trim() !== '') {
+      const watchUrl = youtubeWatchUrl(patch.videoUrl)
+      if (!watchUrl) return res.status(400).json({ error: 'Link video harus berupa link YouTube yang valid' })
+      patch.videoUrl = watchUrl
+    }
     const row = await DocVideo.update(id, patch)
     if (!row) return res.status(404).json({ error: 'Video tidak ditemukan' })
     res.json(row)

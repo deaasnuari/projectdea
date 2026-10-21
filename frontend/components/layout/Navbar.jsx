@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { usePublicMenus } from '@/services/menus'
@@ -67,18 +67,13 @@ export default function Navbar({ solid = false }) {
   const pathname = usePathname()
   const { menus } = usePublicMenus()
   const [isScrolled, setIsScrolled] = useState(false)
-  const [hidden, setHidden] = useState(false)
   const [openId, setOpenId] = useState(null) // dropdown yang sedang dibuka (klik caret)
   const [mobileOpen, setMobileOpen] = useState(false) // panel menu HP (tombol ☰)
-  const lastScrollY = useRef(0)
 
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY
-      setIsScrolled(currentY > 50)
-      //ini untuk menyembunyikan navbar ketika scroll ke bawah dan menampilkan ketika scroll ke atas
-      setHidden(currentY > lastScrollY.current && currentY > 24)
-      lastScrollY.current = currentY
+      setIsScrolled(currentY > 24)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -106,8 +101,6 @@ export default function Navbar({ solid = false }) {
   }, [mobileOpen])
 
   const showSolid = isScrolled || solid || mobileOpen
-  // Selama panel menu HP terbuka, navbar jangan ikut tersembunyi saat scroll.
-  const isHidden = hidden && !mobileOpen
   const isActive = (href) => {
     const p = pathOf(href)
     return p && p !== '/donatur' && p !== '/' && pathname === p
@@ -116,20 +109,22 @@ export default function Navbar({ solid = false }) {
   const linkClass = (active) => `nav-top relative ${active ? 'navbar-link-active' : 'navbar-link'}`
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-5">
-      {/* Bar navbar ini sengaja tidak menempel di tepi layar (bukan
-          full-width) — dibuat seperti pil yang mengambang, tampil samar di
-          atas gambar hero seolah objek yang diletakkan di halaman, lalu
-          jadi solid begitu ada background polos di belakangnya. */}
+    <header
+      className={`fixed inset-x-0 top-0 z-[1000] px-4 transition-[padding,background-color,box-shadow,backdrop-filter] duration-500 ease-out md:px-6 ${
+        showSolid
+          ? 'bg-navy-dark pb-3 pt-3 shadow-[0_4px_18px_rgba(0,0,0,0.28)] backdrop-blur-md'
+          : 'bg-navy-dark/0 pt-4 shadow-none md:pt-5'
+      }`}
+    >
+      {/* Di paling atas (di atas gambar hero): kapsul kaca yang mengambang.
+          Begitu halaman di-scroll: header jadi bar SOLID selebar layar,
+          supaya teks/gambar konten tidak terlihat menembus dari belakang
+          navbar — isinya (logo + menu) tetap di posisi yang sama. */}
       <div
-        className={`relative z-[1001] mx-auto flex max-w-[1080px] items-center gap-1.5 rounded-full border px-2.5 py-2 transition-all duration-300 sm:gap-2 sm:px-4 sm:py-2.5 md:px-6 ${
+        className={`relative z-[1001] mx-auto flex max-w-[1080px] items-center gap-1.5 rounded-full border px-2.5 transition-all duration-500 ease-out sm:gap-2 sm:px-4 md:px-6 ${
           showSolid
-            ? 'border-white/10 bg-navy-dark/90 shadow-[0_12px_32px_rgba(0,0,0,0.35)] backdrop-blur-md'
-            : 'border-white/15 bg-navy-dark/25 shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-sm'
-        } ${
-          isHidden
-            ? '-translate-y-[calc(100%+2rem)] opacity-0 pointer-events-none'
-            : 'translate-y-0 opacity-100'
+            ? 'border-transparent bg-transparent py-1 sm:py-1'
+            : 'border-white/15 bg-navy-dark/25 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-sm sm:py-2.5'
         }`}
       >
         {/* Logo situs */}
@@ -143,7 +138,7 @@ export default function Navbar({ solid = false }) {
             width="360"
             height="129"
             decoding="async"
-            className="h-6 w-auto md:h-8"
+            className={`w-auto transition-all duration-300 ${showSolid ? 'h-6 md:h-8' : 'h-6 md:h-8'}`}
           />
         </Link>
 
@@ -155,7 +150,9 @@ export default function Navbar({ solid = false }) {
           aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav-panel"
-          className="ml-auto flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 active:bg-white/25 sm:hidden"
+          className={`ml-auto flex h-9 w-9 items-center justify-center rounded-full border text-white transition-all duration-200 active:scale-95 sm:hidden ${
+            mobileOpen ? 'border-gold/50 bg-white/20 text-gold' : 'border-white/15 bg-white/10 hover:bg-white/20'
+          }`}
         >
           <MenuIcon open={mobileOpen} />
         </button>
@@ -203,7 +200,7 @@ export default function Navbar({ solid = false }) {
                 {/* Panel dropdown — muncul saat hover (CSS) atau saat caret
                     diklik (state). */}
                 <div
-                  className={`absolute left-1/2 top-[calc(100%+10px)] z-[1002] min-w-[180px] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-white/10 bg-navy-dark/95 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-md hidden sm:group-hover/nav:flex ${
+                  className={`absolute left-1/2 top-[calc(100%+10px)] z-[1002] min-w-[180px] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-white/10 bg-navy-dark p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-md hidden sm:group-hover/nav:flex ${
                     open ? 'sm:flex' : ''
                   }`}
                 >
@@ -212,10 +209,10 @@ export default function Navbar({ solid = false }) {
                       key={k.id}
                       href={k.href}
                       {...(k.openNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className={`rounded-lg px-3 py-2 text-xs font-semibold ${
+                      className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-150 hover:translate-x-0.5 ${
                         isActive(k.href)
                           ? 'bg-white/10 text-gold'
-                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                          : 'text-white/80 hover:bg-white/10 hover:text-gold'
                       }`}
                     >
                       {k.name}
@@ -240,7 +237,7 @@ export default function Navbar({ solid = false }) {
       )}
       <div
         id="mobile-nav-panel"
-        className={`relative z-[1001] mx-auto mt-2 max-w-[1080px] origin-top overflow-hidden rounded-2xl border border-white/10 bg-navy-dark/95 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 sm:hidden ${
+        className={`absolute inset-x-4 top-full z-[1001] mt-2 origin-top overflow-hidden rounded-2xl border border-white/10 bg-navy-dark p-2 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 sm:hidden ${
           mobileOpen
             ? 'translate-y-0 scale-100 opacity-100'
             : 'pointer-events-none invisible -translate-y-2 scale-[0.98] opacity-0'

@@ -17,10 +17,28 @@ const contactPageRoutes = require('./contactPage.routes')
 const contactMessageRoutes = require('./contactMessages.routes')
 const textElementRoutes = require('./textElements.routes')
 const menuRoutes = require('./menus.routes')
+const securityRoutes = require('./security.routes')
+const { createChallenge } = require('../lib/captcha')
+const { rateLimit, formatWait } = require('../middleware/rateLimit')
 
 const router = Router()
 
 router.get('/health', healthController.check)
+
+// Soal CAPTCHA untuk form publik (donasi & kontak). Dibatasi per IP supaya
+// tidak bisa dipakai untuk menguras server.
+router.get(
+  '/captcha',
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: (s) => `Terlalu sering meminta soal verifikasi. Coba lagi dalam ${formatWait(s)}.`,
+  }),
+  (_req, res) => {
+    res.set('Cache-Control', 'no-store')
+    res.json(createChallenge())
+  },
+)
 
 // Thumbnail YouTube lewat server sendiri — browser pengunjung tidak perlu
 // menghubungi google/youtube (menghindari cookie pihak ketiga). Di-cache di memori.
@@ -44,6 +62,7 @@ router.get('/yt-thumb/:id', async (req, res) => {
   }
 })
 router.use('/auth', authRoutes)
+router.use('/security', securityRoutes)
 router.use('/content', contentRoutes)
 router.use('/donations', donationRoutes)
 router.use('/blog', blogRoutes)

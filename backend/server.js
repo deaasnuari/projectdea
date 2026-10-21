@@ -5,7 +5,7 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const apiRoutes = require('./src/routes')
-const { securityHeaders, originGuard } = require('./src/middleware/security')
+const { securityHeaders, originGuard, auditAdmin } = require('./src/middleware/security')
 const { rateLimit, formatWait } = require('./src/middleware/rateLimit')
 
 const PORT = process.env.PORT || 3001
@@ -48,6 +48,12 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
+// Peringatan dini: kredensial bawaan masih dipakai (di produksi malah ditolak
+// di atas). Ganti ADMIN_PASSWORD di .env.
+if (process.env.NODE_ENV !== 'production' && (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'admin123')) {
+  console.warn('⚠️  KEAMANAN: ADMIN_PASSWORD masih "admin123" (bawaan). Ganti di backend/.env sebelum dipakai nyata.')
+}
+
 const app = express()
 
 // Di belakang proxy/hosting (Nginx, dsb.) set TRUST_PROXY=1 supaya req.ip =
@@ -58,7 +64,11 @@ app.use(securityHeaders)
 
 app.use(cors({ origin: corsOrigin, credentials: true }))
 app.use(originGuard(isAllowedOrigin))
-app.use(express.json({ limit: '15mb' })) // upload gambar / bukti transfer dikirim sebagai data URL
+// Batas ukuran body JSON: hanya upload gambar & bukti transfer (dikirim sebagai
+// data URL) yang boleh besar. Selebihnya 1 MB — mencegah request raksasa
+// menghabiskan memori server. (Parser pertama yang cocok yang dipakai.)
+app.use(['/api/uploads', '/api/donations'], express.json({ limit: '15mb' }))
+app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
 
 // File gambar hasil upload admin (folder ./uploads, di-gitignore).
@@ -87,6 +97,7 @@ app.use(
     message: (s) => `Terlalu banyak permintaan. Coba lagi dalam ${formatWait(s)}.`,
   }),
 )
+app.use('/api', auditAdmin) // catat aksi admin yang mengubah data
 app.use('/api', apiRoutes)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }))

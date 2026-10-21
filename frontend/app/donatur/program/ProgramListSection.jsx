@@ -1,5 +1,6 @@
 'use client'
 
+import CardCarousel, { CAROUSEL_ITEM } from '@/components/ui/CardCarousel'
 import { useState } from 'react'
 import Link from 'next/link'
 import DonationModal from '@/components/donation/DonationModal'
@@ -97,7 +98,7 @@ export default function ProgramListSection() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <CardCarousel>
             {shown.map((p) => {
               const percent = p.target > 0 ? Math.round((p.collected / p.target) * 100) : 0
               const reached = p.target > 0 && p.collected >= p.target
@@ -106,7 +107,7 @@ export default function ProgramListSection() {
               return (
                 <article
                   key={p.id}
-                  className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_10px_rgba(6,30,40,0.06)] ring-1 ring-black/[0.05] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-20px_rgba(6,30,40,0.35)]"
+                  className={`group flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_10px_rgba(6,30,40,0.06)] ring-1 ring-black/[0.05] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-20px_rgba(6,30,40,0.35)] ${CAROUSEL_ITEM}`}
                 >
                   {/* Media — kompak (16:10). Pakai gambar kalau ada, kalau
                       tidak: badge ikon di atas blok warna bertekstur. */}
@@ -227,7 +228,7 @@ export default function ProgramListSection() {
                 </article>
               )
             })}
-          </div>
+          </CardCarousel>
         </div>
       </PageHeroBackground>
 

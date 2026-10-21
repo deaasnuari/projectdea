@@ -1,4 +1,5 @@
 const { query } = require('../config/db')
+const { cleanHtml, cleanDeep } = require('../lib/sanitizeHtml')
 
 function toApi(row) {
   if (!row) return null
@@ -6,8 +7,9 @@ function toApi(row) {
     menuId: Number(row.menu_id),
     title: row.title || '',
     heroImage: row.hero_image || '',
-    bodyHtml: row.body_html || '',
-    data: row.data && typeof row.data === 'object' ? row.data : {},
+    // Dibersihkan juga saat dibaca: data lama (sebelum ada pembersih) ikut aman.
+    bodyHtml: cleanHtml(row.body_html || ''),
+    data: row.data && typeof row.data === 'object' ? cleanDeep(row.data) : {},
     status: row.status === 'published' ? 'published' : 'draft',
     updated_at: row.updated_at,
   }
@@ -25,8 +27,8 @@ async function upsert(menuId, d = {}) {
   const val = (v, fallback) => (v === undefined ? fallback : v)
   const title = val(d.title != null ? String(d.title) : undefined, cur?.title ?? '')
   const heroImage = val(d.heroImage != null ? String(d.heroImage) : undefined, cur?.heroImage ?? '')
-  const bodyHtml = val(d.bodyHtml != null ? String(d.bodyHtml) : undefined, cur?.bodyHtml ?? '')
-  const data = d.data && typeof d.data === 'object' ? d.data : cur?.data ?? {}
+  const bodyHtml = cleanHtml(val(d.bodyHtml != null ? String(d.bodyHtml) : undefined, cur?.bodyHtml ?? ''))
+  const data = cleanDeep(d.data && typeof d.data === 'object' ? d.data : cur?.data ?? {})
   const status =
     d.status === 'published' ? 'published' : d.status === 'draft' ? 'draft' : cur?.status ?? 'draft'
 

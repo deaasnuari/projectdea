@@ -10,7 +10,9 @@ export async function uploadImage(file, opts) {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ dataUrl }),
+    // Backend memasang watermark logo di file; { watermark: false } untuk mematikannya
+    // (foto profil, gambar latar situs).
+    body: JSON.stringify({ dataUrl, watermark: opts?.watermark !== false }),
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))

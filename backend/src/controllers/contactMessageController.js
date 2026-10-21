@@ -1,5 +1,6 @@
 const ContactMessage = require('../models/ContactMessage')
 const { sendMail } = require('../lib/mailer')
+const { line, text, isEmail, isPhone } = require('../lib/validate')
 
 const escapeHtml = (v) =>
   String(v).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch])
@@ -49,14 +50,20 @@ ${message}`
 async function create(req, res, next) {
   try {
     const b = req.body || {}
-    const name = String(b.name || '').trim()
-    const email = String(b.email || '').trim()
-    const phone = String(b.phone || '').trim()
-    const message = String(b.message || '').trim()
+    // Satu baris tanpa karakter kontrol (CR/LF di nama/email bisa dipakai untuk
+    // menyisipkan header email), panjang dibatasi, dan format dicek.
+    const name = line(b.name, 100)
+    const email = line(b.email, 200)
+    const phone = line(b.phone, 20)
+    const message = text(b.message, 5000)
     if (!name || !email || !phone || !message) {
       return res.status(400).json({ error: 'Nama, email, no. HP, dan pesan wajib diisi' })
     }
-    if (message.length > 5000) return res.status(400).json({ error: 'Pesan terlalu panjang' })
+    if (!isEmail(email)) return res.status(400).json({ error: 'Format email tidak valid' })
+    if (!isPhone(phone)) return res.status(400).json({ error: 'Format no. HP tidak valid' })
+    if (typeof b.message === 'string' && b.message.trim().length > 5000) {
+      return res.status(400).json({ error: 'Pesan terlalu panjang' })
+    }
     // Wajib menyetujui pelindungan data pribadi (UU No. 27 Tahun 2022) dulu.
     if (b.consent !== true) {
       return res.status(400).json({ error: 'Persetujuan pelindungan data pribadi wajib diberikan' })

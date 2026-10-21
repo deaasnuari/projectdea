@@ -2,6 +2,7 @@ const { Router } = require('express')
 const c = require('../controllers/contactMessageController')
 const requireAdmin = require('../middleware/requireAdmin')
 const { rateLimit, formatWait } = require('../middleware/rateLimit')
+const { requireCaptcha } = require('../lib/captcha')
 
 const router = Router()
 
@@ -18,7 +19,7 @@ const perJam = rateLimit({
   message: (s) => `Batas pengiriman pesan tercapai. Coba lagi dalam ${formatWait(s)}.`,
 })
 
-router.post('/', perJam, perMenit, c.create) // publik — kirim pesan dari formulir
+router.post('/', perJam, perMenit, requireCaptcha, c.create) // publik — kirim pesan dari formulir
 router.get('/', requireAdmin, c.list)
 router.get('/stats', requireAdmin, c.stats)
 router.patch('/:id', requireAdmin, c.updateStatus)

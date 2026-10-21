@@ -3,6 +3,7 @@ const donationController = require('../controllers/donationController')
 const requireAdmin = require('../middleware/requireAdmin')
 
 const { rateLimit, formatWait } = require('../middleware/rateLimit')
+const { requireCaptcha } = require('../lib/captcha')
 
 const router = Router()
 
@@ -18,7 +19,7 @@ const donasiJam = rateLimit({
   message: (s) => `Batas pengiriman donasi tercapai. Coba lagi dalam ${formatWait(s)}.`,
 })
 
-router.post('/', donasiJam, donasiMenit, donationController.create) // publik — kirim donasi
+router.post('/', donasiJam, donasiMenit, requireCaptcha, donationController.create) // publik — kirim donasi
 router.get('/', requireAdmin, donationController.list)
 router.get('/stats', requireAdmin, donationController.stats)
 router.get('/jenis-options', requireAdmin, donationController.jenisOptions)

@@ -18,6 +18,23 @@ harus diatur saat deploy ke produksi.
 | 8 | Pesan error server membocorkan detail internal | Rendah | Diperbaiki |
 | 9 | Kebijakan password lemah (min. 6 karakter) | Rendah | Diperbaiki |
 | 10 | SQL injection | — | Sudah aman sejak awal (query berparameter) |
+| 11 | Sesi tidak bisa dicabut (logout hanya menghapus cookie; token tercuri tetap berlaku 7 hari) | Sedang | Diperbaiki (cabut di server, umur 12 jam) |
+| 12 | Login menerima objek/array (`{"$ne":null}`), tebakan massal ganti-ganti username, bocor lewat waktu respons | Sedang | Diperbaiki |
+| 13 | XSS tersimpan dari isi editor (artikel/halaman menu) | Tinggi | Diperbaiki (pembersih HTML daftar-putih) |
+| 14 | Bukti transfer bisa berisi html/svg & disajikan dengan tipe dari pengguna | Sedang | Diperbaiki (hanya jpeg/png/webp) |
+| 15 | Input publik tanpa batas/format (donasi, kontak; CRLF di email) | Sedang | Diperbaiki |
+| 16 | Body JSON 15 MB untuk semua endpoint | Rendah | Diperbaiki (1 MB; upload & donasi 15 MB) |
+| 17 | Header keamanan frontend (anti-clickjacking, nosniff, CSP ringan) | Sedang | Diperbaiki |
+| 18 | Password admin bawaan & teks "Demo: admin/admin123" di halaman login | Tinggi | Diperbaiki |
+| 19 | Form publik (donasi & kontak) rentan bot/spam otomatis | Sedang | Diperbaiki (CAPTCHA soal hitung buatan sendiri, sekali pakai, tanpa layanan pihak ketiga) |
+| 20 | Tidak ada jejak aktivitas admin | Sedang | Diperbaiki (audit log: login/gagal/logout, ganti password, semua tambah/ubah/hapus data) |
+| 21 | Tidak ada tampilan status keamanan & kontrol sesi | Rendah | Diperbaiki (halaman admin **Keamanan** + "Keluarkan semua sesi lain") |
+| 22 | Gambar tanpa penanda asal; mudah diseret/disimpan lewat klik kanan | Rendah | Diperbaiki (watermark logo di FILE gambar unggahan + blokir seret/klik-kanan di halaman publik — pencegah ringan) |
+| 23 | Kolom link video bisa diisi alamat sembarang (mis. `javascript:`) | Sedang | Diperbaiki (hanya link YouTube, dinormalisasi ke alamat tetap) |
+
+Uji ulang otomatis kapan pun (backend harus sedang jalan): `npm run security:test`
+di folder `backend` — mencoba payload SQL injection, akses tanpa login, cookie
+palsu, CSRF, brute-force, validasi input, dan memeriksa header keamanan.
 
 ## 2. Detail perbaikan
 

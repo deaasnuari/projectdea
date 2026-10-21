@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { loginAdmin, DEMO_ADMIN_CREDENTIALS } from '@/services/adminAuth'
+import { loginAdmin } from '@/services/adminAuth'
 import { forgotPassword, resetPasswordWithCode } from '@/services/adminAccounts'
 import { toast } from '@/components/ui/feedback'
 
@@ -342,10 +342,6 @@ export default function LoginForm() {
       >
         {!hydrated ? 'Memuat…' : loading ? 'Memproses…' : 'Masuk'}
       </button>
-
-      <p className="text-center text-[10px] text-gray-400">
-        Demo: {DEMO_ADMIN_CREDENTIALS.username} / {DEMO_ADMIN_CREDENTIALS.password}
-      </p>
     </form>
   )
 }
