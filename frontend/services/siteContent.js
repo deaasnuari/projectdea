@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { getApiBase } from '@/services/apiBase'
+import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 
 export async function fetchContent(key) {
@@ -67,7 +68,7 @@ export function useSiteContent(key, fallback) {
       const next = typeof updater === 'function' ? updater(ref.current) : updater
       apply(next)
       putContent(key, next)
-        .catch((err) => console.warn(`[${key}] gagal simpan:`, err.message))
+        .catch((err) => devWarn(`[${key}] gagal simpan:`, err.message))
         .finally(() => window.dispatchEvent(new Event(`site-content:${key}`)))
       return next
     },

@@ -7,6 +7,7 @@ import { DEFAULT_TENTANG_CONTENT } from '@/app/donatur/tentang-kami/tentangData'
 // backend. GET publik, PUT butuh sesi admin. Daftar anggota tim TIDAK di
 // sini (tetap lewat services/team.js → tabel team_members).
 import { getApiBase } from '@/services/apiBase'
+import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 const CHANGE_EVENT = 'about-page:changed'
 const CHANGE_KEY = 'lazispln_about_rev'
@@ -86,7 +87,7 @@ export function useTentangContent() {
       apply(next)
       saveAboutPage(next)
         .then(broadcast)
-        .catch((err) => console.warn('[about] gagal simpan:', err.message))
+        .catch((err) => devWarn('[about] gagal simpan:', err.message))
       return next
     },
     [apply],

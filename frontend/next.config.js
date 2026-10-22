@@ -8,6 +8,13 @@ const nextConfig = {
   allowedDevOrigins: ['192.168.*.*', '10.*.*.*', '172.*.*.*'],
   poweredByHeader: false, // jangan umumkan "X-Powered-By: Next.js"
 
+  // Build production: buang SEMUA console.log/warn/info/debug dari kode klien
+  // (keamanan: tidak ada informasi internal yang tampil lewat DevTools).
+  // Dikecualikan hanya console.error (kegagalan penting).
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+  },
+
   // Header keamanan untuk semua halaman. CSP sengaja HANYA berisi arahan yang
   // tidak mengganggu skrip inline Next.js (tanpa script-src): anti-clickjacking
   // (frame-ancestors 'self' — pratinjau admin memakai iframe dari situs sendiri),

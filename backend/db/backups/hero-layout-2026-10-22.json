@@ -1,0 +1,50 @@
+[
+  {
+    "element_key": "kami-peduli.hero.description",
+    "offset_x": null,
+    "offset_y": "-30",
+    "box_width": "100%"
+  },
+  {
+    "element_key": "kami-peduli.hero.feature.program.title",
+    "offset_x": "0.09%",
+    "offset_y": "1",
+    "box_width": null
+  },
+  {
+    "element_key": "kami-peduli.hero.title",
+    "offset_x": null,
+    "offset_y": "-10",
+    "box_width": "96.96%"
+  },
+  {
+    "element_key": "kami-peduli.hero.card.konsultasi",
+    "offset_x": null,
+    "offset_y": "1",
+    "box_width": null
+  },
+  {
+    "element_key": "kami-peduli.hero.feature.kalkulator.title",
+    "offset_x": "-1",
+    "offset_y": "-2",
+    "box_width": null
+  },
+  {
+    "element_key": "kami-peduli.hero.feature.konsultasi.title",
+    "offset_x": "-0.1%",
+    "offset_y": "-1",
+    "box_width": null
+  },
+  {
+    "element_key": "kami-peduli.hero.highlight",
+    "offset_x": "0.43%",
+    "offset_y": "-13",
+    "box_width": "27.17%"
+  },
+  {
+    "element_key": "kami-peduli.hero.badge",
+    "offset_x": null,
+    "offset_y": "-10",
+    "box_width": null
+  }
+]

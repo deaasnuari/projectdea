@@ -58,7 +58,7 @@ export default function KonsultasiSection() {
   const toggle = (i) => setOpenIndex((prev) => (prev === i ? -1 : i))
 
   return (
-    <section id="konsultasi" className="bg-white py-14">
+    <section id="konsultasi" className="bg-white py-8 max-[600px]:py-6">
       <div className="container grid grid-cols-[0.85fr_1.15fr] gap-12 max-[900px]:grid-cols-1">
         <div>
           <EditableRichText

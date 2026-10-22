@@ -278,6 +278,7 @@ export default function AdminDaftarAkunPage() {
                     <div className="relative min-w-[180px] flex-1">
                       <input
                         type={resetShow ? 'text' : 'password'}
+                        autoComplete="new-password"
                         autoFocus
                         minLength={8}
                         placeholder="Password baru (min. 8 karakter, huruf + angka)"

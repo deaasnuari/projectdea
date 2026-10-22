@@ -6,6 +6,7 @@ import { getCache, setCache } from '@/services/memoryCache'
 // Klien API "Informasi Donatur" — tabel `donor_info` (satu baris) di backend.
 // GET publik, PUT butuh sesi admin.
 import { getApiBase } from '@/services/apiBase'
+import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 
 // Pilihan sumber angka untuk stat "auto" — nama harus sama dengan
@@ -124,7 +125,7 @@ export function useDonorContent() {
         .then(broadcast)
         .catch((err) => {
           setError(err.message)
-          console.warn('[donor-info] gagal simpan:', err.message)
+          devWarn('[donor-info] gagal simpan:', err.message)
         })
     },
     [apply],

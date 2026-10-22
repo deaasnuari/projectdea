@@ -6,6 +6,7 @@ const { passwordError } = require('../lib/passwordPolicy')
 const { lockRemaining, recordFail, recordSuccess } = require('../middleware/security')
 const { sendMail, isMailConfigured } = require('../lib/mailer')
 const AuditLog = require('../models/AuditLog')
+const log = require('../lib/logger')
 
 const POLICY_MSG = /sudah dipakai|wajib|minimal|maksimal|huruf/i
 const waitText = (sec) => (sec < 60 ? `${sec} detik` : `${Math.ceil(sec / 60)} menit`)
@@ -172,7 +173,7 @@ async function forgotPassword(req, res, next) {
           text: `Kode reset password akun "${username}": ${code}\n\nBerlaku 15 menit. Abaikan email ini jika Anda tidak memintanya.`,
         })
       } catch (e) {
-        console.error('Gagal mengirim kode reset:', e.message)
+        log.error('auth', 'Gagal mengirim email kode reset', e)
       }
     }
     res.json({ ok: true, message: 'Jika akun ditemukan, kode reset dikirim ke email akun tersebut.' })

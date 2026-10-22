@@ -1,4 +1,5 @@
 const { query } = require('../config/db')
+const log = require('../lib/logger')
 
 // Tabel dibuat otomatis kalau belum ada (db/schema.sql juga memuatnya), supaya
 // fitur ini jalan tanpa harus menjalankan migrasi manual.
@@ -22,7 +23,7 @@ function record({ actor = '', action, detail = '', ip = '' }) {
         clip(actor, 100), clip(action, 60), clip(detail, 300), clip(ip, 64),
       ]),
     )
-    .catch((e) => console.error('[audit] gagal mencatat:', e.message))
+    .catch((e) => log.error('audit', 'Gagal mencatat audit log', e))
 }
 
 async function list({ limit = 100, action } = {}) {

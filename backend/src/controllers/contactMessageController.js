@@ -1,5 +1,6 @@
 const ContactMessage = require('../models/ContactMessage')
 const { sendMail } = require('../lib/mailer')
+const log = require('../lib/logger')
 const { line, text, isEmail, isPhone } = require('../lib/validate')
 
 const escapeHtml = (v) =>
@@ -41,9 +42,9 @@ Pesan:
 ${message}`
   sendMail({ subject: `Pesan baru dari ${name} — Website LAZIS PLN Batam`, text, html, replyTo: email })
     .then((r) => {
-      if (r?.skipped) console.warn('[mail] SMTP belum diatur di .env — pesan tidak dikirim ke email.')
+      if (r?.skipped) log.warn('mail', 'SMTP belum diatur di .env — pesan tidak dikirim ke email.')
     })
-    .catch((err) => console.error('[mail] Gagal mengirim email pesan kontak:', err.message))
+    .catch((err) => log.error('mail', 'Gagal mengirim email pesan kontak', err))
 }
 
 // POST /api/contact-messages  (publik — dari formulir Kontak Kami)

@@ -2,6 +2,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const crypto = require('node:crypto')
 const { addWatermark } = require('../lib/watermark')
+const log = require('../lib/logger')
 
 // Folder file gambar. Di-gitignore; dilayani statis lewat /uploads di server.js.
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads')
@@ -43,7 +44,7 @@ async function create(req, res, next) {
       try {
         buf = await addWatermark(buf, ext)
       } catch (e) {
-        console.error('[upload] watermark gagal, gambar asli dipakai:', e.message)
+        log.warn('upload', 'Watermark gagal, gambar asli dipakai', e)
       }
     }
 

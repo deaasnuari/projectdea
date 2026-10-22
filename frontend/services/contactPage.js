@@ -6,6 +6,7 @@ import { DEFAULT_KONTAK_CONTENT, uid } from '@/app/donatur/kontak-kami/kontakDat
 // Klien API konten "Kontak Kami" — tabel `contact_page` (satu baris) di
 // backend. GET publik, PUT butuh sesi admin.
 import { getApiBase } from '@/services/apiBase'
+import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 const CHANGE_EVENT = 'contact-page:changed'
 const CHANGE_KEY = 'lazispln_contact_rev'
@@ -86,7 +87,7 @@ export function useKontakContent() {
       apply(next)
       saveContactPage(next)
         .then(broadcast)
-        .catch((err) => console.warn('[contact] gagal simpan:', err.message))
+        .catch((err) => devWarn('[contact] gagal simpan:', err.message))
     },
     [apply],
   )

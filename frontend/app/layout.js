@@ -1,7 +1,6 @@
 import { Inter, Fraunces } from 'next/font/google'
 import './globals.css'
 import FeedbackHost from '@/components/ui/feedback'
-import ConsoleWarning from '@/components/ui/ConsoleWarning'
 import ImageProtection from '@/components/ui/ImageProtection'
 
 const inter = Inter({
@@ -66,7 +65,6 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <FeedbackHost />
-        <ConsoleWarning />
         <ImageProtection />
       </body>
     </html>

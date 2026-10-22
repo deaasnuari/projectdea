@@ -9,6 +9,7 @@ import { DEFAULT_KAMI_PEDULI_CONTENT } from '@/app/donatur/sections/kamiPeduliDa
 // Daftar video & foto galeri TIDAK di sini — sudah lewat services/docMedia.js
 // (tabel doc_videos / doc_photos).
 import { getApiBase } from '@/services/apiBase'
+import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 const CHANGE_EVENT = 'home-page:changed'
 const CHANGE_KEY = 'lazispln_home_rev'
@@ -91,7 +92,7 @@ export function useKamiPeduliContent() {
       apply(next)
       saveHomePage(next)
         .then(broadcast)
-        .catch((err) => console.warn('[home] gagal simpan:', err.message))
+        .catch((err) => devWarn('[home] gagal simpan:', err.message))
       return next
     },
     [apply],

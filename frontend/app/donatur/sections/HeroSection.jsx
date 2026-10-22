@@ -134,7 +134,7 @@ export default function HeroSection() {
             multiline
           />
           <CustomTexts section="hero" tone="dark" className="mb-2" chipAtTop />
-          <div data-flow-split className="mt-2 mb-6 flex flex-wrap gap-4 max-[600px]:mt-0 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
+          <div data-flow-split className="mt-4 mb-6 flex flex-wrap gap-4 max-[600px]:mt-0 max-[600px]:mb-4 max-[600px]:flex-col max-[600px]:gap-2.5">
             <MovableBlock as="a" elementKey="kami-peduli.hero.btn_zakat" section="hero" label="tombol Tunaikan Zakat" href="#zakat-calculator" className="btn btn-gold max-[600px]:py-2.5">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />

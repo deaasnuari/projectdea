@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser')
 const apiRoutes = require('./src/routes')
 const { securityHeaders, originGuard, auditAdmin } = require('./src/middleware/security')
 const { rateLimit, formatWait } = require('./src/middleware/rateLimit')
+const log = require('./src/lib/logger')
 
 const PORT = process.env.PORT || 3001
 
@@ -43,7 +44,7 @@ if (process.env.NODE_ENV === 'production') {
     problems.push('ADMIN_PASSWORD wajib diganti (jangan "admin123")')
   }
   if (problems.length) {
-    console.error(`Konfigurasi tidak aman untuk produksi:\n - ${problems.join('\n - ')}`)
+    log.error('keamanan', `Konfigurasi tidak aman untuk produksi: ${problems.join('; ')}`)
     process.exit(1)
   }
 }
@@ -51,7 +52,7 @@ if (process.env.NODE_ENV === 'production') {
 // Peringatan dini: kredensial bawaan masih dipakai (di produksi malah ditolak
 // di atas). Ganti ADMIN_PASSWORD di .env.
 if (process.env.NODE_ENV !== 'production' && (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'admin123')) {
-  console.warn('⚠️  KEAMANAN: ADMIN_PASSWORD masih "admin123" (bawaan). Ganti di backend/.env sebelum dipakai nyata.')
+  log.warn('keamanan', 'ADMIN_PASSWORD masih nilai bawaan. Ganti di backend/.env sebelum dipakai nyata.')
 }
 
 const app = express()
@@ -102,16 +103,23 @@ app.use('/api', apiRoutes)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
 
-// Error handler terakhir
-app.use((err, _req, res, _next) => {
-  console.error(err)
+// Error handler terakhir. Pengguna HANYA menerima pesan umum — rincian
+// (pesan, kode, baris stack; tanpa body/SQL/parameter, dan sudah disamarkan)
+// dicatat di log server saja.
+app.use((err, req, res, _next) => {
   // JSON rusak / terlalu besar dari klien → 400/413, bukan 500.
   if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'JSON tidak valid' })
   if (err.type === 'entity.too.large') return res.status(413).json({ error: 'Data terlalu besar' })
-  // Detail error internal hanya ditampilkan saat pengembangan.
-  const body = { error: 'Kesalahan server' }
-  if (process.env.NODE_ENV !== 'production') body.detail = err.message
-  res.status(500).json(body)
+  if (err instanceof URIError) return res.status(400).json({ error: 'Alamat tidak valid' }) // mis. %E0%A4%A rusak
+  log.error('api', `${req.method} ${String(req.originalUrl || '').split('?')[0]} gagal`, err)
+  res.status(500).json({ error: 'Terjadi kesalahan pada server. Silakan coba lagi.' })
 })
 
-app.listen(PORT, () => console.log(`API jalan di http://localhost:${PORT}`))
+// Kesalahan yang lolos dari semua penanganan: catat (tersamarkan), jangan bocor.
+process.on('unhandledRejection', (reason) => log.error('proses', 'Promise ditolak tanpa penanganan', reason instanceof Error ? reason : new Error(String(reason))))
+process.on('uncaughtException', (err) => {
+  log.error('proses', 'Exception tidak tertangani', err)
+  process.exit(1)
+})
+
+app.listen(PORT, () => log.info('server', `API jalan di http://localhost:${PORT}`))
