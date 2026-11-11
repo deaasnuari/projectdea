@@ -3,18 +3,13 @@
 import { useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Underline from '@tiptap/extension-underline'
-import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import TextAlign from '@tiptap/extension-text-align'
-import TextStyle from '@tiptap/extension-text-style'
-import Color from '@tiptap/extension-color'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
 import { Extension } from '@tiptap/core'
-import FontFamily from '@tiptap/extension-font-family'
-import Table from '@tiptap/extension-table'
-import TableRow from '@tiptap/extension-table-row'
-import TableHeader from '@tiptap/extension-table-header'
-import TableCell from '@tiptap/extension-table-cell'
+import { FontFamily } from '@tiptap/extension-font-family'
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table'
 import { uploadImage } from '@/services/imageFile'
 import { toast } from '@/components/ui/feedback'
 
@@ -86,13 +81,14 @@ export default function RichTextEditor({ value = '', onChange }) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3, 4] } }),
-      Underline,
+      StarterKit.configure({
+        heading: { levels: [2, 3, 4] },
+        link: { openOnClick: false, autolink: true },
+      }),
       TextStyle,
       Color,
       FontFamily,
       FontSize,
-      Link.configure({ openOnClick: false, autolink: true }),
       Image.configure({ inline: false }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Table.configure({ resizable: true }),
@@ -113,7 +109,7 @@ export default function RichTextEditor({ value = '', onChange }) {
   useEffect(() => {
     if (!editor) return
     const cur = editor.getHTML()
-    if (value && value !== cur) editor.commands.setContent(value, false)
+    if (value && value !== cur) editor.commands.setContent(value, { emitUpdate: false })
   }, [value, editor])
 
   if (!editor) {

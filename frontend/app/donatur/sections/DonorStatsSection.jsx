@@ -3,6 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useDonorContent } from './donorData'
 
+// Jumlah kolom mengikuti jumlah kartu (maks 4 per baris) supaya selalu
+// memenuhi lebar dan rapi. Kelas ditulis utuh agar terbaca oleh Tailwind.
+const GRID_BY_COUNT = {
+  1: 'sm:max-w-xs sm:grid-cols-1',
+  2: 'sm:max-w-2xl sm:grid-cols-2',
+  3: 'sm:max-w-3xl sm:grid-cols-3',
+  4: 'sm:max-w-4xl sm:grid-cols-4',
+}
+
 export default function DonorStatsSection() {
   const { content } = useDonorContent()
   const [displays, setDisplays] = useState(() => content.stats.map(() => 0))
@@ -60,9 +69,9 @@ export default function DonorStatsSection() {
             labelnya, berapa pun panjang teks label (label panjang seperti
             "Donatur Orang Tua Asuh" tidak lagi menggeser angka). 2 kolom di
             HP, 4 kolom mulai tablet. */}
-        <div className="mx-auto grid max-w-md grid-cols-2 gap-3 sm:max-w-4xl sm:grid-cols-4 sm:gap-4">
+        <div className={`mx-auto grid max-w-md grid-cols-2 gap-3 sm:gap-4 ${GRID_BY_COUNT[Math.min(content.stats.length, 4)] || GRID_BY_COUNT[4]}`}>
           {content.stats.map((stat, i) => (
-            <div key={stat.label || i} className="flex flex-col items-center rounded-xl border border-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
+            <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1border border-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
               <span className="block font-heading text-3xl font-extrabold leading-tight text-gold sm:text-4xl">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
               </span>

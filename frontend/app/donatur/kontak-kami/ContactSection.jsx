@@ -217,7 +217,7 @@ export default function ContactSection() {
       return
     }
     if (!captcha.captchaAnswer) {
-      setSendError('Jawab soal verifikasi dulu.')
+      setSendError('Ketik 4 huruf pada gambar verifikasi dulu.')
       return
     }
     setSending(true)

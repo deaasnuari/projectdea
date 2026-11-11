@@ -6,6 +6,29 @@ import { getApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
 const HINT_KEY = 'lazispln_admin_hint'
 
+// Tanda "login di TAB ini" — hanya diisi saat form login berhasil dan hilang
+// saat tab ditutup. Cookie sesi berlaku di seluruh browser, jadi tanpa tanda
+// ini URL admin yang ditempel di tab baru langsung terbuka tanpa login.
+const TAB_KEY = 'lazispln_admin_tab'
+
+function setTabLogin(ok) {
+  try {
+    if (ok) sessionStorage.setItem(TAB_KEY, '1')
+    else sessionStorage.removeItem(TAB_KEY)
+  } catch {
+    // sessionStorage tidak tersedia — abaikan
+  }
+}
+
+export function hasTabLogin() {
+  if (typeof window === 'undefined') return false
+  try {
+    return sessionStorage.getItem(TAB_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
 function setHint(ok) {
   try {
     if (ok) sessionStorage.setItem(HINT_KEY, '1')
@@ -26,6 +49,7 @@ export async function loginAdmin(username, password) {
       body: JSON.stringify({ username, password }),
     })
     setHint(res.ok)
+    setTabLogin(res.ok)
     if (res.ok) return { ok: true, error: '' }
     const data = await res.json().catch(() => ({}))
     return { ok: false, error: data.error || `Login gagal (${res.status})` }
@@ -42,6 +66,7 @@ export async function logoutAdmin() {
     // abaikan — hint tetap dibersihkan
   }
   setHint(false)
+  setTabLogin(false)
 }
 
 // Mengembalikan true (login), false (belum login), atau null (gagal

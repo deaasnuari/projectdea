@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { checkAdminSessionState, isAdminLoggedIn } from '@/services/adminAuth'
+import { checkAdminSessionState, hasTabLogin, isAdminLoggedIn } from '@/services/adminAuth'
 import { toast } from '@/components/ui/feedback'
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -15,6 +15,16 @@ export default function AdminAuthGate({ children }) {
 
   useEffect(() => {
     let alive = true
+
+    // Tab ini belum login lewat form (mis. URL admin ditempel di tab baru):
+    // wajib login dulu, walau cookie sesi dari tab lain masih berlaku.
+    if (!hasTabLogin()) {
+      setStatus('denied')
+      toast('Kamu harus login dulu untuk membuka halaman admin.', { tone: 'info' })
+      router.replace('/login')
+      return undefined
+    }
+
     const hadHint = isAdminLoggedIn()
 
     // Petunjuk sinkron: kalau sebelumnya sudah login, tampilkan langsung
@@ -49,9 +59,7 @@ export default function AdminAuthGate({ children }) {
   }, [router])
 
   if (status === 'allowed') return children
-
-  // Selagi memeriksa / sudah ditolak — tampilkan layar tunggu ringkas
-  // (bukan layar putih kosong).
+// Kalau status 'checking' atau 'denied', tampilkan spinner dan teks.
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="flex flex-col items-center gap-3 text-gray-500">

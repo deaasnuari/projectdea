@@ -291,7 +291,7 @@ export default function DonationModal({
   const handleConfirm = async () => {
     if (submitting) return
     if (!captcha.captchaAnswer) {
-      setSubmitError('Jawab soal verifikasi dulu.')
+      setSubmitError('Ketik 4 huruf pada gambar verifikasi dulu.')
       return
     }
     setSubmitting(true)

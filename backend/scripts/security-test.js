@@ -13,14 +13,18 @@ const ok = (name, cond, extra = '') => {
 }
 const call = (path, opts = {}) =>
   fetch(BASE + path, { ...opts, headers: { Origin: ORIGIN, 'Content-Type': 'application/json', ...(opts.headers || {}) } })
-// Ambil soal CAPTCHA lalu jawab benar (untuk menguji validasi input form publik).
+// Ambil CAPTCHA lalu jawab benar (untuk menguji validasi input form publik).
+// Jawaban hanya ada di dalam gambar, jadi skrip ini butuh backend dijalankan dengan
+// CAPTCHA_DEBUG=1 (hanya aktif di luar production) agar respons memuat `debugAnswer`.
+let warnedCaptcha = false
 async function captcha(wrong = false) {
   const c = await (await call('/api/captcha')).json()
-  const m = /(\d+) ([+\u2212\u00d7]) (\d+)/.exec(c.question)
-  const x = Number(m[1])
-  const y = Number(m[3])
-  const ans = m[2] === '+' ? x + y : m[2] === '\u2212' ? x - y : x * y
-  return { captchaToken: c.token, captchaAnswer: String(wrong ? ans + 1 : ans) }
+  if (!c.debugAnswer && !warnedCaptcha) {
+    warnedCaptcha = true
+    console.log('! CAPTCHA berupa gambar: jalankan backend dengan CAPTCHA_DEBUG=1 agar tes validasi form bisa memakai jawaban benar.')
+  }
+  const ans = c.debugAnswer || 'ABCD'
+  return { captchaToken: c.token, captchaAnswer: wrong ? (ans[0] === 'A' ? 'B' : 'A') + ans.slice(1) : ans }
 }
 const login = (body) => call('/api/auth/login', { method: 'POST', body: JSON.stringify(body) })
 

@@ -15,7 +15,7 @@ router.use((_req, res, next) => {
 // dengan mengganti-ganti username, di atas kunci per IP+username di controller.
 const loginLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 40,
   message: (s) => `Terlalu banyak percobaan login. Coba lagi dalam ${formatWait(s)}.`,
 })
 

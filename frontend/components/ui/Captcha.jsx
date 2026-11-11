@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getApiBase } from '@/services/apiBase'
 
-// Verifikasi "bukan robot" untuk form publik: soal hitung sederhana dari
-// backend sendiri (tanpa layanan pihak ketiga). Setiap token hanya sekali
-// pakai — ubah `resetKey` (mis. naikkan angkanya) setelah form dikirim,
-// berhasil maupun gagal, supaya soal baru dimuat.
+// Verifikasi "bukan robot" untuk form publik: gambar 4 huruf acak dari
+// backend sendiri (tanpa layanan pihak ketiga); pengunjung mengetik hurufnya.
+// Setiap token hanya sekali pakai — ubah `resetKey` (mis. naikkan angkanya) setelah
+// form dikirim, berhasil maupun gagal, supaya gambar baru dimuat.
 //
 // onChange({ captchaToken, captchaAnswer }) dipanggil tiap jawaban berubah.
 export default function Captcha({ onChange, resetKey = 0, className = '' }) {
@@ -36,7 +36,7 @@ export default function Captcha({ onChange, resetKey = 0, className = '' }) {
   }, [resetKey])
 
   const onInput = (v) => {
-    const clean = v.replace(/[^\d-]/g, '').slice(0, 4)
+    const clean = v.replace(/[^a-zA-Z]/g, '').slice(0, 4).toUpperCase()
     setAnswer(clean)
     onChange?.({ captchaToken: challenge?.token || '', captchaAnswer: clean })
   }
@@ -46,28 +46,36 @@ export default function Captcha({ onChange, resetKey = 0, className = '' }) {
       <span className="text-xs font-semibold text-gray-600">Verifikasi:</span>
       {failed ? (
         <button type="button" onClick={load} className="text-xs font-semibold text-primary-dark underline">
-          Gagal memuat soal — coba lagi
+          Gagal memuat gambar — coba lagi
         </button>
       ) : (
         <>
-          <span className="min-w-[72px] rounded-md bg-white px-2.5 py-1 text-center text-sm font-bold tabular-nums text-navy ring-1 ring-gray-200" aria-live="polite">
-            {challenge ? challenge.question : '…'}
+          <span className="flex h-[44px] w-[128px] items-center justify-center overflow-hidden rounded-md bg-white ring-1 ring-gray-200">
+            {challenge ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={challenge.image} alt="Gambar verifikasi: 4 huruf acak" width={128} height={44} draggable={false} />
+            ) : (
+              <span className="text-sm text-gray-400">…</span>
+            )}
           </span>
           <input
             type="text"
-            inputMode="numeric"
+            inputMode="text"
             autoComplete="off"
-            aria-label="Jawaban verifikasi"
-            placeholder="Jawaban"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={4}
+            aria-label="Ketik 4 huruf pada gambar"
+            placeholder="4 huruf"
             value={answer}
             onChange={(e) => onInput(e.target.value)}
-            className="w-20 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-sm font-semibold text-navy outline-none focus:border-primary"
+            className="w-24 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-sm font-semibold uppercase tracking-widest text-navy outline-none focus:border-primary"
           />
           <button
             type="button"
             onClick={load}
-            aria-label="Ganti soal verifikasi"
-            title="Ganti soal"
+            aria-label="Ganti gambar verifikasi"
+            title="Ganti gambar"
             className="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-200 hover:text-navy"
           >
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true">

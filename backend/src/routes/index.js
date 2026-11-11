@@ -32,7 +32,7 @@ router.get(
   rateLimit({
     windowMs: 60 * 1000,
     max: 30,
-    message: (s) => `Terlalu sering meminta soal verifikasi. Coba lagi dalam ${formatWait(s)}.`,
+    message: (s) => `Terlalu sering meminta gambar verifikasi. Coba lagi dalam ${formatWait(s)}.`,
   }),
   (_req, res) => {
     res.set('Cache-Control', 'no-store')
