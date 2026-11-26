@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
+    "test": "node --test tests/*.test.js",
     "security:test": "node scripts/security-test.js",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
@@ -23,5 +24,8 @@
     "pg": "^8.13.1",
     "sanitize-html": "^2.18.1",
     "sharp": "^0.35.5"
+  },
+  "overrides": {
+    "htmlparser2": "9.1.0"
   }
 }
