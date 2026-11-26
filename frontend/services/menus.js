@@ -5,8 +5,9 @@ import { getCache, setCache } from '@/services/memoryCache'
 
 // Klien API "Manajemen Menu / Navbar Dinamis" — tabel `menus` + `menu_pages`.
 // GET publik (navbar), mutasi butuh sesi admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 const CHANGE_EVENT = 'menus:changed'
 const CHANGE_KEY = 'lazispln_menus_rev'
@@ -43,7 +44,7 @@ async function jsonOrThrow(res, label) {
 
 // ---- fetch helpers ----
 export const fetchPublicMenus = () =>
-  fetch(`${BASE}/api/menus`, { cache: 'no-store' }).then((r) => jsonOrThrow(r, 'GET menus')).then((d) => d.data || [])
+  fetch(`${PUBLIC_BASE}/api/menus`, { cache: 'no-store' }).then((r) => jsonOrThrow(r, 'GET menus')).then((d) => d.data || [])
 
 export const fetchAdminMenus = () =>
   fetch(`${BASE}/api/menus/all`, { credentials: 'include', cache: 'no-store' }).then((r) =>

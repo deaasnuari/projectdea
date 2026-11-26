@@ -6,14 +6,15 @@ import { DEFAULT_TENTANG_CONTENT } from '@/app/donatur/tentang-kami/tentangData'
 // Klien API konten "Tentang Kami" — tabel `about_page` (satu baris) di
 // backend. GET publik, PUT butuh sesi admin. Daftar anggota tim TIDAK di
 // sini (tetap lewat services/team.js → tabel team_members).
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 const CHANGE_EVENT = 'about-page:changed'
 const CHANGE_KEY = 'lazispln_about_rev'
 
 export async function fetchAboutPage() {
-  const res = await fetch(`${BASE}/api/about`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/about`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET about → ${res.status}`)
   return res.json()
 }

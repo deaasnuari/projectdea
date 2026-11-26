@@ -4,14 +4,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from '@/components/ui/feedback'
 
 // Pesan dari formulir "Kontak Kami". POST publik; list/ubah/hapus butuh admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 // Selang cek pesan baru (ms) saat admin membuka halaman Pesan Masuk.
 const POLL_MS = 15000
 
 export async function sendContactMessage(payload) {
-  const res = await fetch(`${BASE}/api/contact-messages`, {
+  const res = await fetch(`${PUBLIC_BASE}/api/contact-messages`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

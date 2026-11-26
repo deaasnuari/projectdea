@@ -5,14 +5,15 @@ import { DEFAULT_KONTAK_CONTENT, uid } from '@/app/donatur/kontak-kami/kontakDat
 
 // Klien API konten "Kontak Kami" — tabel `contact_page` (satu baris) di
 // backend. GET publik, PUT butuh sesi admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 const CHANGE_EVENT = 'contact-page:changed'
 const CHANGE_KEY = 'lazispln_contact_rev'
 
 export async function fetchContactPage() {
-  const res = await fetch(`${BASE}/api/contact`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/contact`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET contact → ${res.status}`)
   return res.json()
 }

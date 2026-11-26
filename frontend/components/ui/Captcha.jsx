@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { getApiBase } from '@/services/apiBase'
+import { getPublicApiBase } from '@/services/apiBase'
 
 // Verifikasi "bukan robot" untuk form publik: gambar 4 huruf acak dari
 // backend sendiri (tanpa layanan pihak ketiga); pengunjung mengetik hurufnya.
@@ -19,7 +19,7 @@ export default function Captcha({ onChange, resetKey = 0, className = '' }) {
     setAnswer('')
     setChallenge(null)
     try {
-      const res = await fetch(`${getApiBase()}/api/captcha`, { cache: 'no-store' })
+      const res = await fetch(`${getPublicApiBase()}/api/captcha`, { cache: 'no-store' })
       if (!res.ok) throw new Error('captcha')
       const c = await res.json()
       setChallenge(c)

@@ -7,17 +7,18 @@ import { POSTS } from '@/app/donatur/blog/blogData'
 // Klien API untuk artikel "Blog & Kursus" — tabel khusus `blog_posts` di
 // backend (bukan lagi dokumen JSON di site_content). GET publik, mutasi
 // (POST/PUT/DELETE) butuh sesi admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 export async function fetchPosts() {
-  const res = await fetch(`${BASE}/api/blog`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/blog`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET blog → ${res.status}`)
   return (await res.json()).data
 }
 
 export async function fetchPost(slug) {
-  const res = await fetch(`${BASE}/api/blog/${encodeURIComponent(slug)}`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/blog/${encodeURIComponent(slug)}`, { cache: 'no-store' })
   if (res.status === 404) return null
   if (!res.ok) throw new Error(`GET blog/${slug} → ${res.status}`)
   return res.json()

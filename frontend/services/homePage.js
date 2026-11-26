@@ -8,14 +8,15 @@ import { DEFAULT_KAMI_PEDULI_CONTENT } from '@/app/donatur/sections/kamiPeduliDa
 // baris) di backend. GET publik, PUT butuh sesi admin.
 // Daftar video & foto galeri TIDAK di sini — sudah lewat services/docMedia.js
 // (tabel doc_videos / doc_photos).
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 const CHANGE_EVENT = 'home-page:changed'
 const CHANGE_KEY = 'lazispln_home_rev'
 
 export async function fetchHomePage() {
-  const res = await fetch(`${BASE}/api/home`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/home`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET home → ${res.status}`)
   return res.json()
 }

@@ -5,11 +5,12 @@ import { TEAM } from '@/app/donatur/tentang-kami/timData'
 
 // Klien API "Tim" — tabel `team_members` di backend. GET publik, mutasi
 // (POST/PUT/DELETE) butuh sesi admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 export async function fetchTeam() {
-  const res = await fetch(`${BASE}/api/team`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/team`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET team → ${res.status}`)
   return (await res.json()).data
 }

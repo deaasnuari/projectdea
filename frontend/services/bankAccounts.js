@@ -5,8 +5,9 @@ import { useCallback, useEffect, useState } from 'react'
 // Klien API rekening bank — tabel `bank_accounts` di backend, per `scope`
 // ('tentang' | 'program'). GET publik (dipakai modal donasi), mutasi butuh
 // sesi admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 // Tampilan awal sebelum data API tiba (offline fallback).
 const FALLBACK_BANKS = [
@@ -17,7 +18,7 @@ const FALLBACK_BANKS = [
 
 export async function fetchBankAccounts(scope) {
   const qs = scope ? `?scope=${encodeURIComponent(scope)}` : ''
-  const res = await fetch(`${BASE}/api/bank-accounts${qs}`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/bank-accounts${qs}`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET bank-accounts → ${res.status}`)
   return (await res.json()).data
 }

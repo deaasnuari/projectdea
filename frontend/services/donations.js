@@ -7,13 +7,14 @@ import { toast } from '@/components/ui/feedback'
 // Selang cek donasi baru (ms) saat admin membuka halaman Riwayat Donasi.
 const POLL_MS = 15000
 
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 export async function createDonation(payload) {
   let res
   try {
-    res = await fetch(`${BASE}/api/donations`, {
+    res = await fetch(`${PUBLIC_BASE}/api/donations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

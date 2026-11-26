@@ -5,9 +5,10 @@ import { getCache, setCache } from '@/services/memoryCache'
 
 // Klien API "Informasi Donatur" — tabel `donor_info` (satu baris) di backend.
 // GET publik, PUT butuh sesi admin.
-import { getApiBase } from '@/services/apiBase'
+import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
+const PUBLIC_BASE = getPublicApiBase()
 
 // Pilihan sumber angka untuk stat "auto" — nama harus sama dengan
 // METRIC_KEYS di backend (models/DonorInfo.js).
@@ -34,7 +35,7 @@ const CHANGE_EVENT = 'donor-info:changed'
 const CHANGE_KEY = 'lazispln_donor_rev'
 
 export async function fetchDonorInfo() {
-  const res = await fetch(`${BASE}/api/donor-info`, { cache: 'no-store' })
+  const res = await fetch(`${PUBLIC_BASE}/api/donor-info`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`GET donor-info → ${res.status}`)
   return res.json()
 }

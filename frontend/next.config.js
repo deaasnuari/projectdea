@@ -17,6 +17,20 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
   },
 
+  // Proxy same-origin untuk request bersesi: /api/* di domain frontend diteruskan ke
+  // backend, supaya cookie sesi admin first-party (lihat services/apiBase.js, aturannya
+  // harus sama). Hanya aktif kalau NEXT_PUBLIC_API_URL https non-lokal; dibaca saat BUILD.
+  async rewrites() {
+    let url
+    try {
+      url = new URL(process.env.NEXT_PUBLIC_API_URL || '')
+    } catch {
+      return []
+    }
+    if (url.protocol !== 'https:' || ['localhost', '127.0.0.1'].includes(url.hostname)) return []
+    return [{ source: '/api/:path*', destination: `${url.origin}/api/:path*` }]
+  },
+
   // Header keamanan untuk semua halaman. CSP sengaja HANYA berisi arahan yang
   // tidak mengganggu skrip inline Next.js (tanpa script-src): anti-clickjacking
   // (frame-ancestors 'self' — pratinjau admin memakai iframe dari situs sendiri),

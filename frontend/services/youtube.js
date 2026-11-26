@@ -1,4 +1,4 @@
-import { getApiBase } from '@/services/apiBase'
+import { getPublicApiBase } from '@/services/apiBase'
 
 // Bantu ekstrak ID video YouTube dari berbagai bentuk URL, lalu turunkan
 // URL thumbnail & URL tonton yang rapi. Dipakai halaman admin Dokumentasi
@@ -28,7 +28,7 @@ export function youtubeId(input) {
 // diambil lewat backend sendiri, supaya tidak ada request & cookie pihak ketiga.
 export function localThumb(url) {
   const m = /^https?:\/\/(?:img\.youtube\.com|i\.ytimg\.com)\/vi\/([a-zA-Z0-9_-]{11})\//.exec(url || '')
-  return m ? `${getApiBase()}/api/yt-thumb/${m[1]}` : url
+  return m ? `${getPublicApiBase()}/api/yt-thumb/${m[1]}` : url
 }
 
 export function youtubeThumb(input) {
