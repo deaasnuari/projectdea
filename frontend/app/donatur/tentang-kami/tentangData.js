@@ -75,7 +75,7 @@ export const DEFAULT_TENTANG_CONTENT = {
     label: 'Bukti Nyata',
     titleMain: 'Pencapaian',
     titleHighlight: 'Kami',
-    text: 'Sejauh ini, LAZIS PLN Batam telah menghimpun Rp 3.8 M dana zakat, infaq, dan shadaqah dari 1.240+ donatur aktif, dan menyalurkannya kepada lebih dari 5.600+ penerima manfaat di Kepulauan Riau. Seluruh dana dikelola dengan transparansi penuh dan dapat dipertanggungjawabkan kepada setiap donatur.',
+    text: 'Data pencapaian akan ditampilkan setelah laporan resmi tersedia.',
   },
   nilai: {
     label: 'Prinsip Kerja',

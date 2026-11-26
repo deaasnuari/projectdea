@@ -24,7 +24,7 @@ export const POSTS = [
     content: [
       'Sepanjang periode Oktober hingga Desember 2024, Lazis PLN Batam telah menyalurkan dana zakat, infaq, dan shadaqah yang dihimpun dari para karyawan PLN Batam kepada berbagai program pemberdayaan dan bantuan sosial di sekitar wilayah operasional perusahaan.',
       'Penyaluran pada triwulan ini difokuskan pada empat program utama: bantuan pendidikan berupa beasiswa bagi anak yatim dan dhuafa, program bedah rumah tidak layak huni, penyediaan akses air bersih di pulau-pulau kecil Kepulauan Riau, serta bantuan langsung tunai bagi mustahik yang terdampak kondisi ekonomi.',
-      'Total dana yang tersalurkan pada periode ini mencapai lebih dari Rp1,3 miliar, dengan penerima manfaat tersebar di Batam, Belakang Padang, dan beberapa wilayah kepulauan sekitarnya. Seluruh proses penyaluran dilakukan secara transparan dan dapat dipertanggungjawabkan sesuai prinsip syariah.',
+      'Penyaluran pada periode ini menjangkau penerima manfaat yang tersebar di Batam, Belakang Padang, dan beberapa wilayah kepulauan sekitarnya. Seluruh proses penyaluran dilakukan secara transparan dan dapat dipertanggungjawabkan sesuai prinsip syariah.',
       'Lazis PLN Batam mengucapkan terima kasih kepada seluruh karyawan PLN Batam yang telah konsisten menunaikan zakat, infaq, dan shadaqah melalui program pemotongan gaji maupun donasi langsung. Kepercayaan ini menjadi amanah besar yang terus dijaga melalui laporan berkala dan audit rutin.',
       'Ke depan, Lazis PLN Batam berkomitmen untuk terus memperluas jangkauan penyaluran serta meningkatkan kualitas program pemberdayaan agar manfaatnya dapat dirasakan secara berkelanjutan oleh masyarakat yang membutuhkan.',
     ],

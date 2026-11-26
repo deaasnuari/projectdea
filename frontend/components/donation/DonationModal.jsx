@@ -229,6 +229,9 @@ export default function DonationModal({
           badgeClass: b.badgeClass || 'bg-navy',
         }))
       : methods.banks
+  // Rekening bertanda "TESTING" = data uji: salin & konfirmasi dimatikan. Hilang
+  // sendiri setelah admin mengganti dengan rekening resmi.
+  const testing = banks.some((b) => /testing/i.test(`${b.name} ${b.noRek}`))
 
   const [step, setStep] = useState(1)
   const [jenisId, setJenisId] = useState(initialJenisId)
@@ -289,7 +292,7 @@ export default function DonationModal({
   const darkHeader = step === 1 || step === 2 || (step === 3 && !bank)
 
   const handleConfirm = async () => {
-    if (submitting) return
+    if (submitting || testing) return
     if (!captcha.captchaAnswer) {
       setSubmitError('Ketik 4 huruf pada gambar verifikasi dulu.')
       return
@@ -320,7 +323,7 @@ export default function DonationModal({
   }
 
   const copyNoRek = async () => {
-    if (!bank) return
+    if (!bank || testing) return
     try {
       await navigator.clipboard.writeText(bank.noRek)
       setCopied(true)
@@ -363,6 +366,15 @@ export default function DonationModal({
         </button>
 
         {darkHeader && <ModalHeader step={step} jenis={jenis} sourceLabel={sourceLabel} />}
+
+        {testing && (
+          <div
+            role="alert"
+            className={`mb-4 rounded-xl border-2 border-red-500 bg-red-50 px-4 py-3 text-center text-xs font-bold leading-snug text-red-700 ${darkHeader ? '' : 'mt-8'}`}
+          >
+            MODE TESTING — JANGAN TRANSFER. Rekening yang tampil adalah data uji dan donasi belum dibuka.
+          </div>
+        )}
 
         {step === 1 && (
           <div>
@@ -523,6 +535,11 @@ export default function DonationModal({
             <h4 className="mb-1 pr-8 text-sm font-bold text-navy">Pilih Bank Tujuan Transfer</h4>
             <p className="mb-6 text-xs text-gray-400">Total tagihan {formatRp(effectiveNominal)}</p>
             <div className="mb-6 flex flex-col gap-3">
+              {banks.length === 0 && (
+                <p className="rounded-xl border border-gray-200 px-4 py-4 text-center text-xs text-gray-500">
+                  Rekening tujuan belum tersedia. Mohon jangan transfer dulu, coba lagi beberapa saat.
+                </p>
+              )}
               {banks.map((b) => (
                 <button
                   key={b.id}
@@ -592,7 +609,8 @@ export default function DonationModal({
                 <button
                   type="button"
                   onClick={copyNoRek}
-                  className={`flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-colors ${
+                  disabled={testing}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                     copied ? 'bg-green-100 text-green-700' : 'bg-primary text-white hover:bg-primary-dark'
                   }`}
                 >
@@ -611,6 +629,8 @@ export default function DonationModal({
               </div>
             </div>
 
+            {!testing && (
+            <>
             <div className="mb-4 flex items-start gap-2 rounded-xl bg-primary/[0.07] px-3.5 py-3 text-[11px] font-medium leading-snug text-primary-dark">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
               Sudah transfer? Klik &ldquo;Konfirmasi Pembayaran&rdquo; di bawah untuk menyelesaikan donasi Anda.
@@ -637,17 +657,19 @@ export default function DonationModal({
             </div>
 
             <Captcha onChange={setCaptcha} resetKey={captchaKey} className="mb-3" />
+            </>
+            )}
             {submitError && (
               <p className="mb-3 text-center text-xs font-semibold text-coral-dark">{submitError}</p>
             )}
             <button
               type="button"
-              disabled={submitting}
+              disabled={submitting || testing}
               onClick={handleConfirm}
               className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_10px_24px_-10px_rgba(10,126,126,0.55)] disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
             >
-              {submitting ? 'Mengirim…' : 'Konfirmasi Pembayaran'}
-              {!submitting && <ArrowIcon />}
+              {testing ? 'Donasi belum dibuka (mode testing)' : submitting ? 'Mengirim…' : 'Konfirmasi Pembayaran'}
+              {!submitting && !testing && <ArrowIcon />}
             </button>
           </div>
         )}

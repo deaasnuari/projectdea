@@ -9,12 +9,9 @@ import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 const BASE = getApiBase()
 const PUBLIC_BASE = getPublicApiBase()
 
-// Tampilan awal sebelum data API tiba (offline fallback).
-const FALLBACK_BANKS = [
-  { id: 'bsi', name: 'BSI (Bank Syariah Indonesia)', short: 'BSI', noRek: '7123 456 789', owner: 'LAZIS PT PLN Batam', badgeClass: 'bg-[#00754A]' },
-  { id: 'mandiri', name: 'Bank Mandiri', short: 'MDR', noRek: '109 0001 23456', owner: 'LAZIS PT PLN Batam', badgeClass: 'bg-[#003D79]' },
-  { id: 'bri', name: 'BRI', short: 'BRI', noRek: '0026 01 099999 50 9', owner: 'LAZIS PT PLN Batam', badgeClass: 'bg-[#00529C]' },
-]
+// Sengaja kosong: nomor rekening tidak boleh punya nilai contoh, supaya pengunjung
+// tidak pernah melihat rekening yang bukan dari database (saat memuat / API error).
+const FALLBACK_BANKS = []
 
 export async function fetchBankAccounts(scope) {
   const qs = scope ? `?scope=${encodeURIComponent(scope)}` : ''

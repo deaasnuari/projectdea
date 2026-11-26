@@ -26,9 +26,9 @@ const DEFAULT_DONOR_CONTENT = {
   title: 'Jumlah Donatur Saat Ini',
   description: 'Kepercayaan yang tumbuh dari kebaikan yang dilakukan bersama.',
   stats: [
-    { value: 157, label: 'Donatur Zakat', source: 'manual', metric: 'donatur' },
-    { value: 21, label: 'Donatur Infaq', source: 'manual', metric: 'donatur' },
-    { value: 1, label: 'Donatur Orang Tua Asuh', source: 'manual', metric: 'donatur' },
+    { value: 0, label: 'Donatur Zakat', source: 'manual', metric: 'donatur' },
+    { value: 0, label: 'Donatur Infaq', source: 'manual', metric: 'donatur' },
+    { value: 0, label: 'Donatur Orang Tua Asuh', source: 'manual', metric: 'donatur' },
   ],
 }
 const CHANGE_EVENT = 'donor-info:changed'
