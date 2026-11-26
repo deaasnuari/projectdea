@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useDonorContent } from './donorData'
+import Skeleton from '@/components/ui/Skeleton'
 
 // Jumlah kolom mengikuti jumlah kartu (maks 4 per baris) supaya selalu
 // memenuhi lebar dan rapi. Kelas ditulis utuh agar terbaca oleh Tailwind.
@@ -13,11 +14,14 @@ const GRID_BY_COUNT = {
 }
 
 export default function DonorStatsSection() {
-  const { content } = useDonorContent()
+  const { content, loaded, error } = useDonorContent()
   const [displays, setDisplays] = useState(() => content.stats.map(() => 0))
 
   useEffect(() => {
     setDisplays(content.stats.map(() => 0))
+    // Semua interval dicatat supaya animasi data lama berhenti saat data berganti
+    // (kalau tidak, angka lama bisa menimpa angka terbaru).
+    const intervals = []
     const timer = setTimeout(() => {
       content.stats.forEach((stat, index) => {
         const target = Number(stat.value) || 0
@@ -35,9 +39,13 @@ export default function DonorStatsSection() {
             return next
           })
         }, 30)
+        intervals.push(interval)
       })
     }, 300)
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      intervals.forEach(clearInterval)
+    }
   }, [content])
 
   return (
@@ -70,8 +78,16 @@ export default function DonorStatsSection() {
             "Donatur Orang Tua Asuh" tidak lagi menggeser angka). 2 kolom di
             HP, 4 kolom mulai tablet. */}
         <div className={`mx-auto grid max-w-md grid-cols-2 gap-3 sm:gap-4 ${GRID_BY_COUNT[Math.min(content.stats.length, 4)] || GRID_BY_COUNT[4]}`}>
+          {!loaded &&
+            !error &&
+            [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 bg-white/10 last:col-span-2 sm:last:col-span-1" />)}
+          {!loaded && error && (
+            <p className="col-span-full rounded-xl border border-white/10 bg-white/[0.06] px-3 py-4 text-center text-sm text-white/70">
+              Data donatur belum bisa dimuat. Coba muat ulang halaman.
+            </p>
+          )}
           {content.stats.map((stat, i) => (
-            <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1 borderborder-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
+            <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1 border border-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
               <span className="block font-heading text-3xl font-extrabold leading-tight text-gold sm:text-4xl">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
               </span>

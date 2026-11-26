@@ -21,16 +21,9 @@ export const DONOR_STAT_METRICS = [
   { key: 'donasi_tentang', label: 'Donasi dari Tentang Kami' },
 ]
 
-// Tampilan awal sebelum data API tiba (offline fallback).
-const DEFAULT_DONOR_CONTENT = {
-  title: 'Jumlah Donatur Saat Ini',
-  description: 'Kepercayaan yang tumbuh dari kebaikan yang dilakukan bersama.',
-  stats: [
-    { value: 0, label: 'Donatur Zakat', source: 'manual', metric: 'donatur' },
-    { value: 0, label: 'Donatur Infaq', source: 'manual', metric: 'donatur' },
-    { value: 0, label: 'Donatur Orang Tua Asuh', source: 'manual', metric: 'donatur' },
-  ],
-}
+// Sebelum data API tiba: tanpa angka sama sekali. Angka hanya boleh berasal dari
+// database, jadi tidak ada nilai cadangan.
+const EMPTY_DONOR_CONTENT = { title: 'Jumlah Donatur Saat Ini', description: '', stats: [] }
 const CHANGE_EVENT = 'donor-info:changed'
 const CHANGE_KEY = 'lazispln_donor_rev'
 
@@ -65,8 +58,10 @@ function broadcast() {
 }
 
 export function useDonorContent() {
-  const [content, setContent] = useState(() => getCache('donor:content') || DEFAULT_DONOR_CONTENT)
+  const [content, setContent] = useState(() => getCache('donor:content') || EMPTY_DONOR_CONTENT)
   const [loading, setLoading] = useState(() => !getCache('donor:content'))
+  // true setelah data asli dari database pernah diterima.
+  const [loaded, setLoaded] = useState(() => Boolean(getCache('donor:content')))
   const [error, setError] = useState('')
   const ref = useRef(content)
 
@@ -81,21 +76,18 @@ export function useDonorContent() {
     return fetchDonorInfo()
       .then((data) => {
         if (!data || typeof data !== 'object') return
-        // Isi field yang kosong dengan default (mis. tabel belum di-seed).
-        const stats =
-          Array.isArray(data.stats) && data.stats.length
-            ? data.stats.map((s) => ({
-                value: Number(s.value) || 0,
-                label: String(s.label || ''),
-                source: s.source === 'auto' ? 'auto' : 'manual',
-                metric: s.metric || 'donatur',
-              }))
-            : DEFAULT_DONOR_CONTENT.stats
+        const stats = (Array.isArray(data.stats) ? data.stats : []).map((s) => ({
+          value: Number(s.value) || 0,
+          label: String(s.label || ''),
+          source: s.source === 'auto' ? 'auto' : 'manual',
+          metric: s.metric || 'donatur',
+        }))
         apply({
-          title: data.title || DEFAULT_DONOR_CONTENT.title,
-          description: data.description || DEFAULT_DONOR_CONTENT.description,
+          title: data.title || EMPTY_DONOR_CONTENT.title,
+          description: data.description || '',
           stats,
         })
+        setLoaded(true)
         setError('')
       })
       .catch((e) => setError(e.message))
@@ -134,5 +126,5 @@ export function useDonorContent() {
 
   const patch = useCallback((p) => save((c) => ({ ...c, ...p })), [save])
 
-  return { content, save, patch, loading, error }
+  return { content, save, patch, loading, loaded, error }
 }

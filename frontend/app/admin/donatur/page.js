@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { inputClass, labelClass } from '@/components/admin/adminFormStyles'
-import { DEFAULT_DONOR_CONTENT, useDonorContent, DONOR_STAT_METRICS } from '@/app/donatur/sections/donorData'
+import { useDonorContent, DONOR_STAT_METRICS } from '@/app/donatur/sections/donorData'
 import { fetchStats } from '@/services/donations'
 import { toast } from '@/components/ui/feedback'
 
@@ -42,8 +42,8 @@ const IconChart = (
 )
 
 export default function AdminDonaturPage() {
-  const { content, save } = useDonorContent()
-  const [form, setForm] = useState(() => toForm(DEFAULT_DONOR_CONTENT))
+  const { content, save, loaded, error } = useDonorContent()
+  const [form, setForm] = useState(() => toForm(content))
   const [savedMessage, setSavedMessage] = useState('')
   const [liveStats, setLiveStats] = useState(null)
 
@@ -75,7 +75,7 @@ export default function AdminDonaturPage() {
         .filter((s) => s.label.trim())
         .map((s) => {
           const n = s.source === 'auto' ? liveNumber(s.metric) : Number(s.value)
-          return { label: s.label.trim(), text: (n || 0).toLocaleString('id-ID') }
+          return { label: s.label.trim(), text: n == null ? '—' : (n || 0).toLocaleString('id-ID') }
         }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [form.stats, liveStats],
@@ -109,6 +109,12 @@ export default function AdminDonaturPage() {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+
+    // Jangan menimpa database dengan form kosong kalau data belum berhasil dimuat.
+    if (!loaded) {
+      toast('Data donatur belum termuat. Muat ulang halaman dulu.', { tone: 'error' })
+      return
+    }
 
     // Baris yang benar-benar kosong (tanpa label) diabaikan saat menyimpan.
     const stats = form.stats
@@ -147,13 +153,19 @@ export default function AdminDonaturPage() {
             diisi <b>manual</b> atau <b>otomatis</b> mengikuti data Riwayat Donasi.
           </p>
         </div>
-        <button type="submit" form="donor-info-form" className="btn btn-primary shrink-0 self-start sm:self-auto">
+        <button type="submit" form="donor-info-form" disabled={!loaded} className="btn btn-primary shrink-0 self-start disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto">
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
             <path d="M3 3h11l3 3v11H3V3zm2 2v4h8V5H5zm0 8v2h10v-2H5z" />
           </svg>
           Simpan / Perbarui
         </button>
       </div>
+
+      {!loaded && (
+        <p role="status" className="mb-4 rounded-lg bg-gray-100 px-3 py-2 text-[13px] text-gray-600">
+          {error ? 'Data donatur gagal dimuat. Muat ulang halaman sebelum mengubah apa pun.' : 'Memuat data donatur…'}
+        </p>
+      )}
 
       {/* Pratinjau tampilan publik */}
       <div className="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-navy-dark p-5 text-white shadow-sm sm:p-6">

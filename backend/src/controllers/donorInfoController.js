@@ -23,24 +23,18 @@ function metricValue(metric, s) {
 
 // GET /api/donor-info  (publik)
 // Stat ber-source 'auto' dihitung ulang di sini dari tabel donations,
-// sehingga halaman publik langsung menerima angka final.
+// sehingga halaman publik langsung menerima angka final. Kalau hitungan gagal,
+// balas error — jangan diam-diam memakai angka cadangan yang bisa sudah basi.
 async function get(_req, res, next) {
   try {
     const info = await DonorInfo.get()
     if (!info) return res.json({ title: '', description: '', stats: [] })
 
     const hasAuto = info.stats.some((s) => s.source === 'auto')
-    let dstats = null
-    if (hasAuto) {
-      try {
-        dstats = await Donation.stats()
-      } catch {
-        dstats = null // agregat gagal → pakai nilai cadangan `value`
-      }
-    }
+    const dstats = hasAuto ? await Donation.stats() : null
 
     const stats = info.stats.map((s) =>
-      s.source === 'auto' && dstats ? { ...s, value: metricValue(s.metric, dstats) } : s,
+      s.source === 'auto' ? { ...s, value: metricValue(s.metric, dstats) } : s,
     )
     res.json({ ...info, stats })
   } catch (err) {
