@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDonorContent } from './donorData'
 import Skeleton from '@/components/ui/Skeleton'
 
@@ -13,17 +13,24 @@ const GRID_BY_COUNT = {
   4: 'sm:max-w-4xl sm:grid-cols-4',
 }
 
+// Kategori percobaan (mis. "TEST") tidak ditampilkan ke publik. Datanya tetap
+// ada di database dan tetap terlihat di halaman admin.
+const TESTING_LABEL = /\b(tes|test|testing|dummy)\b/i
+
 export default function DonorStatsSection() {
   const { content, loaded, error } = useDonorContent()
-  const [displays, setDisplays] = useState(() => content.stats.map(() => 0))
+  const stats = useMemo(() => content.stats.filter((s) => !TESTING_LABEL.test(s.label)), [content])
+  // Semua nol = belum ada data donatur, jadi kartu angka 0 tidak ditampilkan.
+  const hasData = stats.some((s) => Number(s.value) > 0)
+  const [displays, setDisplays] = useState(() => stats.map(() => 0))
 
   useEffect(() => {
-    setDisplays(content.stats.map(() => 0))
+    setDisplays(stats.map(() => 0))
     // Semua interval dicatat supaya animasi data lama berhenti saat data berganti
     // (kalau tidak, angka lama bisa menimpa angka terbaru).
     const intervals = []
     const timer = setTimeout(() => {
-      content.stats.forEach((stat, index) => {
+      stats.forEach((stat, index) => {
         const target = Number(stat.value) || 0
         let current = 0
         const increment = Math.max(target / 40, 1)
@@ -46,7 +53,7 @@ export default function DonorStatsSection() {
       clearTimeout(timer)
       intervals.forEach(clearInterval)
     }
-  }, [content])
+  }, [stats])
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-navy to-navy-dark py-9 sm:py-11">
@@ -77,7 +84,7 @@ export default function DonorStatsSection() {
             labelnya, berapa pun panjang teks label (label panjang seperti
             "Donatur Orang Tua Asuh" tidak lagi menggeser angka). 2 kolom di
             HP, 4 kolom mulai tablet. */}
-        <div className={`mx-auto grid max-w-md grid-cols-2 gap-3 sm:gap-4 ${GRID_BY_COUNT[Math.min(content.stats.length, 4)] || GRID_BY_COUNT[4]}`}>
+        <div className={`mx-auto grid max-w-md grid-cols-2 gap-3 sm:gap-4 ${GRID_BY_COUNT[Math.min(stats.length, 4)] || GRID_BY_COUNT[4]}`}>
           {!loaded &&
             !error &&
             [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 bg-white/10 last:col-span-2 sm:last:col-span-1" />)}
@@ -86,7 +93,12 @@ export default function DonorStatsSection() {
               Data donatur belum bisa dimuat. Coba muat ulang halaman.
             </p>
           )}
-          {content.stats.map((stat, i) => (
+          {loaded && !hasData && (
+            <p className="col-span-full rounded-xl border border-white/10 bg-white/[0.06] px-3 py-4 text-center text-sm text-white/70">
+              Belum tersedia data donatur
+            </p>
+          )}
+          {hasData && stats.map((stat, i) => (
             <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1 border border-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
               <span className="block font-heading text-3xl font-extrabold leading-tight text-gold sm:text-4xl">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
