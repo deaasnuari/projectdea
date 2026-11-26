@@ -20,8 +20,6 @@ const TESTING_LABEL = /\b(tes|test|testing|dummy)\b/i
 export default function DonorStatsSection() {
   const { content, loaded, error } = useDonorContent()
   const stats = useMemo(() => content.stats.filter((s) => !TESTING_LABEL.test(s.label)), [content])
-  // Semua nol = belum ada data donatur, jadi kartu angka 0 tidak ditampilkan.
-  const hasData = stats.some((s) => Number(s.value) > 0)
   const [displays, setDisplays] = useState(() => stats.map(() => 0))
 
   useEffect(() => {
@@ -93,12 +91,7 @@ export default function DonorStatsSection() {
               Data donatur belum bisa dimuat. Coba muat ulang halaman.
             </p>
           )}
-          {loaded && !hasData && (
-            <p className="col-span-full rounded-xl border border-white/10 bg-white/[0.06] px-3 py-4 text-center text-sm text-white/70">
-              Belum tersedia data donatur
-            </p>
-          )}
-          {hasData && stats.map((stat, i) => (
+          {stats.map((stat, i) => (
             <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1 border border-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
               <span className="block font-heading text-3xl font-extrabold leading-tight text-gold sm:text-4xl">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
