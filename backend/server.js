@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 const apiRoutes = require('./src/routes')
 const { securityHeaders, originGuard, auditAdmin } = require('./src/middleware/security')
 const { rateLimit, formatWait } = require('./src/middleware/rateLimit')
+const { imageCleanup } = require('./src/middleware/imageCleanup')
 const log = require('./src/lib/logger')
 
 const PORT = process.env.PORT || 3001
@@ -142,6 +143,7 @@ app.use(
 )
 
 app.use('/api', auditAdmin)
+app.use('/api', imageCleanup) // hapus gambar Blob yang tidak lagi dipakai
 
 // Routes API utama.
 app.use('/api', apiRoutes)

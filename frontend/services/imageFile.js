@@ -2,23 +2,31 @@ import { getApiBase } from '@/services/apiBase'
 const API_BASE = getApiBase()
 
 // Pilih file gambar → perkecil di browser → kirim ke backend, yang menyimpannya
-// sebagai FILE di folder /uploads dan membalas URL-nya. Yang disimpan di DB
-// cuma URL string ini, bukan base64. Butuh sesi admin.
+// ke Vercel Blob (development: folder lokal) dan membalas URL publiknya. Yang
+// disimpan di DB cuma URL string ini, bukan base64. Butuh sesi admin.
 export async function uploadImage(file, opts) {
   const dataUrl = await fileToResizedDataUrl(file, opts)
-  const res = await fetch(`${API_BASE}/api/uploads`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    // Backend memasang watermark logo di file; { watermark: false } untuk mematikannya
-    // (foto profil, gambar latar situs).
-    body: JSON.stringify({ dataUrl, watermark: opts?.watermark !== false }),
-  })
+  let res
+  try {
+    res = await fetch(`${API_BASE}/api/uploads`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      // Backend memasang watermark logo di file; { watermark: false } untuk mematikannya
+      // (foto profil, gambar latar situs).
+      body: JSON.stringify({ dataUrl, watermark: opts?.watermark !== false }),
+    })
+  } catch {
+    throw new Error('Tidak bisa menghubungi server. Periksa koneksi lalu coba lagi.')
+  }
+  const body = await res.json().catch(() => ({}))
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
+    if (res.status === 401) throw new Error('Sesi admin sudah berakhir. Silakan login lagi.')
+    if (res.status === 413) throw new Error(body.error || 'Gambar terlalu besar untuk diunggah.')
     throw new Error(body.error || `Gagal upload gambar (${res.status})`)
   }
-  return (await res.json()).url
+  if (!body.url) throw new Error('Server tidak mengembalikan alamat gambar. Coba lagi.')
+  return body.url
 }
 
 // Ubah file gambar (dari <input type="file">) jadi data URL yang sudah

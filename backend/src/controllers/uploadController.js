@@ -1,14 +1,11 @@
-const fs = require('node:fs')
-const path = require('node:path')
-const crypto = require('node:crypto')
 const { addWatermark } = require('../lib/watermark')
+const { saveImage, StorageError } = require('../lib/imageStorage')
 const log = require('../lib/logger')
 
-// Folder file gambar. Di-gitignore; dilayani statis lewat /uploads di server.js.
-const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads')
-
 const EXT = { png: 'png', jpeg: 'jpg', jpg: 'jpg', webp: 'webp', gif: 'gif' }
-const MAX_BYTES = 5 * 1024 * 1024
+// Vercel membatasi body request ±4,5 MB; base64 membengkak ±33%, jadi file maksimal 3 MB.
+// (Browser sudah memperkecil gambar sebelum dikirim, biasanya jauh di bawah ini.)
+const MAX_BYTES = 3 * 1024 * 1024
 
 const SIGNATURES = {
   png: (b) => b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
@@ -23,7 +20,7 @@ function publicBase(req) {
 }
 
 // POST /api/uploads  (admin) — body { dataUrl: "data:image/...;base64,..." }
-// → simpan sebagai file, balas { url }.
+// → simpan ke Vercel Blob (atau folder lokal saat development), balas { url }.
 async function create(req, res, next) {
   try {
     const m = /^data:image\/([a-z]+);base64,(.+)$/is.exec(req.body?.dataUrl || '')
@@ -34,7 +31,7 @@ async function create(req, res, next) {
 
     let buf = Buffer.from(m[2], 'base64')
     if (buf.length === 0) return res.status(400).json({ error: 'Gambar kosong' })
-    if (buf.length > MAX_BYTES) return res.status(413).json({ error: 'Gambar maksimal 5MB' })
+    if (buf.length > MAX_BYTES) return res.status(413).json({ error: 'Gambar maksimal 3MB' })
 
     // Cek isi file sebenarnya (magic bytes), bukan cuma label tipe di data URL.
     if (!matchesSignature(buf, ext)) return res.status(415).json({ error: 'Isi file bukan gambar yang valid' })
@@ -48,14 +45,15 @@ async function create(req, res, next) {
       }
     }
 
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true })
-    const name = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}.${ext}`
-    fs.writeFileSync(path.join(UPLOAD_DIR, name), buf)
-
-    res.status(201).json({ url: `${publicBase(req)}/uploads/${name}` })
+    const url = await saveImage(buf, ext, { publicBase: publicBase(req) })
+    res.status(201).json({ url })
   } catch (err) {
+    if (err instanceof StorageError) {
+      log.error('upload', `${err.message} ${err.detail}`.trim())
+      return res.status(err.status).json({ error: err.message })
+    }
     next(err)
   }
 }
 
-module.exports = { create, UPLOAD_DIR }
+module.exports = { create }
