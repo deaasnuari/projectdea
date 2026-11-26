@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { getCache, setCache } from '@/services/memoryCache'
-import { PROGRAMS, expandProgram } from '@/app/donatur/program/programData'
+import { expandProgram } from '@/app/donatur/program/programData'
 
 // Klien API "Daftar Program" — tabel `programs` di backend. GET publik,
 // mutasi (POST/PUT/DELETE) butuh sesi admin.
@@ -62,13 +62,13 @@ function broadcastChange() {
 // yang sedang terbuka ikut menyegarkan collected/persentase-nya.
 export const notifyProgramsChanged = broadcastChange
 
-// Hook dipakai di halaman publik & admin. `PROGRAMS` = tampilan awal
-// (offline fallback) sampai data API tiba. Setiap program di-expand
+// Hook dipakai di halaman publik & admin. Sebelum data API tiba daftarnya
+// kosong (halaman menampilkan kerangka memuat). Setiap program di-expand
 // warna theme-nya.
 export function usePrograms() {
   const [programs, setPrograms] = useState(() => {
     const c = getCache('programs:list')
-    return (c || PROGRAMS).map(expandProgram)
+    return (c || []).map(expandProgram)
   })
   const [loading, setLoading] = useState(() => !getCache('programs:list'))
   const [error, setError] = useState('')

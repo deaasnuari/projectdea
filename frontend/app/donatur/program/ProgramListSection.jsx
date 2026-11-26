@@ -9,6 +9,7 @@ import { formatRp } from '@/services/format'
 import { usePrograms } from './usePrograms'
 import { useProgramSummary } from '@/services/programs'
 import ProgramHeroText from './ProgramHeroText'
+import Skeleton from '@/components/ui/Skeleton'
 
 function ArrowIcon({ className = '' }) {
   return (
@@ -23,7 +24,7 @@ function ArrowIcon({ className = '' }) {
 }
 
 export default function ProgramListSection() {
-  const { programs: allPrograms } = usePrograms()
+  const { programs: allPrograms, loading, error } = usePrograms()
   // "Sembunyikan" (active=false) → program tidak tampil sama sekali.
   // "Tutup donasi" (donationOpen=false) → tetap tampil, tombol donasi mati.
   const programs = allPrograms.filter((p) => p.active !== false)
@@ -96,6 +97,26 @@ export default function ProgramListSection() {
                 </div>
               )}
             </div>
+          )}
+
+          {loading && programs.length === 0 && (
+            <div role="status" aria-label="Memuat program">
+              <div className="mb-8 grid grid-cols-3 gap-2 sm:gap-3">
+                {[0, 1, 2].map((i) => (
+                  <Skeleton key={i} className="h-16 bg-white/10 sm:h-[72px]" />
+                ))}
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <Skeleton className="h-96 bg-white/15" />
+                <Skeleton className="h-96 bg-white/15 max-sm:hidden" />
+                <Skeleton className="h-96 bg-white/15 max-lg:hidden" />
+              </div>
+            </div>
+          )}
+          {!loading && programs.length === 0 && (
+            <p className="rounded-xl border border-white/15 bg-white/10 px-4 py-6 text-center text-sm text-white/80">
+              {error ? 'Program belum bisa dimuat. Coba muat ulang halaman.' : 'Belum ada program.'}
+            </p>
           )}
 
           <CardCarousel>

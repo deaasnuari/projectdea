@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { TEAM } from '@/app/donatur/tentang-kami/timData'
 
 // Klien API "Tim" — tabel `team_members` di backend. GET publik, mutasi
 // (POST/PUT/DELETE) butuh sesi admin.
@@ -46,9 +45,9 @@ function broadcastChange() {
   }
 }
 
-// `TEAM` = tampilan awal (offline fallback) sampai data API tiba.
+// Kosong sampai data API tiba (halaman menampilkan kerangka memuat).
 export function useTeam() {
-  const [team, setTeam] = useState(TEAM)
+  const [team, setTeam] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 

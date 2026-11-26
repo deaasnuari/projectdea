@@ -6,6 +6,7 @@ import CustomTexts from '@/components/inline-edit/CustomTexts'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useTentangContent } from './tentangData'
 import { useTeam } from './useTeam'
+import Skeleton from '@/components/ui/Skeleton'
 
 const TITLE_MAIN_STYLE = { fontStyle: 'normal', color: 'inherit' }
 
@@ -19,7 +20,7 @@ function AvatarPlaceholder() {
 
 export default function TimSection() {
   const { content } = useTentangContent()
-  const { team } = useTeam()
+  const { team, loading } = useTeam()
   const { isAdmin } = useEditMode()
   const t = content.tim
 
@@ -81,6 +82,9 @@ export default function TimSection() {
         </div>
 
         <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
+          {loading &&
+            team.length === 0 &&
+            [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-36 bg-gray-100" />)}
           {team.map((member) => (
             <div key={member.id} className="card p-4 text-center">
               {member.photo ? (

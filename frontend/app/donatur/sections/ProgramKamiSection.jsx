@@ -4,6 +4,7 @@ import { localThumb } from '@/services/youtube'
 import Link from 'next/link'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
+import Skeleton from '@/components/ui/Skeleton'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
@@ -40,8 +41,8 @@ function TambahKontenButton() {
 
 export default function ProgramKamiSection() {
   const { content } = useKamiPeduliContent()
-  const { videos: rawVideos } = useDocVideos()
-  const { photos: rawGaleri } = useDocPhotos()
+  const { videos: rawVideos, loading: loadingVideos } = useDocVideos()
+  const { photos: rawGaleri, loading: loadingGaleri } = useDocPhotos()
   const { isAdmin } = useEditMode()
 
   // Video / foto yang di-"Sembunyikan" di admin tidak tampil di donatur.
@@ -193,7 +194,13 @@ export default function ProgramKamiSection() {
         </div>
 
         {/* Video: grid 2 kolom, atau baris geser ke samping kalau > 4 */}
-        {slideMode ? (
+        {loadingVideos && videos.length === 0 ? (
+          <div role="status" aria-label="Memuat video" className="grid grid-cols-2 gap-6 max-[768px]:grid-cols-1">
+            {[0, 1].map((i) => (
+              <Skeleton key={i} className="aspect-[4/3] bg-gray-200" />
+            ))}
+          </div>
+        ) : slideMode ? (
           <div className={`${slideRowClass} gap-6`}>
             {videos.map(renderVideoCard)}
           </div>
@@ -240,6 +247,11 @@ export default function ProgramKamiSection() {
               bukan grid kartu, supaya foto bisa ditambah terus tanpa
               bikin section jadi makin tinggi ke bawah. */}
           <div className={`${slideRowClass} gap-4`}>
+            {loadingGaleri &&
+              galeri.length === 0 &&
+              [0, 1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="aspect-square w-[260px] shrink-0 bg-gray-200 max-[480px]:w-[220px]" />
+              ))}
             {galeri.map((foto, i) => (
               <div
                 key={foto.id}

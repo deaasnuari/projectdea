@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { DEFAULT_KAMI_PEDULI_CONTENT } from '@/app/donatur/sections/kamiPeduliData'
 
 // Klien API "Dokumentasi" Kami Peduli — tabel `doc_videos` & `doc_photos`.
 // GET publik, mutasi (POST/PUT/DELETE) butuh sesi admin.
@@ -30,8 +29,8 @@ async function mutate(url, method, payload) {
 }
 
 // Hook generik untuk satu koleksi dokumentasi.
-function useDocCollection(pathSeg, fallback, changeKey) {
-  const [items, setItems] = useState(fallback)
+function useDocCollection(pathSeg, changeKey) {
+  const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -107,7 +106,6 @@ function useDocCollection(pathSeg, fallback, changeKey) {
 export function useDocVideos() {
   const { items, loading, error, refresh, save, remove } = useDocCollection(
     'doc-videos',
-    DEFAULT_KAMI_PEDULI_CONTENT.videos,
     'doc-videos',
   )
   return { videos: items, loading, error, refresh, saveVideo: save, removeVideo: remove }
@@ -116,7 +114,6 @@ export function useDocVideos() {
 export function useDocPhotos() {
   const { items, loading, error, refresh, save, remove } = useDocCollection(
     'doc-photos',
-    DEFAULT_KAMI_PEDULI_CONTENT.galeri,
     'doc-photos',
   )
   return { photos: items, loading, error, refresh, savePhoto: save, removePhoto: remove }

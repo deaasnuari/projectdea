@@ -71,7 +71,7 @@ export default function DonorStatsSection() {
             HP, 4 kolom mulai tablet. */}
         <div className={`mx-auto grid max-w-md grid-cols-2 gap-3 sm:gap-4 ${GRID_BY_COUNT[Math.min(content.stats.length, 4)] || GRID_BY_COUNT[4]}`}>
           {content.stats.map((stat, i) => (
-            <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1border border-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
+            <div key={stat.label || i} className="flex flex-col items-center rounded-xl last:odd:col-span-2 sm:last:odd:col-span-1 borderborder-white/10 bg-white/[0.06] px-3 py-4 text-center backdrop-blur-sm transition-colors hover:bg-white/10">
               <span className="block font-heading text-3xl font-extrabold leading-tight text-gold sm:text-4xl">
                 {(displays[i] ?? 0).toLocaleString('id-ID')}
               </span>
