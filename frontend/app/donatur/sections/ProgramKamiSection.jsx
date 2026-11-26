@@ -91,7 +91,6 @@ export default function ProgramKamiSection() {
             alt={program.title}
             width={640}
             height={360}
-            sizes={slideMode ? '(max-width: 640px) 78vw, 520px' : '(max-width: 768px) 100vw, 600px'}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/50 via-navy-dark/0 to-navy-dark/10" />
@@ -263,7 +262,6 @@ export default function ProgramKamiSection() {
                   alt={foto.caption}
                   width={260}
                   height={260}
-                  sizes="260px"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.1]"
                 />
                 {/* gradasi tipis permanen + lebih pekat saat hover */}

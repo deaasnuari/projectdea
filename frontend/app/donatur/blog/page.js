@@ -26,7 +26,6 @@ export default function BlogPage() {
           alt={post.title}
           width={600}
           height={400}
-          sizes="(max-width: 640px) 85vw, (max-width: 1024px) 50vw, 384px"
           eager={i === 0}
           className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04]"
         />
