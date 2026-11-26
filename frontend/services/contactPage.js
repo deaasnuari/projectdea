@@ -9,14 +9,16 @@ import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 const PUBLIC_BASE = getPublicApiBase()
+import { dedupe } from '@/services/dedupe'
 const CHANGE_EVENT = 'contact-page:changed'
 const CHANGE_KEY = 'lazispln_contact_rev'
 
-export async function fetchContactPage() {
-  const res = await fetch(`${PUBLIC_BASE}/api/contact`, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`GET contact → ${res.status}`)
-  return res.json()
-}
+export const fetchContactPage = () =>
+  dedupe('contact', async () => {
+    const res = await fetch(`${PUBLIC_BASE}/api/contact`, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`GET contact → ${res.status}`)
+    return res.json()
+  })
 
 export async function saveContactPage(payload) {
   const res = await fetch(`${BASE}/api/contact`, {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import DonationModal from '@/components/donation/DonationModal'
+import dynamic from 'next/dynamic'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
@@ -9,6 +9,9 @@ import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useFlowOrder, useFlowSsr } from '@/components/inline-edit/useFlowOrder'
 import { AddItemButton, DeleteItemButton } from '@/components/inline-edit/EditControls'
 import { useTentangContent, uid } from './tentangData'
+
+// Modal donasi (dan data rekening/jenis donasinya) baru dimuat saat dibuka.
+const DonationModal = dynamic(() => import('@/components/donation/DonationModal'), { ssr: false })
 
 // Bagian "utama" judul .section-title aslinya teks polos (bukan <span>) —
 // dinetralkan biar tidak ikut kena aturan ".section-title span" saat dibungkus.
@@ -245,7 +248,7 @@ export default function TentangSection() {
         </div>
       </section>
 
-      <DonationModal open={donationOpen} onClose={() => setDonationOpen(false)} />
+      {donationOpen && <DonationModal open onClose={() => setDonationOpen(false)} />}
     </>
   )
 }

@@ -9,6 +9,7 @@ import { formatBlogDate } from '@/services/blog'
 import { TextElementsProvider } from '@/components/inline-edit/TextElementsContext'
 import BlogHeroText from './BlogHeroText'
 import CardCarousel, { CAROUSEL_ITEM } from '@/components/ui/CardCarousel'
+import ContentImage from '@/components/ui/ContentImage'
 
 export default function BlogPage() {
   const { posts: allPosts, loading } = useBlogPosts()
@@ -20,9 +21,13 @@ export default function BlogPage() {
   const renderCard = (post, i) => (
     <article key={post.slug} className={`card flex flex-col overflow-hidden ${CAROUSEL_ITEM}`}>
       <Link href={`/donatur/blog/${post.slug}`} className="relative block aspect-[3/2] overflow-hidden">
-        <img
+        <ContentImage
           src={post.image}
           alt={post.title}
+          width={600}
+          height={400}
+          sizes="(max-width: 640px) 85vw, (max-width: 1024px) 50vw, 384px"
+          eager={i === 0}
           className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04]"
         />
         {i === 0 && (

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import EditableRichText from '@/components/inline-edit/EditableRichText'
 import CustomTexts from '@/components/inline-edit/CustomTexts'
 import Skeleton from '@/components/ui/Skeleton'
+import ContentImage from '@/components/ui/ContentImage'
 import { useEditMode } from '@/components/inline-edit/EditModeContext'
 import { useKamiPeduliContent } from './useKamiPeduliContent'
 import { useDocVideos, useDocPhotos } from '@/services/docMedia'
@@ -85,13 +86,12 @@ export default function ProgramKamiSection() {
         style={{ animationDelay: `${i * 0.15}s` }}
       >
         <div className="relative aspect-video overflow-hidden">
-          <img
+          <ContentImage
             src={localThumb(program.image)}
             alt={program.title}
-            width="640"
-            height="360"
-            loading="lazy"
-            decoding="async"
+            width={640}
+            height={360}
+            sizes={slideMode ? '(max-width: 640px) 78vw, 520px' : '(max-width: 768px) 100vw, 600px'}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/50 via-navy-dark/0 to-navy-dark/10" />
@@ -258,13 +258,12 @@ export default function ProgramKamiSection() {
                 className="group relative aspect-square w-[260px] shrink-0 animate-fade-in-up snap-start overflow-hidden rounded-2xl opacity-0 shadow-[0_2px_10px_rgba(6,30,40,0.06)] ring-1 ring-black/[0.05] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-18px_rgba(6,30,40,0.4)] max-[480px]:w-[220px]"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <img
+                <ContentImage
                   src={localThumb(foto.image)}
                   alt={foto.caption}
-                  width="260"
-                  height="260"
-                  loading="lazy"
-                  decoding="async"
+                  width={260}
+                  height={260}
+                  sizes="260px"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.1]"
                 />
                 {/* gradasi tipis permanen + lebih pekat saat hover */}

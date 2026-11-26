@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import DonationModal from '@/components/donation/DonationModal'
+import dynamic from 'next/dynamic'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import { formatRp } from '@/services/format'
+
+// Modal donasi (dan data rekening/jenis donasinya) baru dimuat saat dibuka.
+const DonationModal = dynamic(() => import('@/components/donation/DonationModal'), { ssr: false })
 
 export default function ProgramDetailSection({ program, otherPrograms }) {
   const [donationOpen, setDonationOpen] = useState(false)
@@ -194,13 +197,15 @@ export default function ProgramDetailSection({ program, otherPrograms }) {
         </div>
       </PageHeroBackground>
 
-      <DonationModal
-        open={donationOpen}
-        onClose={() => setDonationOpen(false)}
-        initialJenisId={program.jenisId}
-        scope="program"
-        sourceLabel={program.title}
-      />
+      {donationOpen && (
+        <DonationModal
+          open
+          onClose={() => setDonationOpen(false)}
+          initialJenisId={program.jenisId}
+          scope="program"
+          sourceLabel={program.title}
+        />
+      )}
     </>
   )
 }

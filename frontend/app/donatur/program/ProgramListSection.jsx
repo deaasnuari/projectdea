@@ -3,13 +3,16 @@
 import CardCarousel, { CAROUSEL_ITEM } from '@/components/ui/CardCarousel'
 import { useState } from 'react'
 import Link from 'next/link'
-import DonationModal from '@/components/donation/DonationModal'
+import dynamic from 'next/dynamic'
 import PageHeroBackground from '@/components/layout/PageHeroBackground'
 import { formatRp } from '@/services/format'
 import { usePrograms } from './usePrograms'
 import { useProgramSummary } from '@/services/programs'
 import ProgramHeroText from './ProgramHeroText'
 import Skeleton from '@/components/ui/Skeleton'
+
+// Modal donasi (dan data rekening/jenis donasinya) baru dimuat saat dibuka.
+const DonationModal = dynamic(() => import('@/components/donation/DonationModal'), { ssr: false })
 
 function ArrowIcon({ className = '' }) {
   return (
@@ -36,7 +39,7 @@ export default function ProgramListSection() {
   const shown = cat === 'Semua' ? programs : programs.filter((p) => p.badge === cat)
   // Angka asli dari database (donasi terverifikasi) + pilihan admin mau
   // menampilkan ringkasan / tiap kotaknya atau tidak.
-  const { summary: sum } = useProgramSummary()
+  const { summary: sum, failed: summaryFailed } = useProgramSummary()
   const st = sum?.settings || {}
   const summary = sum
     ? [
@@ -54,9 +57,10 @@ export default function ProgramListSection() {
           {/* Teks header — dikelola admin di /admin/program */}
           <ProgramHeroText />
 
-          {programs.length > 0 && (showSummary || cats.length > 2) && (
+          {programs.length > 0 && (showSummary || cats.length > 2 || (!sum && !summaryFailed)) && (
             <div className="mb-8 flex flex-col gap-4">
               {/* Ringkasan: memberi gambaran skala program sebelum memilih */}
+              {!sum && !summaryFailed && <Skeleton className="h-[46px] bg-white/10 sm:h-[72px]" />}
               {showSummary && (
               <div
                 className={`grid gap-2 sm:gap-3 ${
@@ -100,17 +104,18 @@ export default function ProgramListSection() {
           )}
 
           {loading && programs.length === 0 && (
+            // Tinggi tiap bagian disamakan dengan isi aslinya supaya tidak bergeser.
             <div role="status" aria-label="Memuat program">
-              <div className="mb-8 grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="mb-8 flex flex-col gap-4">
+                <Skeleton className="h-[46px] bg-white/10 sm:h-[72px]" />
+                <Skeleton className="h-16 bg-white/10 sm:h-7" />
+              </div>
+              <div className="-mb-4 -mt-2 flex gap-6 overflow-hidden pb-6 pt-2">
                 {[0, 1, 2].map((i) => (
-                  <Skeleton key={i} className="h-16 bg-white/10 sm:h-[72px]" />
+                  <Skeleton key={i} className={`h-[360px] bg-white/15 sm:h-[388px] ${CAROUSEL_ITEM}`} />
                 ))}
               </div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <Skeleton className="h-96 bg-white/15" />
-                <Skeleton className="h-96 bg-white/15 max-sm:hidden" />
-                <Skeleton className="h-96 bg-white/15 max-lg:hidden" />
-              </div>
+              <div className="mt-5 hidden h-10 sm:block" />
             </div>
           )}
           {!loading && programs.length === 0 && (
@@ -119,6 +124,7 @@ export default function ProgramListSection() {
             </p>
           )}
 
+          {shown.length > 0 && (
           <CardCarousel>
             {shown.map((p) => {
               const percent = p.target > 0 ? Math.round((p.collected / p.target) * 100) : 0
@@ -250,16 +256,19 @@ export default function ProgramListSection() {
               )
             })}
           </CardCarousel>
+          )}
         </div>
       </PageHeroBackground>
 
-      <DonationModal
-        open={donationProgram !== null}
-        onClose={() => setDonationProgram(null)}
-        initialJenisId={donationProgram?.jenisId}
-        scope="program"
-        sourceLabel={donationProgram?.title}
-      />
+      {donationProgram !== null && (
+        <DonationModal
+          open
+          onClose={() => setDonationProgram(null)}
+          initialJenisId={donationProgram.jenisId}
+          scope="program"
+          sourceLabel={donationProgram.title}
+        />
+      )}
     </>
   )
 }

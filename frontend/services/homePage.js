@@ -12,14 +12,16 @@ import { getApiBase, getPublicApiBase } from '@/services/apiBase'
 import { devWarn } from '@/services/devLog'
 const BASE = getApiBase()
 const PUBLIC_BASE = getPublicApiBase()
+import { dedupe } from '@/services/dedupe'
 const CHANGE_EVENT = 'home-page:changed'
 const CHANGE_KEY = 'lazispln_home_rev'
 
-export async function fetchHomePage() {
-  const res = await fetch(`${PUBLIC_BASE}/api/home`, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`GET home → ${res.status}`)
-  return res.json()
-}
+export const fetchHomePage = () =>
+  dedupe('home', async () => {
+    const res = await fetch(`${PUBLIC_BASE}/api/home`, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`GET home → ${res.status}`)
+    return res.json()
+  })
 
 export async function saveHomePage(payload) {
   const res = await fetch(`${BASE}/api/home`, {

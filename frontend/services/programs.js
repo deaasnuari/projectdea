@@ -194,6 +194,7 @@ export async function saveProgramSummarySettings(settings) {
 
 export function useProgramSummary() {
   const [summary, setSummary] = useState(() => getCache('programs:summary') || null)
+  const [failed, setFailed] = useState(false)
 
   const refresh = useCallback(
     () =>
@@ -202,7 +203,7 @@ export function useProgramSummary() {
           setCache('programs:summary', d)
           setSummary(d)
         })
-        .catch(() => {}),
+        .catch(() => setFailed(true)),
     [],
   )
 
@@ -217,5 +218,5 @@ export function useProgramSummary() {
     }
   }, [refresh])
 
-  return { summary, refresh }
+  return { summary, failed, refresh }
 }
