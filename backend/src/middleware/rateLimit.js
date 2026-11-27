@@ -9,7 +9,15 @@
 // Catatan produksi: kalau server di belakang proxy/hosting (Nginx, Vercel,
 // dsb.), aktifkan `app.set('trust proxy', 1)` supaya req.ip = IP pengunjung,
 // bukan IP proxy.
-function rateLimit({ windowMs, max, message }) {
+// RATE_LIMIT_MULTIPLIER hanya untuk tes otomatis dan uji beban lokal (mengalikan semua batas).
+// Diabaikan di production supaya tidak bisa melemahkan pembatas dengan salah konfigurasi.
+const multiplier = () => {
+  const m = Number(process.env.RATE_LIMIT_MULTIPLIER)
+  return process.env.NODE_ENV !== 'production' && m > 1 ? m : 1
+}
+
+function rateLimit({ windowMs, max: baseMax, message }) {
+  const max = baseMax * multiplier()
   const hits = new Map() // ip -> [timestamp, ...] dalam jendela waktu
 
   // Bersihkan IP yang sudah lama tidak mengirim supaya memori tidak menumpuk.
